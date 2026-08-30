@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getUserTransactionService,
+  reconcileWithdrawal,
+  resolveWithdrawal,
   transactionsService,
 } from "../services/transactionsService";
 import toast from "react-hot-toast";
@@ -97,4 +99,16 @@ export function useGetUserTransactions() {
       totalPages: data?.totalPages || 0,
     },
   };
+}
+
+export function useWithdrawalReconciliation() {
+  const providerCheck = useMutation({
+    mutationFn: reconcileWithdrawal,
+  });
+  const manualResolution = useMutation({
+    mutationFn: ({ transactionId, ...resolution }) =>
+      resolveWithdrawal(transactionId, resolution),
+  });
+
+  return { providerCheck, manualResolution };
 }

@@ -74,3 +74,25 @@ export async function exportTransactions(start, end) {
   );
   return { message: "Transactions exported successfully" };
 }
+
+function staffToken() {
+  return JSON.parse(sessionStorage.getItem("user") || "null")?.token;
+}
+
+export async function reconcileWithdrawal(transactionId) {
+  return fetchAPI(
+    `admin/transactions/${transactionId}/reconcile`,
+    "POST",
+    {},
+    staffToken(),
+  );
+}
+
+export async function resolveWithdrawal(transactionId, resolution) {
+  return fetchAPI(
+    `admin/transactions/${transactionId}/resolve`,
+    "POST",
+    resolution,
+    staffToken(),
+  );
+}

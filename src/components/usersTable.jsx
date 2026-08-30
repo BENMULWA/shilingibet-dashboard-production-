@@ -10,8 +10,10 @@ import { useGetUserByPhone } from "../hooks/useGetUserByPhone";
 import UsersExportModal from "./Modals/user/UsersExportModal";
 import UsersFilterModal from "./Modals/user/UsersFilterModal";
 import { useFormatCurrency } from "../hooks/useFormatCurrency";
+import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
 
 function UsersTable() {
+  const readOnly = normalizeStaffRole(readStoredUser()) === "support";
   const [exportVisible, setExportVisible] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete] = useState(null);
@@ -279,12 +281,12 @@ function UsersTable() {
               showDrawer();
             }}
           >
-            Manage
+            {readOnly ? "View" : "Manage"}
           </Button>
         ),
       },
     ],
-    [formatCurrency, formatDate, getStatusBadge, showDrawer, handleCopyPhone, copiedPhone]
+    [formatCurrency, formatDate, getStatusBadge, showDrawer, handleCopyPhone, copiedPhone, readOnly]
   );
 
   if (error) {
@@ -382,13 +384,15 @@ function UsersTable() {
                 )}
               </Button>
 
-              <Button
-                type="primary"
-                icon={<FiDownload size={14} />}
-                onClick={() => setExportVisible(true)}
-              >
-                <span className="hidden sm:inline">Export</span>
-              </Button>
+              {!readOnly && (
+                <Button
+                  type="primary"
+                  icon={<FiDownload size={14} />}
+                  onClick={() => setExportVisible(true)}
+                >
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -437,7 +441,7 @@ function UsersTable() {
         />
       </div>
 
-      <MyDrawer open={open} onClose={onClose} user={currentSelectedUser} />
+      <MyDrawer open={open} onClose={onClose} user={currentSelectedUser} readOnly={readOnly} />
 
       <UsersFilterModal
         open={isFilterModalVisible}
@@ -453,11 +457,13 @@ function UsersTable() {
         }
       />
 
-      <UsersExportModal
-        open={exportVisible}
-        onCancel={() => setExportVisible(false)}
-        filters={filters}
-      />
+      {!readOnly && (
+        <UsersExportModal
+          open={exportVisible}
+          onCancel={() => setExportVisible(false)}
+          filters={filters}
+        />
+      )}
 
       <Modal
         title={currentAction?.label}

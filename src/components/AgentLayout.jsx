@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut, FiMenu } from "react-icons/fi";
-import { HiOutlineChatBubbleLeftRight, HiOutlineHome } from "react-icons/hi2";
-import { MdOutlineSms } from "react-icons/md";
+import {
+  HiOutlineBanknotes,
+  HiOutlineChatBubbleLeftRight,
+  HiOutlineCube,
+  HiOutlineUsers,
+} from "react-icons/hi2";
 import { useAuthState } from "../context/AuthContext";
 import { Modal, Switch } from "antd";
 import {
@@ -22,7 +26,13 @@ function AgentLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(sessionStorage.getItem("user"));
-  const isSmsPage = location.pathname === "/agent/sms";
+  const pageTitles = {
+    "/agent/support": "Support Chat",
+    "/agent/users": "Users",
+    "/agent/bets": "Bets",
+    "/agent/transactions": "Transactions",
+  };
+  const pageTitle = pageTitles[location.pathname] || "Support";
 
   useEffect(() => {
     const token = user?.token;
@@ -72,54 +82,71 @@ function AgentLayout() {
     <div className="flex h-screen bg-slate-50">
       {/* Minimal Sidebar - Hidden on mobile */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-30 w-20 flex flex-col bg-white border-r border-slate-200 transition-transform duration-300 ${
+        className={`fixed md:static inset-y-0 left-0 z-30 w-56 flex flex-col bg-white border-r border-slate-200 transition-transform duration-300 ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0`}
       >
         {/* Logo Section */}
-        <div className="flex items-center justify-center h-14 md:h-16 border-b border-slate-100">
+        <div className="flex items-center gap-3 px-4 h-14 md:h-16 border-b border-slate-100">
           <div className="w-9 h-9 rounded-lg bg-[#f9ce36] flex items-center justify-center">
             <span className="text-slate-900 font-bold text-sm">N</span>
           </div>
+          <span className="text-sm font-semibold text-slate-800">Support</span>
         </div>
 
         {/* Agent tools */}
-        <nav className="flex-1 py-4 px-3 flex flex-col items-center gap-3">
-          <NavLink
-            to="/dashboard"
-            title="Analytics Dashboard"
-            onClick={() => setMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center justify-center rounded-lg px-3 py-2.5 transition-colors ${
-                isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 hover:bg-slate-100"
-              }`
-            }
-          >
-            <HiOutlineHome size={20} />
-          </NavLink>
+        <nav className="flex-1 py-4 px-3 flex flex-col gap-2">
           <NavLink
             to="/agent/support"
             title="Support Chat"
             onClick={() => setMobileMenuOpen(false)}
             className={({ isActive }) =>
-              `flex items-center justify-center rounded-lg px-3 py-2.5 transition-colors ${
+              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
                 isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 hover:bg-slate-100"
               }`
             }
           >
             <HiOutlineChatBubbleLeftRight size={20} />
+            <span className="text-sm font-medium">Support Chat</span>
           </NavLink>
           <NavLink
-            to="/agent/sms"
-            title="Bulk SMS"
+            to="/agent/users"
+            title="Users (read only)"
             onClick={() => setMobileMenuOpen(false)}
             className={({ isActive }) =>
-              `flex items-center justify-center rounded-lg px-3 py-2.5 transition-colors ${
+              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
                 isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 hover:bg-slate-100"
               }`
             }
           >
-            <MdOutlineSms size={20} />
+            <HiOutlineUsers size={20} />
+            <span className="text-sm font-medium">Users</span>
+          </NavLink>
+          <NavLink
+            to="/agent/bets"
+            title="Bets (read only)"
+            onClick={() => setMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
+                isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 hover:bg-slate-100"
+              }`
+            }
+          >
+            <HiOutlineCube size={20} />
+            <span className="text-sm font-medium">Bets</span>
+          </NavLink>
+          <NavLink
+            to="/agent/transactions"
+            title="Transactions (read only)"
+            onClick={() => setMobileMenuOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
+                isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 hover:bg-slate-100"
+              }`
+            }
+          >
+            <HiOutlineBanknotes size={20} />
+            <span className="text-sm font-medium">Transactions</span>
           </NavLink>
         </nav>
 
@@ -127,9 +154,10 @@ function AgentLayout() {
         <div className="p-3 border-t border-slate-100">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center px-3 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
           >
             <FiLogOut size={20} />
+            <span className="text-sm font-medium">Logout</span>
           </button>
         </div>
       </aside>
@@ -157,7 +185,7 @@ function AgentLayout() {
               </button>
               <div>
                 <h4 className="text-sm md:text-base font-semibold text-slate-800">
-                  {isSmsPage ? "Bulk SMS" : "Support Chat"}
+                  {pageTitle}
                 </h4>
                 <p className="text-xs text-slate-500 hidden sm:block">
                   Agent Dashboard

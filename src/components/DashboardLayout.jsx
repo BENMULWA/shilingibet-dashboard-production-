@@ -16,6 +16,7 @@ import {
   FiShield,
   FiPercent,
   FiActivity,
+  FiUserCheck,
 } from "react-icons/fi";
 import {
   HiOutlineHome,
@@ -23,7 +24,9 @@ import {
   HiOutlineCog6Tooth,
   HiOutlineCube,
   HiOutlineBanknotes,
+  HiOutlineChatBubbleLeftRight,
 } from "react-icons/hi2";
+import { MdOutlineSms } from "react-icons/md";
 import { useAuthState } from "../context/AuthContext";
 import { normalizeStaffRole } from "../utils/authSession";
 import { Modal, Badge } from "antd";
@@ -66,10 +69,12 @@ function DashboardLayout() {
     if (location.pathname.startsWith("/users")) return "Users";
     if (location.pathname.startsWith("/bets")) return "Bets";
     if (location.pathname.startsWith("/transactions")) return "Transactions";
+    if (location.pathname.startsWith("/sms")) return "Bulk SMS";
     if (location.pathname.startsWith("/cashback")) return "Cashbacks";
     if (location.pathname.startsWith("/audit")) return "Audit";
     if (location.pathname.startsWith("/settings")) return "Settings";
     if (location.pathname.startsWith("/support-admin")) return "Support Admin";
+    if (location.pathname.startsWith("/staff")) return "Staff Management";
     if (location.pathname.startsWith("/support")) return "Support Chat";
     if (location.pathname.startsWith("/free-bets")) return "Free Bets";
     if (location.pathname.startsWith("/fraud-alerts")) return "Fraud Alerts";
@@ -116,13 +121,15 @@ function DashboardLayout() {
 
         {/* Navigation */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          <SidebarItem
-            icon={<HiOutlineHome size={20} />}
-            text="Dashboard"
-            to="/dashboard"
-            sidebarOpen={sidebarOpen}
-            onNavigate={handleItemClick}
-          />
+          {!isSupport && (
+            <SidebarItem
+              icon={<HiOutlineHome size={20} />}
+              text="Dashboard"
+              to="/dashboard"
+              sidebarOpen={sidebarOpen}
+              onNavigate={handleItemClick}
+            />
+          )}
           {isSupport && (
             <SidebarItem
               icon={<FiBell size={20} />}
@@ -133,34 +140,57 @@ function DashboardLayout() {
             />
           )}
           {isSuperAdmin && (
-            <SidebarItem
-              icon={<FiGift size={20} />}
-              text="Free Bets"
-              to="/free-bets"
-              sidebarOpen={sidebarOpen}
-              onNavigate={handleItemClick}
-            />
+            <>
+              <SidebarItem
+                icon={<FiUserCheck size={20} />}
+                text="Staff"
+                to="/staff"
+                sidebarOpen={sidebarOpen}
+                onNavigate={handleItemClick}
+              />
+              <SidebarItem
+                icon={<HiOutlineChatBubbleLeftRight size={20} />}
+                text="Support Admin"
+                to="/support-admin"
+                sidebarOpen={sidebarOpen}
+                onNavigate={handleItemClick}
+              />
+              <SidebarItem
+                icon={<FiGift size={20} />}
+                text="Free Bets"
+                to="/free-bets"
+                sidebarOpen={sidebarOpen}
+                onNavigate={handleItemClick}
+              />
+            </>
           )}
+          <SidebarItem
+            icon={<HiOutlineUsers size={20} />}
+            text="Users"
+            to="/users"
+            sidebarOpen={sidebarOpen}
+            onNavigate={handleItemClick}
+          />
+          <SidebarItem
+            icon={<HiOutlineCube size={20} />}
+            text="Bets"
+            to="/bets"
+            sidebarOpen={sidebarOpen}
+            onNavigate={handleItemClick}
+          />
+          <SidebarItem
+            icon={<HiOutlineBanknotes size={20} />}
+            text="Transactions"
+            to="/transactions"
+            sidebarOpen={sidebarOpen}
+            onNavigate={handleItemClick}
+          />
           {canManageOperations && (
             <>
               <SidebarItem
-                icon={<HiOutlineUsers size={20} />}
-                text="Users"
-                to="/users"
-                sidebarOpen={sidebarOpen}
-                onNavigate={handleItemClick}
-              />
-              <SidebarItem
-                icon={<HiOutlineCube size={20} />}
-                text="Bets"
-                to="/bets"
-                sidebarOpen={sidebarOpen}
-                onNavigate={handleItemClick}
-              />
-              <SidebarItem
-                icon={<HiOutlineBanknotes size={20} />}
-                text="Transactions"
-                to="/transactions"
+                icon={<MdOutlineSms size={20} />}
+                text="Bulk SMS"
+                to="/sms"
                 sidebarOpen={sidebarOpen}
                 onNavigate={handleItemClick}
               />

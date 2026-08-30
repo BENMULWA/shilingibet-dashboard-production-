@@ -23,7 +23,7 @@ function normalizeRecipient(value) {
 function SupportSms() {
   const [recipientsText, setRecipientsText] = useState("");
   const [message, setMessage] = useState("");
-  const [provider, setProvider] = useState("semasms");
+  const [provider, setProvider] = useState("zeaworld");
   const [providers, setProviders] = useState([]);
   const [sending, setSending] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -97,7 +97,7 @@ function SupportSms() {
       const result = response.results;
       toast.success(
         response.queued
-          ? `Queued ${result.total} messages via ${provider === "celcom" ? "Celcom Africa" : "SemaSMS"}`
+          ? `Queued ${result.total} messages via ${provider === "semasms" ? "SemaSMS" : "Zea World"}`
           : `Sent ${result.sent} of ${result.total} messages`
       );
       setRecipientsText("");
@@ -143,7 +143,7 @@ function SupportSms() {
     {
       title: "Provider",
       dataIndex: "provider",
-      render: (value) => value === "celcom" ? "Celcom Africa" : "SemaSMS",
+      render: (value) => value === "semasms" ? "SemaSMS" : value === "zeaworld" ? "Zea World" : value,
     },
     { title: "Sender", dataIndex: "sender_id" },
     { title: "Recipients", dataIndex: "total_recipients" },

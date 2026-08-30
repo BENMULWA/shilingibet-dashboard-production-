@@ -53,7 +53,7 @@ function Toggle({ checked, onChange, loading, disabled }) {
   );
 }
 
-function MyDrawer({ open, onClose, user }) {
+function MyDrawer({ open, onClose, user, readOnly = false }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const { formatCurrency } = useFormatCurrency();
@@ -211,8 +211,12 @@ function MyDrawer({ open, onClose, user }) {
               <FiUser className="text-amber-600" size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">User Management</h2>
-              <p className="text-xs text-slate-500">Manage user account settings</p>
+              <h2 className="text-lg font-semibold text-slate-900">
+                {readOnly ? "User Details" : "User Management"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {readOnly ? "View user account information" : "Manage user account settings"}
+              </p>
             </div>
           </div>
           <button
@@ -300,6 +304,7 @@ function MyDrawer({ open, onClose, user }) {
             </div>
           </div>
 
+          {!readOnly && <>
           {/* Divider */}
           <div className="h-px bg-slate-200 mx-6" />
 
@@ -431,6 +436,7 @@ function MyDrawer({ open, onClose, user }) {
               </div>
             </div>
           </div>
+          </>}
         </div>
 
         {/* Footer */}
@@ -443,12 +449,14 @@ function MyDrawer({ open, onClose, user }) {
           </button>
         </div>
 
-        <DeleteModal
-          open={isModalOpen}
-          onCancel={handleCancel}
-          onOk={handleOk}
-          userID={user?._id}
-        />
+        {!readOnly && (
+          <DeleteModal
+            open={isModalOpen}
+            onCancel={handleCancel}
+            onOk={handleOk}
+            userID={user?._id}
+          />
+        )}
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Tabs, Table, Button, Select, Modal, Input, Spin, Alert, Tag } from "antd";
 import { FiWifi, FiWifiOff, FiEye, FiRefreshCw } from "react-icons/fi";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
@@ -11,21 +11,19 @@ const { TextArea } = Input;
 function SuperAdminDashboard() {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [operators, setOperators] = useState([]);
   const [agents, setAgents] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Filters
-  const [agentTenantFilter, setAgentTenantFilter] = useState("");
   const [agentStatusFilter, setAgentStatusFilter] = useState("");
-  const [chatTenantFilter, setChatTenantFilter] = useState("");
   const [chatStatusFilter, setChatStatusFilter] = useState("");
 
   // Chat Viewer
   const [viewerOpen, setViewerOpen] = useState(false);
   const [currentViewSession, setCurrentViewSession] = useState(null);
+  const currentViewSessionRef = useRef(null);
   const [viewerMessages, setViewerMessages] = useState([]);
   const [viewerLoading, setViewerLoading] = useState(false);
 
@@ -34,13 +32,12 @@ function SuperAdminDashboard() {
   const [banTarget, setBanTarget] = useState(null);
   const [banReason, setBanReason] = useState("");
 
-  // Stats
-  const [stats, setStats] = useState({
-    totalOperators: 0,
-    activeOperators: 0,
-    totalOnlineAgents: 0,
-    activeChats: 0,
-  });
+  const stats = {
+    totalAgents: agents.length,
+    onlineAgents: agents.filter((agent) => agent.onlineStatus === "online").length,
+    waitingChats: sessions.filter((session) => session.status === "waiting").length,
+    activeChats: sessions.filter((session) => session.status === "active").length,
+  };
 
   const user = JSON.parse(sessionStorage.getItem("user"));
   const token = user?.token;
@@ -76,9 +73,8 @@ function SuperAdminDashboard() {
     newSocket.on("agent:new_chat_waiting", () => loadSessions());
     newSocket.on("agent:chat_taken", () => loadSessions());
     newSocket.on("chat:new_message", (data) => {
-      if (currentViewSession === data.sessionId) {
-        setViewerMessages((prev) => [...prev, data.message]);
-      }
+      if (!currentViewSessionRef.current) return;
+      setViewerMessages((prev) => [...prev, data.message || data]);
     });
 
     setSocket(newSocket);
@@ -91,7 +87,7 @@ function SuperAdminDashboard() {
   // Load Data
   const loadData = useCallback(async () => {
     setLoading(true);
-    await Promise.all([loadOperators(), loadAgents(), loadSessions()]);
+    await Promise.all([loadAgents(), loadSessions()]);
     setLoading(false);
   }, []);
 
@@ -101,26 +97,9 @@ function SuperAdminDashboard() {
     }
   }, [token, loadData]);
 
-  const loadOperators = async () => {
-    try {
-      const response = await fetch(`${API_URL}/support-chat/superadmin/operators`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-
-      if (data.status) {
-        setOperators(data.data.operators);
-        calculateStats(data.data.operators);
-      }
-    } catch (error) {
-      console.error("Error loading operators:", error);
-    }
-  };
-
   const loadAgents = async () => {
     try {
       let url = `${API_URL}/support-chat/superadmin/agents?`;
-      if (agentTenantFilter) url += `tenantId=${agentTenantFilter}&`;
       if (agentStatusFilter) url += `status=${agentStatusFilter}`;
 
       const response = await fetch(url, {
@@ -128,7 +107,7 @@ function SuperAdminDashboard() {
       });
       const data = await response.json();
 
-      if (data.status) {
+      if (data.success || data.status) {
         setAgents(data.data.agents);
       }
     } catch (error) {
@@ -139,7 +118,6 @@ function SuperAdminDashboard() {
   const loadSessions = async () => {
     try {
       let url = `${API_URL}/support-chat/superadmin/sessions?limit=50&`;
-      if (chatTenantFilter) url += `tenantId=${chatTenantFilter}&`;
       if (chatStatusFilter) url += `status=${chatStatusFilter}`;
 
       const response = await fetch(url, {
@@ -147,48 +125,11 @@ function SuperAdminDashboard() {
       });
       const data = await response.json();
 
-      if (data.status) {
+      if (data.success || data.status) {
         setSessions(data.data.sessions);
       }
     } catch (error) {
       console.error("Error loading sessions:", error);
-    }
-  };
-
-  const calculateStats = (ops) => {
-    let totalOnline = 0;
-    let totalActive = 0;
-    let activeOps = 0;
-
-    ops.forEach((op) => {
-      const isActive = op.status === "active" && op.supportChat?.enabled;
-      if (isActive) activeOps++;
-      totalOnline += op.onlineAgentCount || 0;
-      totalActive += op.liveStats?.active || 0;
-    });
-
-    setStats({
-      totalOperators: ops.length,
-      activeOperators: activeOps,
-      totalOnlineAgents: totalOnline,
-      activeChats: totalActive,
-    });
-  };
-
-  // Actions
-  const toggleOperator = async (tenantId, enabled) => {
-    try {
-      await fetch(`${API_URL}/support-chat/superadmin/operators/${tenantId}/status`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ enabled }),
-      });
-      loadOperators();
-    } catch (error) {
-      console.error("Error toggling operator:", error);
     }
   };
 
@@ -252,8 +193,9 @@ function SuperAdminDashboard() {
       });
       const data = await response.json();
 
-      if (data.status) {
+      if (data.success || data.status) {
         setCurrentViewSession(data.data.session);
+        currentViewSessionRef.current = data.data.session.sessionId;
         setViewerMessages(data.data.messages);
 
         // Join session for real-time updates
@@ -271,86 +213,26 @@ function SuperAdminDashboard() {
   const closeViewer = () => {
     setViewerOpen(false);
     setCurrentViewSession(null);
+    currentViewSessionRef.current = null;
     setViewerMessages([]);
   };
 
   // Update filters
   useEffect(() => {
     loadAgents();
-  }, [agentTenantFilter, agentStatusFilter]);
+  }, [agentStatusFilter]);
 
   useEffect(() => {
     loadSessions();
-  }, [chatTenantFilter, chatStatusFilter]);
+  }, [chatStatusFilter]);
 
   // Table Columns
-  const operatorColumns = [
-    {
-      title: "Operator",
-      dataIndex: "name",
-      key: "name",
-      render: (text) => <span className="font-medium">{text}</span>,
-    },
-    {
-      title: "Domain",
-      dataIndex: "domain",
-      key: "domain",
-    },
-    {
-      title: "Status",
-      key: "status",
-      render: (_, record) => {
-        const isActive = record.status === "active" && record.supportChat?.enabled;
-        return (
-          <Tag color={isActive ? "success" : "error"}>
-            {isActive ? "Active" : "Inactive"}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Agents Online",
-      dataIndex: "onlineAgentCount",
-      key: "onlineAgentCount",
-      render: (val) => val || 0,
-    },
-    {
-      title: "Waiting",
-      key: "waiting",
-      render: (_, record) => record.liveStats?.waiting || 0,
-    },
-    {
-      title: "Active Chats",
-      key: "active",
-      render: (_, record) => record.liveStats?.active || 0,
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <Button
-          size="small"
-          type={record.supportChat?.enabled ? "default" : "primary"}
-          danger={record.supportChat?.enabled}
-          onClick={() => toggleOperator(record._id, !record.supportChat?.enabled)}
-        >
-          {record.supportChat?.enabled ? "Disable" : "Enable"}
-        </Button>
-      ),
-    },
-  ];
-
   const agentColumns = [
     {
       title: "Agent",
       dataIndex: "username",
       key: "username",
       render: (text) => <span className="font-medium">{text}</span>,
-    },
-    {
-      title: "Operator",
-      dataIndex: "tenantName",
-      key: "tenantName",
     },
     {
       title: "Role",
@@ -422,19 +304,10 @@ function SuperAdminDashboard() {
       ),
     },
     {
-      title: "Operator",
-      dataIndex: "tenantName",
-      key: "tenantName",
-      render: (val) => val || "Unknown",
-    },
-    {
       title: "Agent",
       key: "agent",
       render: (_, record) => {
-        const agentAccount = record.assignedAgentId?.accounts?.find(
-          (acc) => acc.tenant?.toString() === record.tenantId?.toString()
-        );
-        return agentAccount?.username || "Unassigned";
+        return record.assignedAgentId?.name || "Unassigned";
       },
     },
     {
@@ -530,16 +403,16 @@ function SuperAdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
-          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Total Operators</h3>
-          <p className="text-xl md:text-2xl font-bold text-slate-900">{stats.totalOperators}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
-          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Active Operators</h3>
-          <p className="text-xl md:text-2xl font-bold text-emerald-600">{stats.activeOperators}</p>
+          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Support Staff</h3>
+          <p className="text-xl md:text-2xl font-bold text-slate-900">{stats.totalAgents}</p>
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
           <h3 className="text-xs md:text-sm text-slate-500 mb-1">Agents Online</h3>
-          <p className="text-xl md:text-2xl font-bold text-blue-600">{stats.totalOnlineAgents}</p>
+          <p className="text-xl md:text-2xl font-bold text-emerald-600">{stats.onlineAgents}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
+          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Waiting Chats</h3>
+          <p className="text-xl md:text-2xl font-bold text-blue-600">{stats.waitingChats}</p>
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
           <h3 className="text-xs md:text-sm text-slate-500 mb-1">Active Chats</h3>
@@ -549,33 +422,9 @@ function SuperAdminDashboard() {
 
       {/* Tabs */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <Tabs defaultActiveKey="operators" className="px-3 md:px-6 pt-4">
-          <TabPane tab="Operators" key="operators">
-            <div className="overflow-x-auto -mx-3 md:-mx-6">
-              <div className="min-w-[600px] px-3 md:px-6">
-                <Table
-                  dataSource={operators}
-                  columns={operatorColumns}
-                  rowKey="_id"
-                  pagination={{ pageSize: 10 }}
-                  size="small"
-                  className="md:table-auto"
-                />
-              </div>
-            </div>
-          </TabPane>
-
+        <Tabs defaultActiveKey="agents" className="px-3 md:px-6 pt-4">
           <TabPane tab="Agents" key="agents">
             <div className="flex flex-wrap gap-2 md:gap-4 mb-4">
-              <Select
-                placeholder="All Operators"
-                allowClear
-                className="w-full sm:w-auto"
-                style={{ minWidth: 150 }}
-                value={agentTenantFilter || undefined}
-                onChange={(val) => setAgentTenantFilter(val || "")}
-                options={operators.map((op) => ({ label: op.name, value: op._id }))}
-              />
               <Select
                 placeholder="All Status"
                 allowClear
@@ -605,15 +454,6 @@ function SuperAdminDashboard() {
 
           <TabPane tab="Active Chats" key="chats">
             <div className="flex flex-wrap gap-2 md:gap-4 mb-4">
-              <Select
-                placeholder="All Operators"
-                allowClear
-                className="w-full sm:w-auto"
-                style={{ minWidth: 150 }}
-                value={chatTenantFilter || undefined}
-                onChange={(val) => setChatTenantFilter(val || "")}
-                options={operators.map((op) => ({ label: op.name, value: op._id }))}
-              />
               <Select
                 placeholder="All Status"
                 allowClear

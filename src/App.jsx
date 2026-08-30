@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Routes, Route } from "react-router-dom";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import Users from "./pages/Users";
@@ -17,11 +17,12 @@ import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import AgentLayout from "./components/AgentLayout";
 import SupportSms from "./pages/SupportSms";
 import SupportChat from "./pages/SupportChat";
-import ForgotPasswordPage from "./pages/auth/forgotPasswordPage";
 import ResetPassword from "./pages/auth/resetPassword";
+import StaffManagement from "./pages/StaffManagement";
 import FreeBets from "./pages/FreeBets";
 import SuperAdminRoute from "./components/SuperAdminRoute";
 import AdminRoute from "./components/AdminRoute";
+import StaffReadRoute from "./components/StaffReadRoute";
 import FraudAlerts from "./pages/FraudAlerts";
 import Cashbacks from "./pages/Cashbacks";
 import Audit from "./pages/Audit";
@@ -94,7 +95,6 @@ function App() {
           <Router>
             <Routes>
               <Route path="login" element={<Login />} />
-              <Route path="forgot" element={<ForgotPasswordPage />} />
               <Route path="reset" element={<ResetPassword />} />
 
               {/* Admin Routes */}
@@ -102,10 +102,13 @@ function App() {
                 <Route path="/" element={<DashboardLayout />}>
                   <Route index element={<DashboardHome />} />
                   <Route path="dashboard" element={<DashboardHome />} />
-                  <Route element={<AdminRoute />}>
+                  <Route element={<StaffReadRoute />}>
                     <Route path="users" element={<Users />} />
                     <Route path="bets" element={<Bets />} />
                     <Route path="transactions" element={<Transactions />} />
+                  </Route>
+                  <Route element={<AdminRoute />}>
+                    <Route path="sms" element={<SupportSms />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="fraud-alerts" element={<FraudAlerts />} />
                     <Route path="cashback" element={<Cashbacks />} />
@@ -114,6 +117,7 @@ function App() {
                   <Route element={<SuperAdminRoute />}>
                     <Route path="free-bets" element={<FreeBets />} />
                     <Route path="support-admin" element={<SuperAdminDashboard />} />
+                    <Route path="staff" element={<StaffManagement />} />
                   </Route>
                 </Route>
               </Route>
@@ -122,7 +126,10 @@ function App() {
               <Route element={<AgentAppLayout />}>
                 <Route path="/agent" element={<AgentLayout />}>
                   <Route path="support" element={<SupportChat />} />
-                  <Route path="sms" element={<SupportSms />} />
+                  <Route path="sms" element={<Navigate to="/agent/support" replace />} />
+                  <Route path="users" element={<Users />} />
+                  <Route path="bets" element={<Bets />} />
+                  <Route path="transactions" element={<Transactions />} />
                 </Route>
               </Route>
             </Routes>

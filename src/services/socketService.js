@@ -24,7 +24,9 @@ export const subscribeAgentStatus = (listener) => {
 };
 
 export const initializeSocket = (token) => {
-  if (socket?.connected) {
+  // Reuse the same instance while it is connecting as well as after it connects.
+  // Creating one socket per component causes conflicting agent status events.
+  if (socket) {
     return socket;
   }
 

@@ -18,11 +18,13 @@ import moment from "moment";
 import _ from "lodash";
 import { useFormatCurrency } from "../hooks/useFormatCurrency";
 import BetsExportModal from "../components/Modals/bets/BetsExportModal";
+import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 function Bets() {
+  const readOnly = normalizeStaffRole(readStoredUser()) === "support";
   const [exportVisible, setExportVisible] = useState(false);
   const { formatCurrency } = useFormatCurrency();
   const [pagination, setPagination] = useState({
@@ -277,19 +279,21 @@ function Bets() {
           <Button icon={<FilterOutlined />} onClick={resetFilters}>
             Reset Filters
           </Button>{" "}
-          <Button icon={<FiDownload />} onClick={() => setExportVisible(true)}>
-            Export
-          </Button>{" "}
-          <BetsExportModal
-            open={exportVisible}
-            onCancel={() => setExportVisible(false)}
-            filters={{
-              type: betTypeFilter,
-              status: statusFilter,
-              game: gameFilter,
-            }}
-            phone={searchMode ? searchText : ""}
-          />
+          {!readOnly && <>
+            <Button icon={<FiDownload />} onClick={() => setExportVisible(true)}>
+              Export
+            </Button>{" "}
+            <BetsExportModal
+              open={exportVisible}
+              onCancel={() => setExportVisible(false)}
+              filters={{
+                type: betTypeFilter,
+                status: statusFilter,
+                game: gameFilter,
+              }}
+              phone={searchMode ? searchText : ""}
+            />
+          </>}
         </Space>
       </div>
 

@@ -315,7 +315,9 @@ export default function DashboardHome() {
           }
           title={analytics?.analytics?.isLoss ? "Loss" : "Profit"}
           change={
-            analytics?.analytics?.isLoss ? "Overall loss" : "Overall profit"
+            analytics?.analytics?.isLoss
+              ? "Withdrawals exceed deposits"
+              : "Deposits minus withdrawals"
           }
           isLoss={analytics?.analytics?.isLoss}
         />

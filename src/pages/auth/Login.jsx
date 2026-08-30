@@ -2,15 +2,30 @@ import { useState } from "react";
 
 import { useLogin } from "../../hooks/useLogin";
 import { LoaderIcon } from "react-hot-toast";
-import { Link } from "react-router-dom";
 
 function Login() {
-  const { logInFn, isLoading } = useLogin();
+  const {
+    logInFn,
+    verifyCodeFn,
+    resendCodeFn,
+    resetLogin,
+    challenge,
+    isLoading,
+    isVerifying,
+    isResending,
+  } = useLogin();
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
 
   async function handleSubmit() {
+    if (challenge?.verificationRequired) {
+      if (!/^\d{6}$/.test(verificationCode)) return;
+      verifyCodeFn({ challengeId: challenge.challengeId, code: verificationCode });
+      return;
+    }
     if (!phone.trim() || !password) return;
 
     const data = { phone, password };
@@ -53,14 +68,45 @@ function Login() {
             {" "}
             <div className="overflow-hidden bg-white rounded-md shadow-md pt-10">
               <h2 className="text-3xl font-bold text-gray-800 text-center mb-1">
-                Welcome Back!
+                {challenge?.verificationRequired ? "Check your phone" : "Welcome Back!"}
               </h2>
               <p className="text-center text-gray-500 mb-6">
-                Login to your account
+                {challenge?.verificationRequired
+                  ? `Enter the 6-digit code sent to ${challenge.maskedPhone}`
+                  : "Login to your account"}
               </p>
               <div className="px-4 py-6 sm:px-8 sm:py-7">
                 <div>
                   <div className="space-y-5">
+                    {challenge?.verificationRequired ? (
+                      <>
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+                          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="5" width="18" height="14" rx="2" />
+                            <path d="m3 7 9 6 9-6" />
+                          </svg>
+                        </div>
+                        <div>
+                          <label htmlFor="staff-code" className="text-base font-medium text-gray-900">
+                            Verification code
+                          </label>
+                          <input
+                            id="staff-code"
+                            value={verificationCode}
+                            onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                            inputMode="numeric"
+                            autoComplete="one-time-code"
+                            autoFocus
+                            placeholder="000000"
+                            className="mt-2.5 block w-full rounded-md border border-gray-200 bg-white px-4 py-4 text-center text-2xl font-semibold tracking-[0.55em] text-black placeholder-gray-400 focus:border-blue-600 focus:outline-none"
+                          />
+                          <p className="mt-2 text-center text-xs text-gray-400">
+                            Code expires in {Math.round((challenge.expiresInSeconds || 600) / 60)} minutes. Five attempts allowed.
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
                     <div>
                       <label
                         for=""
@@ -96,16 +142,7 @@ function Login() {
                           className="block w-full py-4 pl-10 pr-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
                         />
                       </div>
-                      <div className="mt-3 text-right">
-                        <Link
-                          to="/forgot"
-                          className="text-sm font-medium text-amber-600 hover:text-amber-700"
-                        >
-                          Forgot password?
-                        </Link>
-                      </div>
                     </div>
-
                     <div>
                       <div className="flex items-center justify-between">
                         <label
@@ -136,14 +173,34 @@ function Login() {
 
                         <input
                           onChange={(e) => setPassword(e.target.value)}
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           name=""
                           id=""
                           placeholder="Enter your password"
-                          className="block w-full py-4 pl-10 pr-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                          className="block w-full py-4 pl-10 pr-12 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((visible) => !visible)}
+                          className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-700 focus:outline-none focus:text-gray-700"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          aria-pressed={showPassword}
+                        >
+                          {showPassword ? (
+                            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 4.2A10.7 10.7 0 0112 4c5.5 0 9 5 9 8a12.7 12.7 0 01-2.1 3.5M6.6 6.6C4.4 8 3 10.2 3 12c0 3 3.5 8 9 8 1.5 0 2.8-.4 4-.9" />
+                            </svg>
+                          ) : (
+                            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12S6 5 12 5s9.5 7 9.5 7S18 19 12 19s-9.5-7-9.5-7z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          )}
+                        </button>
                       </div>
                     </div>
+                      </>
+                    )}
 
                     <div>
                       <button
@@ -154,9 +211,34 @@ function Login() {
                         }}
                         className="inline-flex bg-[#f9ce36] items-center outline-none justify-center w-full px-4 py-4 text-base font-semibold text-black transition-all duration-200  border border-transparent rounded-md focus:outline-none hover:bg-blue-700 focus:bg-blue-700"
                       >
-                        {isLoading ? <LoaderIcon /> : "Log in"}
+                        {isLoading || isVerifying
+                          ? <LoaderIcon />
+                          : challenge?.verificationRequired ? "Verify and sign in" : "Log in"}
                       </button>
                     </div>
+                    {challenge?.verificationRequired && (
+                      <div className="space-y-3 text-center">
+                        <button
+                          type="button"
+                          disabled={isResending}
+                          onClick={() => resendCodeFn(challenge.challengeId)}
+                          className="text-sm font-medium text-amber-700 disabled:opacity-50"
+                        >
+                          {isResending ? "Sending…" : "Resend code"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            resetLogin();
+                            setVerificationCode("");
+                            setPassword("");
+                          }}
+                          className="block w-full rounded-md bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                        >
+                          Use a different account
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

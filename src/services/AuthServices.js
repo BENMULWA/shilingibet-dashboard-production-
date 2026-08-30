@@ -13,6 +13,21 @@ export async function login({ phone, password }) {
   }
 }
 
+export async function verifyStaffLogin({ challengeId, code }) {
+  const response = await fetchAPI("users/verify-staff-login", "POST", {
+    challengeId,
+    code,
+  });
+  return response.data;
+}
+
+export async function resendStaffLoginCode(challengeId) {
+  const response = await fetchAPI("users/resend-staff-login-code", "POST", {
+    challengeId,
+  });
+  return response.data;
+}
+
 export async function forgotPassword(phone) {
   return fetchAPI("users/request-password-reset", "POST", { phone });
 }

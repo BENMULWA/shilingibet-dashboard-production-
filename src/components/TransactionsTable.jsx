@@ -11,20 +11,27 @@ import {
   Radio,
   Typography,
   Input,
+  Checkbox,
+  message,
 } from "antd";
 import { FiArrowDown, FiArrowUp, FiFilter, FiDownload, FiCopy, FiCheck } from "react-icons/fi";
 import {
   useGetUserTransactions,
   useTransactions,
+  useWithdrawalReconciliation,
 } from "../hooks/useTransactions";
 import { debounce } from "lodash";
 import TransactionsExportModal from "./Modals/transactions/TransactionsExportModal";
+import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Text } = Typography;
 
 function TransactionsTable() {
+  const staffRole = normalizeStaffRole(readStoredUser());
+  const readOnly = staffRole === "support";
+  const isSuperAdmin = staffRole === "super_admin";
   const [exportVisible, setExportVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -40,6 +47,10 @@ function TransactionsTable() {
     pageSize: 10,
   });
   const [copiedPhone, setCopiedPhone] = useState(null);
+  const [providerReference, setProviderReference] = useState("");
+  const [resolutionReason, setResolutionReason] = useState("");
+  const [providerConfirmed, setProviderConfirmed] = useState(false);
+  const { providerCheck, manualResolution } = useWithdrawalReconciliation();
 
   const handleCopyPhone = async (phone) => {
     if (phone) {
@@ -58,6 +69,7 @@ function TransactionsTable() {
     pagination: apiPagination,
     isLoading,
     error,
+    refetch,
   } = useTransactions(pagination.current, pagination.pageSize);
 
   const {
@@ -130,12 +142,62 @@ function TransactionsTable() {
   };
   const handleCancel = () => {
     setIsModalVisible(false);
+    setProviderReference("");
+    setResolutionReason("");
+    setProviderConfirmed(false);
+  };
+  const isOpenWithdrawal = selectedTransaction?.type === "withdrawal" &&
+    ["pending", "submission_unknown"].includes(selectedTransaction?.status);
+
+  const refreshAfterResolution = async (response) => {
+    const updated = response?.data?.transaction;
+    if (updated) setSelectedTransaction({ ...selectedTransaction, ...updated });
+    await Promise.all([refetch(), isSearchingMode
+      ? new Promise((resolve) => getUserTransactions({
+          phone: searchPhone,
+          page: searchPagination.current,
+          limit: searchPagination.pageSize,
+        }, { onSettled: resolve }))
+      : Promise.resolve()]);
+  };
+
+  const checkProvider = async () => {
+    try {
+      const response = await providerCheck.mutateAsync(selectedTransaction._id);
+      await refreshAfterResolution(response);
+      message.success(response?.message || "Provider status checked");
+    } catch (error) {
+      message.error(error.message || "Provider status check failed");
+    }
+  };
+
+  const manuallyResolve = (status) => {
+    Modal.confirm({
+      title: status === "failed" ? "Fail and refund this withdrawal?" : "Mark withdrawal completed?",
+      content: status === "failed"
+        ? "This credits the player's wallet. It cannot be safely undone."
+        : "Use this only when Mamlaka or M-Pesa confirms the payout.",
+      okText: status === "failed" ? "Fail & Refund" : "Mark Completed",
+      okButtonProps: { danger: status === "failed" },
+      onOk: async () => {
+        const response = await manualResolution.mutateAsync({
+          transactionId: selectedTransaction._id,
+          status,
+          providerReference,
+          reason: resolutionReason,
+          providerConfirmed,
+        });
+        await refreshAfterResolution(response);
+        message.success(response?.message || "Withdrawal reconciled");
+      },
+    });
   };
   const getStatusBadge = (status) => {
     const statusClasses = {
       success: "bg-green-100 text-green-800",
       completed: "bg-green-100 text-green-800",
       pending: "bg-yellow-100 text-yellow-800",
+      submission_unknown: "bg-amber-100 text-amber-800",
       failed: "bg-red-100 text-red-800",
     };
     return (
@@ -144,7 +206,9 @@ function TransactionsTable() {
           statusClasses[status] || "bg-gray-100"
         }`}
       >
-        {status ? status.charAt(0).toUpperCase() + status.slice(1) : "N/A"}
+        {status === "submission_unknown"
+          ? "Verifying with provider"
+          : status ? status.charAt(0).toUpperCase() + status.slice(1) : "N/A"}
       </span>
     );
   };
@@ -332,14 +396,16 @@ function TransactionsTable() {
           >
             Filter
           </Button>
-          <Button icon={<FiDownload />} onClick={() => setExportVisible(true)}>
-            Export
-          </Button>
+          {!readOnly && <>
+            <Button icon={<FiDownload />} onClick={() => setExportVisible(true)}>
+              Export
+            </Button>
 
-          <TransactionsExportModal
-            open={exportVisible}
-            onCancel={() => setExportVisible(false)}
-          />
+            <TransactionsExportModal
+              open={exportVisible}
+              onCancel={() => setExportVisible(false)}
+            />
+          </>}
         </div>
       </div>
 
@@ -423,6 +489,64 @@ function TransactionsTable() {
               <h4 className="font-medium text-gray-500">Status</h4>
               <p>{getStatusBadge(selectedTransaction.status)}</p>
             </div>
+            {!readOnly && isOpenWithdrawal && (
+              <div className="border-t pt-4 space-y-3">
+                <Alert
+                  type="warning"
+                  showIcon
+                  message="Funds remain reserved while the payout is unresolved"
+                  description="Recheck Mamlaka first. Never refund based only on elapsed time."
+                />
+                <Button
+                  block
+                  loading={providerCheck.isPending}
+                  onClick={checkProvider}
+                >
+                  Recheck Mamlaka Status
+                </Button>
+                {isSuperAdmin && (
+                  <div className="space-y-3 border-t pt-3">
+                    <Text strong>Emergency manual override</Text>
+                    <Input
+                      placeholder="Mamlaka / M-Pesa reference"
+                      value={providerReference}
+                      onChange={(event) => setProviderReference(event.target.value)}
+                    />
+                    <Input.TextArea
+                      rows={3}
+                      placeholder="Reason and how the provider result was verified (minimum 10 characters)"
+                      value={resolutionReason}
+                      onChange={(event) => setResolutionReason(event.target.value)}
+                    />
+                    <Checkbox
+                      checked={providerConfirmed}
+                      onChange={(event) => setProviderConfirmed(event.target.checked)}
+                    >
+                      I confirmed the final result with the provider
+                    </Checkbox>
+                    <div className="flex gap-2">
+                      <Button
+                        className="flex-1"
+                        loading={manualResolution.isPending}
+                        disabled={!providerConfirmed || providerReference.trim().length < 3 || resolutionReason.trim().length < 10}
+                        onClick={() => manuallyResolve("completed")}
+                      >
+                        Mark Completed
+                      </Button>
+                      <Button
+                        danger
+                        className="flex-1"
+                        loading={manualResolution.isPending}
+                        disabled={!providerConfirmed || providerReference.trim().length < 3 || resolutionReason.trim().length < 10}
+                        onClick={() => manuallyResolve("failed")}
+                      >
+                        Fail & Refund
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <pre className="bg-gray-900 text-green-400 p-4 rounded-md overflow-auto text-sm">
               <code>
                 {JSON.stringify(selectedTransaction?.trnNarration, null, 2)}
