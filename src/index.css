@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #f9ce36;
+  --color-primary-hover: #e6bd2e;
+  --color-primary-active: #d4ad26;
+  font-family: "Montserrat", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-optical-sizing: auto;
+  color-scheme: light;
+  color: #1e293b;
+  background-color: #f8fafc;
+  font-style: normal;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2.5em;
+  line-height: 1.2;
+}
+
+/* Buttons - Reset for Ant Design compatibility */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Ant Design Overrides */
+.custom-switch.ant-switch {
+  background-color: #e2e8f0;
+}
+
+.custom-switch.ant-switch-checked {
+  background-color: #10b981 !important;
+}
+
+/* Ant Design Modal Styling */
+.ant-modal-content {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.ant-modal-header {
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 20px 24px !important;
+}
+
+.ant-modal-body {
+  padding: 24px !important;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid #f1f5f9 !important;
+  padding: 16px 24px !important;
+}
+
+/* Ant Design Table Styling */
+.ant-table {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.ant-table-thead > tr > th {
+  background: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #f8fafc !important;
+}
+
+/* Ant Design Button Styling */
+.ant-btn {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+
+.ant-btn-primary {
+  background-color: #f9ce36 !important;
+  border-color: #f9ce36 !important;
+  color: #1e293b !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: #e6bd2e !important;
+  border-color: #e6bd2e !important;
+  color: #1e293b !important;
+}
+
+/* Ant Design Dropdown Styling */
+.ant-dropdown-menu {
+  border-radius: 12px !important;
+  padding: 8px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ant-dropdown-menu-item {
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+}
+
+/* Date Picker Styling */
+.react-datepicker {
+  font-family: "Montserrat", sans-serif !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+.react-datepicker__header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-range {
+  background: #f9ce36 !important;
+  color: #1e293b !important;
+}
+
+.react-datepicker__day:hover {
+  background: #f1f5f9 !important;
+}
+
+/* Ant Design Input Styling */
+.ant-input,
+.ant-input-affix-wrapper {
+  border-radius: 10px !important;
+  border-color: #e2e8f0 !important;
+}
+
+.ant-input:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #94a3b8 !important;
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Badge Animation */
+.ant-badge-status-processing {
+  background-color: #10b981 !important;
+}
+
+/* Selection color */
+::selection {
+  background: #e2e8f0;
+  color: #1e293b;
+}
