@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Input, Button, Empty, Badge, Spin, Alert, Modal, Radio, Space } from "antd";
+import { Input, Button, Empty, Badge, Spin, Alert, Modal, Radio, Space, message } from "antd";
 import {
   FiSend,
   FiSearch,
@@ -11,6 +11,8 @@ import {
   FiX,
   FiArrowRight,
   FiTrash2,
+  FiCopy,
+  FiCheck,
 } from "react-icons/fi";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 import useSupportChat from "../hooks/useSupportChat";
@@ -52,8 +54,26 @@ function SupportChat() {
   const [transferReason, setTransferReason] = useState("");
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [loadingAgents, setLoadingAgents] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+
+  const handleCopyCustomerPhone = async () => {
+    const phone = currentSession?.customer?.phone;
+    if (!phone) {
+      message.error("Customer phone number is unavailable");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(phone);
+      setCopiedPhone(true);
+      message.success("Phone number copied");
+      window.setTimeout(() => setCopiedPhone(false), 2000);
+    } catch {
+      message.error("Unable to copy phone number");
+    }
+  };
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -404,9 +424,26 @@ function SupportChat() {
                   </span>
                 </div>
                 <div className="min-w-0">
-                  <h4 className="font-semibold text-slate-900 text-sm md:text-base truncate">
-                    {currentSession.customer?.name || "Guest"}
-                  </h4>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <h4 className="font-semibold text-slate-900 text-sm md:text-base truncate">
+                      {currentSession.customer?.name || currentSession.customer?.phone || "Guest"}
+                    </h4>
+                    {currentSession.customer?.phone && (
+                      <button
+                        type="button"
+                        onClick={handleCopyCustomerPhone}
+                        className="shrink-0 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+                        title="Copy phone number"
+                        aria-label="Copy customer phone number"
+                      >
+                        {copiedPhone ? (
+                          <FiCheck className="text-emerald-500" size={14} />
+                        ) : (
+                          <FiCopy size={14} />
+                        )}
+                      </button>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-500 truncate hidden sm:block">
                     {currentSession.customer?.email || "No email"}
                   </p>
@@ -659,8 +696,9 @@ function SupportChat() {
                   >
                     <div className="flex items-center justify-between w-full">
                       <span className="font-medium">{agent.username}</span>
-                      <span className="text-xs text-slate-500">
-                        {agent.currentChats}/{agent.maxChats} chats
+                      <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        Online · {agent.currentChats} active {agent.currentChats === 1 ? "chat" : "chats"}
                       </span>
                     </div>
                   </Radio>

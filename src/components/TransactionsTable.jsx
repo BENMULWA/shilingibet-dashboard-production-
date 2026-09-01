@@ -147,7 +147,7 @@ function TransactionsTable() {
     setProviderConfirmed(false);
   };
   const isOpenWithdrawal = selectedTransaction?.type === "withdrawal" &&
-    ["pending", "submission_unknown"].includes(selectedTransaction?.status);
+    ["pending", "submission_unknown", "manual_review"].includes(selectedTransaction?.status);
 
   const refreshAfterResolution = async (response) => {
     const updated = response?.data?.transaction;
@@ -198,6 +198,7 @@ function TransactionsTable() {
       completed: "bg-green-100 text-green-800",
       pending: "bg-yellow-100 text-yellow-800",
       submission_unknown: "bg-amber-100 text-amber-800",
+      manual_review: "bg-orange-100 text-orange-800",
       failed: "bg-red-100 text-red-800",
     };
     return (
@@ -208,6 +209,8 @@ function TransactionsTable() {
       >
         {status === "submission_unknown"
           ? "Verifying with provider"
+          : status === "manual_review"
+            ? "Manual review required"
           : status ? status.charAt(0).toUpperCase() + status.slice(1) : "N/A"}
       </span>
     );

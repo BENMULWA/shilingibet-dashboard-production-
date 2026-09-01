@@ -531,7 +531,7 @@ export const useSupportChat = () => {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       const data = await response.json();
-      if (data.status && data.data?.agents) {
+      if (data.success !== false && data.data?.agents) {
         setOnlineAgents(data.data.agents);
         return data.data.agents;
       }
@@ -552,9 +552,6 @@ export const useSupportChat = () => {
         toAgentId,
         reason: reason || "",
       });
-      // Clear after emit - server will confirm
-      setCurrentSession(null);
-      setMessages([]);
       return true;
     }
     return false;

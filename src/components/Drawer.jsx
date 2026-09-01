@@ -188,6 +188,43 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
     );
   };
 
+  const getPhoneVerificationBadge = (verified) => (
+    <span
+      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
+        verified
+          ? "bg-blue-50 text-blue-700"
+          : "bg-amber-50 text-amber-700"
+      }`}
+    >
+      {verified ? <FiCheck size={12} /> : <FiAlertTriangle size={12} />}
+      {verified ? "Phone Verified" : "Phone Unverified"}
+    </span>
+  );
+
+  const welcomeBonus = user?.welcomeBonusDetails;
+  const welcomeBonusStatus = welcomeBonus?.status || "not_awarded";
+  const welcomeBonusStatusLabels = {
+    credited: "Credited",
+    held: "Held for review",
+    rejected: "Rejected",
+    not_eligible: "Not eligible yet",
+    not_awarded: "Not awarded",
+  };
+  const welcomeBonusReasonLabels = {
+    phone_not_verified: "The user has not verified their phone number.",
+    device_id_missing: "The registration did not include a stable device ID.",
+    device_already_used: "This device was already used by another account.",
+    ip_used_by_many_accounts: "Too many accounts were registered from the same IP address.",
+    no_award_record: "The user is verified, but no welcome-bonus award record exists.",
+  };
+  const welcomeBonusStatusStyles = {
+    credited: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    held: "bg-amber-50 text-amber-700 border-amber-200",
+    rejected: "bg-red-50 text-red-700 border-red-200",
+    not_eligible: "bg-slate-100 text-slate-600 border-slate-200",
+    not_awarded: "bg-red-50 text-red-700 border-red-200",
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -258,6 +295,7 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
                   </div>
                   <div className="flex items-center gap-2">
                     {getStatusBadge(user?.accountStatus)}
+                    {getPhoneVerificationBadge(user?.phoneVerified === true)}
                   </div>
                 </div>
               </div>
@@ -300,6 +338,34 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
                     {formatDate(user?.createdAt)}
                   </p>
                 </div>
+              </div>
+
+              <div className="mt-3 bg-white rounded-lg p-3 border border-slate-200">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <span className="text-xs font-medium text-slate-600">Welcome Bonus</span>
+                  <span className={`inline-flex px-2 py-0.5 rounded-full border text-xs font-medium ${
+                    welcomeBonusStatusStyles[welcomeBonusStatus] || welcomeBonusStatusStyles.not_awarded
+                  }`}>
+                    {welcomeBonusStatusLabels[welcomeBonusStatus] || welcomeBonusStatus}
+                  </span>
+                </div>
+                {welcomeBonusStatus === "credited" ? (
+                  <p className="text-xs text-emerald-700">
+                    {formatCurrency(welcomeBonus?.amount ?? 0)} credited
+                    {welcomeBonus?.creditedAt ? ` on ${formatDate(welcomeBonus.creditedAt)}` : ""}.
+                  </p>
+                ) : (
+                  <div className="space-y-1">
+                    {(welcomeBonus?.reasons || ["no_award_record"]).map((reason) => (
+                      <p key={reason} className="text-xs text-slate-600">
+                        {welcomeBonusReasonLabels[reason] || reason.replaceAll("_", " ")}
+                      </p>
+                    ))}
+                    {welcomeBonus?.reviewNotes && (
+                      <p className="text-xs text-slate-600">Review note: {welcomeBonus.reviewNotes}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
