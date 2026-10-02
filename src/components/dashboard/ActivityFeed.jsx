@@ -103,7 +103,7 @@ function useTick(ms) {
   }, [ms]);
 }
 
-export default function ActivityFeed({ limit = 40 }) {
+export default function ActivityFeed({ limit = 40, maxHeight = 560 }) {
   const [filter, setFilter] = useState("all");
   const { activity, isLoading, error } = useRecentActivity({ limit });
   useTick(30000);
@@ -141,7 +141,7 @@ export default function ActivityFeed({ limit = 40 }) {
         </div>
       </header>
 
-      <ol className="max-h-[560px] flex-1 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700/60" aria-live="polite">
+      <ol style={{ maxHeight }} className="flex-1 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700/60" aria-live="polite">
         {isLoading &&
           Array.from({ length: 6 }, (_, i) => (
             <li key={i} className="flex items-center gap-3 px-4 py-3 sm:px-5">

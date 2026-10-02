@@ -42,11 +42,10 @@ import { useGetAnalytics } from "../hooks/useGetAnalytics";
 import { useGetSecondaryWallet } from "../hooks/useTransfer";
 import { useAuthState } from "../context/AuthContext";
 import { normalizeStaffRole } from "../utils/authSession";
-import KpiCard from "../components/dashboard/KpiCard";
+import KpiCard, { StatTile } from "../components/dashboard/KpiCard";
 import { percentChange } from "../utils/metrics";
 import ActivityFeed from "../components/dashboard/ActivityFeed";
 import RevenueChart from "../components/RevenueChart";
-import CustomerActivityChart from "../components/CustomerActivityChart";
 import InvoiceTable from "../components/InvoiceTable";
 
 // Payout float at or below this is critical; below twice this is a warning.
@@ -143,26 +142,32 @@ function LiveBadge({ live, updatedAt, fetching }) {
 
 function AttentionItem({ to, icon, label, value, detail, tone }) {
   const Icon = icon;
-  const tones = {
-    red: "border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300",
-    amber: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300",
-    ok: "border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300",
-  };
+  const alert = tone === "red" || tone === "amber";
+  const iconTone = {
+    red: "bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400",
+    amber: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
+    ok: "bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-400",
+  }[tone];
   return (
-    <Link
-      to={to}
-      className={`group flex items-center gap-3 rounded-xl border px-4 py-3 transition hover:shadow-sm ${tones[tone]}`}
-    >
-      <Icon size={18} className="shrink-0" aria-hidden="true" />
+    <Link to={to} className="group flex items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-700/40">
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconTone}`}>
+        <Icon size={18} aria-hidden="true" />
+      </span>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium opacity-80">{label}</p>
-        <p className="tabular truncate text-base font-bold">{value}</p>
-        {detail && <p className="truncate text-[11px] opacity-75">{detail}</p>}
+        <p className="truncate text-xs text-slate-500 dark:text-slate-400">{label}</p>
+        <p className={`tabular truncate text-[15px] font-semibold ${alert ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}>{value}</p>
+        {detail && <p className={`truncate text-[11px] ${tone === "red" ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400"}`}>{detail}</p>}
       </div>
-      <FiChevronRight className="shrink-0 opacity-50 transition group-hover:translate-x-0.5" aria-hidden="true" />
+      <FiChevronRight className="shrink-0 text-slate-300 transition group-hover:translate-x-0.5 dark:text-slate-600" aria-hidden="true" />
     </Link>
   );
 }
+
+const DETAIL_TABS = [
+  { key: "money", label: "Money" },
+  { key: "betting", label: "Betting" },
+  { key: "players", label: "Players & bonuses" },
+];
 
 export default function DashboardHome() {
   const { user } = useAuthState();
@@ -172,6 +177,7 @@ export default function DashboardHome() {
   const [periodId, setPeriodId] = useState("today");
   const [customRange, setCustomRange] = useState([null, null]);
   const [showCustom, setShowCustom] = useState(false);
+  const [detailTab, setDetailTab] = useState("money");
 
   const period = useMemo(() => {
     if (periodId !== "custom") return periods.find((p) => p.id === periodId);
@@ -262,7 +268,7 @@ export default function DashboardHome() {
   })();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       {/* Header + period selector */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -351,23 +357,16 @@ export default function DashboardHome() {
         )}
       </section>
 
-      {/* Needs attention */}
+      {/* Needs attention: one calm panel, colour only where a person must act */}
       {canManageOperations && (
-        <section>
-          <SectionTitle title="Needs attention" description="Live items waiting on staff — click to act." />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <section aria-label="Needs attention" className="rounded-2xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-800">
+          <div className="grid grid-cols-1 divide-y divide-slate-100 dark:divide-slate-700/60 sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4 xl:divide-x">
             <AttentionItem
               to="/settings"
               icon={HiOutlineBanknotes}
               label="Payout float"
               value={treasuryLoading ? "…" : kes(treasuryBalance)}
-              detail={
-                treasuryTone === "red"
-                  ? "Critically low — withdrawals will fail. Top up now."
-                  : treasuryTone === "amber"
-                    ? "Running low — plan a top-up."
-                    : `Covers ${pct(Math.min(floatCoverage, 999))} of withdrawable balances`
-              }
+              detail={treasuryTone === "red" ? "Too low: withdrawals will fail" : treasuryTone === "amber" ? "Running low" : "Healthy"}
               tone={treasuryTone}
             />
             <AttentionItem
@@ -375,7 +374,7 @@ export default function DashboardHome() {
               icon={FiClock}
               label="Withdrawals waiting"
               value={`${count(attention.pendingWithdrawals)} · ${kes(attention.pendingWithdrawalAmount)}`}
-              detail="Requested but not yet paid out"
+              detail={attention.pendingWithdrawals > 0 ? "Requested, not yet paid" : "None waiting"}
               tone={attention.pendingWithdrawals > 0 ? "amber" : "ok"}
             />
             <AttentionItem
@@ -383,7 +382,7 @@ export default function DashboardHome() {
               icon={FiAlertTriangle}
               label="Manual review"
               value={count(attention.manualReview)}
-              detail="Payments the system couldn't confirm"
+              detail={attention.manualReview > 0 ? "Payments we couldn't confirm" : "Nothing to review"}
               tone={attention.manualReview > 0 ? "red" : "ok"}
             />
             <AttentionItem
@@ -391,261 +390,140 @@ export default function DashboardHome() {
               icon={FiShield}
               label="Bonuses on hold"
               value={count(attention.heldReferralAwards)}
-              detail="Referral bonuses flagged as suspicious"
+              detail={attention.heldReferralAwards > 0 ? "Flagged as suspicious" : "None on hold"}
               tone={attention.heldReferralAwards > 0 ? "amber" : "ok"}
             />
           </div>
         </section>
       )}
 
-      {/* Headline KPIs */}
-      <section>
-        <SectionTitle title="Key results" description="The four numbers to check first." />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <KpiCard
-            emphasis
-            title="Gross gaming revenue"
-            hint="GGR: what the house kept from bets — stakes on losing bets plus net virtual-game results. This is our gaming income before costs."
-            value={kes(a.totalRevenue, { compact: true })}
-            meta={`Margin ${pct(ggrMargin)} of stakes`}
-            icon={FiTrendingUp}
-            tone="gold"
+      {/* The four numbers that matter most */}
+      <section aria-label="Key results" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <KpiCard
+          emphasis
+          title="Gross gaming revenue"
+          hint="GGR: what the house kept from bets (stakes on losing bets plus net virtual-game results). Our gaming income before costs."
+          value={kes(a.totalRevenue, { compact: true })}
+          meta={`Margin ${pct(ggrMargin)}`}
+          icon={FiTrendingUp}
+          tone="gold"
+          loading={isLoading}
+          change={change("totalRevenue")}
+          changeLabel={period.compareLabel}
+        />
+        <KpiCard
+          title="Net cash in"
+          hint="Deposits minus withdrawals paid in this period. Negative means more left the platform than came in."
+          value={kes(netCash, { compact: true })}
+          valueClassName={netCash < 0 ? "!text-red-600 dark:!text-red-400" : ""}
+          meta={`${kes(a.totalDeposit, { compact: true })} in · ${kes(a.totalWithdrawal, { compact: true })} out`}
+          icon={HiOutlineBanknotes}
+          tone={netCash < 0 ? "red" : "green"}
+          loading={isLoading}
+          change={p ? percentChange(netCash, p.totalDeposit - p.totalWithdrawal) : undefined}
+          changeLabel={period.compareLabel}
+        />
+        <KpiCard
+          title="Total staked"
+          hint="Turnover: the total amount players bet, win or lose."
+          value={kes(a.betAmount, { compact: true })}
+          meta={`${count(a.betCount)} bets`}
+          icon={FiTarget}
+          tone="blue"
+          loading={isLoading}
+          change={change("betAmount")}
+          changeLabel={period.compareLabel}
+        />
+        <KpiCard
+          title="Active players"
+          hint="Players who placed at least one bet in this period."
+          value={count(a.activeBettors)}
+          meta={`${count(a.allUsers)} new sign-ups`}
+          icon={FiUsers}
+          tone="violet"
+          loading={isLoading}
+          change={change("activeBettors")}
+          changeLabel={period.compareLabel}
+        />
+      </section>
+
+      {/* Everything else, one group at a time */}
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3 dark:border-slate-700">
+          <h2 className="text-[15px] font-semibold text-slate-800 dark:text-slate-100">Breakdown</h2>
+          <div className="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-900" role="tablist" aria-label="Breakdown group">
+            {DETAIL_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                role="tab"
+                aria-selected={detailTab === tab.key}
+                onClick={() => setDetailTab(tab.key)}
+                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                  detailTab === tab.key ? "bg-brand text-black shadow-sm" : "text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 p-5 lg:grid-cols-5">
+          {detailTab === "money" && (
+            <>
+              <StatTile title="Deposits" hint="M-Pesa deposits that completed successfully." value={kes(a.totalDeposit)} meta={`${count(a.depositCount)} deposits`} loading={isLoading} change={change("totalDeposit")} changeLabel={period.compareLabel} />
+              <StatTile title="Withdrawals paid" hint="Money successfully sent to players' M-Pesa." value={kes(a.totalWithdrawal)} meta={`${count(a.withdrawalCount)} payouts`} loading={isLoading} change={change("totalWithdrawal")} changeLabel={period.compareLabel} positiveIsGood={false} />
+              <StatTile title="First-time depositors" hint="Players whose very first successful deposit happened in this period. The key growth number." value={count(a.firstTimeDepositors)} meta={a.allUsers ? `${pct((a.firstTimeDepositors / a.allUsers) * 100)} of sign-ups` : undefined} loading={isLoading} change={change("firstTimeDepositors")} changeLabel={period.compareLabel} />
+              <StatTile title="Failed deposits" hint="Deposit attempts that failed or timed out (cancelled M-Pesa prompt, wrong PIN). A spike can mean a payment problem." value={count(a.failedDeposits)} loading={isLoading} change={change("failedDeposits")} changeLabel={period.compareLabel} positiveIsGood={false} />
+              <StatTile title="Tax collected" hint="Excise duty on deposits plus withholding tax on withdrawals, due to KRA." value={kes(a.totalTax)} loading={isLoading} change={change("totalTax")} changeLabel={period.compareLabel} />
+            </>
+          )}
+          {detailTab === "betting" && (
+            <>
+              <StatTile title="Paid to winners" hint="Winnings credited to players from settled bets." value={kes(a.winAmount)} meta={a.betAmount ? `${pct((a.winAmount / a.betAmount) * 100)} of stakes returned` : undefined} loading={isLoading} change={change("winAmount")} changeLabel={period.compareLabel} positiveIsGood={false} />
+              <StatTile title="Bets placed" hint="Number of bets placed in this period." value={count(a.betCount)} meta={a.betCount ? `Avg stake ${kes(Math.round(avgStake))}` : undefined} loading={isLoading} change={change("betCount")} changeLabel={period.compareLabel} />
+              <StatTile title="Voided bets" hint="Stakes refunded because the game provider cancelled the bet." value={kes(a.rollbackAmount)} loading={isLoading} change={change("rollbackAmount")} changeLabel={period.compareLabel} positiveIsGood={false} />
+            </>
+          )}
+          {detailTab === "players" && (
+            <>
+              <StatTile title="New sign-ups" hint="Players who registered in this period." value={count(a.allUsers)} loading={isLoading} change={change("allUsers")} changeLabel={period.compareLabel} />
+              <StatTile title="Referred sign-ups" hint="Players who joined using someone's referral link." value={count(a.totalReferredUsers)} meta={a.allUsers ? `${pct((a.totalReferredUsers / a.allUsers) * 100)} of sign-ups` : undefined} loading={isLoading} change={change("totalReferredUsers")} changeLabel={period.compareLabel} />
+              <StatTile title="Referral bonus paid" hint="KES 10 paid to the referrer once their friend has deposited KES 50 or more." value={kes(a.totalReferralEarnings)} loading={isLoading} change={change("totalReferralEarnings")} changeLabel={period.compareLabel} />
+              <StatTile title="Cashback paid" hint="Daily cashback credited to players on their net losses." value={kes(a.totalCashback)} loading={isLoading} change={change("totalCashback")} changeLabel={period.compareLabel} />
+              <StatTile title="Welcome bonus" hint="Sign-up bonus. Switched off for new players; this shows historic awards only." value={kes(a.totalWelcomeBonus)} meta="Switched off" loading={isLoading} />
+            </>
+          )}
+        </div>
+
+        {/* Balances right now: always visible, one slim strip */}
+        <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/60 px-5 py-4 dark:border-slate-700 dark:bg-slate-900/30 sm:grid-cols-3">
+          <StatTile title="Player balances (total)" hint="Every player's wallet, cash plus bonus. Our liability to players right now." value={kes(a.playerBalance)} loading={isLoading} />
+          <StatTile
+            title="Withdrawable cash"
+            hint="The part of balances players can withdraw today. The payout float should cover this."
+            value={kes(a.playerWithdrawableBalance)}
+            meta={canManageOperations ? `Float covers ${pct(Math.min(floatCoverage, 999))}` : undefined}
             loading={isLoading}
-            change={change("totalRevenue")}
-            changeLabel={period.compareLabel}
           />
-          <KpiCard
-            title="Net cash in"
-            hint="Deposits minus withdrawals paid in this period. Negative means more money left the platform than came in."
-            value={kes(netCash, { compact: true })}
-            valueClassName={netCash < 0 ? "!text-red-600 dark:!text-red-400" : ""}
-            meta={`${kes(a.totalDeposit, { compact: true })} in · ${kes(a.totalWithdrawal, { compact: true })} out`}
-            icon={HiOutlineBanknotes}
-            tone={netCash < 0 ? "red" : "green"}
-            loading={isLoading}
-            change={p ? percentChange(netCash, p.totalDeposit - p.totalWithdrawal) : undefined}
-            changeLabel={period.compareLabel}
-          />
-          <KpiCard
-            title="Total staked"
-            hint="Turnover: the total amount players bet, win or lose."
-            value={kes(a.betAmount, { compact: true })}
-            meta={`${count(a.betCount)} bets · avg ${kes(Math.round(avgStake))}`}
-            icon={FiTarget}
-            tone="blue"
-            loading={isLoading}
-            change={change("betAmount")}
-            changeLabel={period.compareLabel}
-          />
-          <KpiCard
-            title="Active players"
-            hint="Players who placed at least one bet in this period."
-            value={count(a.activeBettors)}
-            meta={`${count(a.allUsers)} new sign-ups`}
-            icon={FiUsers}
-            tone="violet"
-            loading={isLoading}
-            change={change("activeBettors")}
-            changeLabel={period.compareLabel}
-          />
+          <StatTile title="Locked bonus funds" hint="Bonus money usable for betting but not yet withdrawable." value={kes(a.playerBonusBalance)} loading={isLoading} />
         </div>
       </section>
 
-      {/* Main grid: KPIs on the left, live feed on the right */}
-      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[1fr_400px]">
-        <div className="min-w-0 space-y-6">
-          <section>
-            <SectionTitle title="Money in" description="Completed M-Pesa deposits and new paying players." />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <KpiCard
-                title="Deposits"
-                hint="Money players added through M-Pesa that completed successfully."
-                value={kes(a.totalDeposit)}
-                meta={`${count(a.depositCount)} deposits`}
-                icon={FiArrowDownLeft}
-                tone="green"
-                loading={isLoading}
-                change={change("totalDeposit")}
-                changeLabel={period.compareLabel}
-              />
-              <KpiCard
-                title="First-time depositors"
-                hint="Players whose very first successful deposit happened in this period. The key growth number."
-                value={count(a.firstTimeDepositors)}
-                meta={a.allUsers ? `${pct((a.firstTimeDepositors / a.allUsers) * 100)} of sign-ups` : "of new sign-ups"}
-                icon={FiUserPlus}
-                tone="violet"
-                loading={isLoading}
-                change={change("firstTimeDepositors")}
-                changeLabel={period.compareLabel}
-              />
-              <KpiCard
-                title="Failed deposits"
-                hint="Deposit attempts that failed or timed out (e.g. cancelled M-Pesa prompt, wrong PIN). A spike can mean a payment problem."
-                value={count(a.failedDeposits)}
-                meta="Cancelled, failed or expired"
-                icon={FiXCircle}
-                tone="red"
-                loading={isLoading}
-                change={change("failedDeposits")}
-                changeLabel={period.compareLabel}
-                positiveIsGood={false}
-              />
-              <KpiCard
-                title="Tax collected"
-                hint="Excise duty on deposits plus withholding tax on withdrawals, due to KRA."
-                value={kes(a.totalTax)}
-                meta="Excise + withholding"
-                icon={TbReceiptTax}
-                tone="slate"
-                loading={isLoading}
-                change={change("totalTax")}
-                changeLabel={period.compareLabel}
-              />
-            </div>
-          </section>
-
-          <section>
-            <SectionTitle title="Betting & money out" description="What players won and what left the platform." />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <KpiCard
-                title="Paid to winners"
-                hint="Total winnings credited to players' wallets from settled bets."
-                value={kes(a.winAmount)}
-                meta={a.betAmount ? `${pct((a.winAmount / a.betAmount) * 100)} of stakes returned` : "Return to player"}
-                icon={FiAward}
-                tone="gold"
-                loading={isLoading}
-                change={change("winAmount")}
-                changeLabel={period.compareLabel}
-                positiveIsGood={false}
-              />
-              <KpiCard
-                title="Withdrawals paid"
-                hint="Money successfully sent to players' M-Pesa."
-                value={kes(a.totalWithdrawal)}
-                meta={`${count(a.withdrawalCount)} payouts`}
-                icon={FiArrowUpRight}
-                tone="blue"
-                loading={isLoading}
-                change={change("totalWithdrawal")}
-                changeLabel={period.compareLabel}
-                positiveIsGood={false}
-              />
-              <KpiCard
-                title="Voided bets"
-                hint="Stakes refunded because the game provider cancelled (rolled back) the bet."
-                value={kes(a.rollbackAmount)}
-                meta="Refunded to players"
-                icon={FiRotateCcw}
-                tone="slate"
-                loading={isLoading}
-                change={change("rollbackAmount")}
-                changeLabel={period.compareLabel}
-                positiveIsGood={false}
-              />
-              <KpiCard
-                title="Referred sign-ups"
-                hint="New players who joined using someone's referral link."
-                value={count(a.totalReferredUsers)}
-                meta={a.allUsers ? `${pct((a.totalReferredUsers / a.allUsers) * 100)} of sign-ups` : "via referral links"}
-                icon={FiUserCheck}
-                tone="violet"
-                loading={isLoading}
-                change={change("totalReferredUsers")}
-                changeLabel={period.compareLabel}
-              />
-            </div>
-          </section>
-
-          <section>
-            <SectionTitle title="Bonuses & promotions" description="Promotional money given to players." />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <KpiCard
-                title="Referral bonus"
-                hint="KES 10 paid to the referrer once their friend has deposited KES 50 or more."
-                value={kes(a.totalReferralEarnings)}
-                icon={FiGift}
-                tone="green"
-                loading={isLoading}
-                change={change("totalReferralEarnings")}
-                changeLabel={period.compareLabel}
-              />
-              <KpiCard
-                title="Cashback"
-                hint="Daily cashback credited to players on their net losses."
-                value={kes(a.totalCashback)}
-                icon={FiPercent}
-                tone="blue"
-                loading={isLoading}
-                change={change("totalCashback")}
-                changeLabel={period.compareLabel}
-              />
-              <KpiCard
-                title="Welcome bonus"
-                hint="Sign-up bonus. Currently switched off for new players; shows only historic awards."
-                value={kes(a.totalWelcomeBonus)}
-                meta="Switched off"
-                icon={FiGift}
-                tone="slate"
-                loading={isLoading}
-              />
-            </div>
-          </section>
-
-          <section>
-            <SectionTitle title="Player balances right now" description="What we owe players at this moment, across all accounts." />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <KpiCard
-                title="Total player balances"
-                hint="Sum of every player's wallet: cash plus bonus funds. This is our liability to players."
-                value={kes(a.playerBalance)}
-                icon={HiOutlineBanknotes}
-                tone="violet"
-                loading={isLoading}
-              />
-              <KpiCard
-                title="Withdrawable cash"
-                hint="The part of player balances they're allowed to withdraw today. The payout float should cover this."
-                value={kes(a.playerWithdrawableBalance)}
-                meta={canManageOperations ? `Float covers ${pct(Math.min(floatCoverage, 999))}` : undefined}
-                icon={FiArrowUpRight}
-                tone={floatCoverage < 100 ? "red" : "green"}
-                loading={isLoading}
-              />
-              <KpiCard
-                title="Locked bonus funds"
-                hint="Bonus money that can be used for betting but can't be withdrawn until it's converted."
-                value={kes(a.playerBonusBalance)}
-                icon={FiLock}
-                tone="slate"
-                loading={isLoading}
-              />
-            </div>
-          </section>
-        </div>
-
-        <aside className="min-w-0 2xl:sticky 2xl:top-0 2xl:self-start">
-          {canManageOperations && <ActivityFeed />}
-        </aside>
-      </div>
-
-      {/* Trends */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <section className="min-h-[320px] rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800 lg:col-span-2">
-          <SectionTitle title="Revenue trend" description="GGR, stakes and winnings over the last 12 months." />
+      {/* Trend + live feed side by side */}
+      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-5">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800 xl:col-span-3">
+          <SectionTitle title="Revenue trend" description="GGR, stakes and winnings, last 12 months" />
           <RevenueChart />
         </section>
-        <section className="min-h-[320px] rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-          <SectionTitle title="Cash flow" description={`Deposits vs withdrawals · ${period.label}`} />
-          <CustomerActivityChart deposits={a.totalDeposit} withdrawals={a.totalWithdrawal} />
-        </section>
+        <div className="min-w-0 xl:col-span-2">{canManageOperations && <ActivityFeed maxHeight={330} />}</div>
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
         <SectionTitle
           title="Latest transactions"
-          description="The five most recent deposits and withdrawals."
+          description="The five most recent deposits and withdrawals"
           action={
             <Link to="/transactions" className="flex items-center gap-1 text-xs font-semibold text-amber-600 hover:underline dark:text-brand">
               View all <FiChevronRight />

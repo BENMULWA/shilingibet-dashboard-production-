@@ -10,18 +10,18 @@ const TONES = {
   slate: "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
 };
 
-function Trend({ change, positiveIsGood = true, label }) {
-  if (change === undefined) return null;
+// Small arrow + percentage. Stays silent when there is nothing to compare, so
+// empty periods don't fill the screen with "no change" noise.
+export function Trend({ change, positiveIsGood = true, label }) {
+  if (change === undefined || change === 0) return null;
   if (change === null) {
     return <span className="text-[11px] text-slate-400 dark:text-slate-500">New vs {label}</span>;
   }
-  const rounded = Math.round(change * 10) / 10;
-  if (rounded === 0) {
-    return <span className="text-[11px] text-slate-400 dark:text-slate-500">No change vs {label}</span>;
-  }
-  const up = rounded > 0;
+  const up = change > 0;
   const good = up === positiveIsGood;
   const Icon = up ? FiTrendingUp : FiTrendingDown;
+  const magnitude = Math.abs(change);
+  const text = magnitude > 999 ? ">999" : (Math.round(magnitude * 10) / 10).toString();
   return (
     <span
       className={`inline-flex items-center gap-1 text-[11px] font-semibold ${
@@ -29,16 +29,29 @@ function Trend({ change, positiveIsGood = true, label }) {
       }`}
     >
       <Icon size={12} aria-hidden="true" />
-      {up ? "+" : ""}
-      {rounded}% <span className="font-normal text-slate-400 dark:text-slate-500">vs {label}</span>
+      {up ? "+" : "−"}
+      {text}%
+      <span className="hidden font-normal text-slate-400 dark:text-slate-500 sm:inline">vs {label}</span>
     </span>
   );
 }
 
-/**
- * One headline number with a plain-language explanation, so any staff member
- * can read the dashboard without knowing betting jargon.
- */
+function Hint({ title, hint }) {
+  if (!hint) return null;
+  return (
+    <Tooltip title={hint} placement="top">
+      <button
+        type="button"
+        aria-label={`What is ${title}?`}
+        className="shrink-0 text-slate-300 transition hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300"
+      >
+        <FiInfo size={13} />
+      </button>
+    </Tooltip>
+  );
+}
+
+/** Large headline number. Used sparingly, for the four results to check first. */
 export default function KpiCard({
   title,
   value,
@@ -55,52 +68,56 @@ export default function KpiCard({
 }) {
   return (
     <div
-      className={`group relative flex flex-col justify-between gap-3 rounded-2xl border p-4 transition-colors sm:p-5 ${
+      className={`flex flex-col gap-3 rounded-2xl border p-4 sm:gap-4 sm:p-6 ${
         emphasis
           ? "border-brand/40 bg-gradient-to-br from-amber-50 to-white dark:from-brand/10 dark:to-slate-800"
-          : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
+          : "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-1.5">
-          <p className="truncate text-[12px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            {title}
-          </p>
-          {hint && (
-            <Tooltip title={hint} placement="top">
-              <button
-                type="button"
-                aria-label={`What is ${title}?`}
-                className="shrink-0 text-slate-300 transition hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300"
-              >
-                <FiInfo size={13} />
-              </button>
-            </Tooltip>
-          )}
+          <p className="truncate text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{title}</p>
+          <Hint title={title} hint={hint} />
         </div>
         {Icon && (
-          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${TONES[tone]}`}>
+          <span className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:flex ${TONES[tone]}`}>
             <Icon size={17} aria-hidden="true" />
           </span>
         )}
       </div>
 
-      <div>
-        {loading ? (
-          <div className="h-7 w-32 animate-pulse rounded-md bg-slate-200 dark:bg-slate-700" />
-        ) : (
-          <p
-            className={`tabular truncate font-bold tracking-tight text-slate-900 dark:text-white ${
-              emphasis ? "text-2xl sm:text-[28px]" : "text-xl sm:text-2xl"
-            } ${valueClassName}`}
-          >
-            {value}
-          </p>
-        )}
-        <div className="mt-1.5 flex min-h-[18px] flex-wrap items-center gap-x-3 gap-y-1">
-          {meta && <span className="text-xs text-slate-500 dark:text-slate-400">{meta}</span>}
-          {!loading && <Trend change={change} positiveIsGood={positiveIsGood} label={changeLabel} />}
-        </div>
+      {loading ? (
+        <div className="h-9 w-36 animate-pulse rounded-md bg-slate-200 dark:bg-slate-700" />
+      ) : (
+        <p className={`tabular truncate text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-[28px] ${valueClassName}`}>
+          {value}
+        </p>
+      )}
+
+      <div className="flex min-h-[18px] flex-wrap items-center gap-x-3 gap-y-1">
+        {meta && <span className="text-xs text-slate-500 dark:text-slate-400">{meta}</span>}
+        {!loading && <Trend change={change} positiveIsGood={positiveIsGood} label={changeLabel} />}
+      </div>
+    </div>
+  );
+}
+
+/** Quiet secondary figure: no icon box, no border-per-card. Sits inside a shared panel. */
+export function StatTile({ title, value, meta, hint, change, changeLabel, positiveIsGood = true, loading = false }) {
+  return (
+    <div className="min-w-0 px-1 py-1">
+      <div className="flex items-center gap-1.5">
+        <p className="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{title}</p>
+        <Hint title={title} hint={hint} />
+      </div>
+      {loading ? (
+        <div className="mt-2 h-7 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      ) : (
+        <p className="tabular mt-1 truncate text-xl font-semibold text-slate-900 dark:text-white">{value}</p>
+      )}
+      <div className="mt-1 flex min-h-[16px] flex-wrap items-center gap-x-2">
+        {meta && <span className="text-[11px] text-slate-500 dark:text-slate-400">{meta}</span>}
+        {!loading && <Trend change={change} positiveIsGood={positiveIsGood} label={changeLabel} />}
       </div>
     </div>
   );
