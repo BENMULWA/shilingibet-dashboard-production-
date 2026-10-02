@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Dropdown } from "antd";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -19,6 +20,7 @@ import {
   FiArrowUpRight,
   FiAward,
   FiCalendar,
+  FiChevronDown,
   FiChevronRight,
   FiClock,
   FiDownload,
@@ -154,9 +156,9 @@ function AttentionItem({ to, icon, label, value, detail, tone }) {
         <Icon size={18} aria-hidden="true" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs text-slate-500 dark:text-slate-400">{label}</p>
-        <p className={`tabular truncate text-[15px] font-semibold ${alert ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}>{value}</p>
-        {detail && <p className={`truncate text-[11px] ${tone === "red" ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400"}`}>{detail}</p>}
+        <p className="text-[13px] text-slate-500 dark:text-slate-400">{label}</p>
+        <p className={`tabular break-words text-base font-semibold leading-snug ${alert ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-300"}`}>{value}</p>
+        {detail && <p className={`text-xs leading-snug ${tone === "red" ? "text-red-600 dark:text-red-400" : "text-slate-500 dark:text-slate-400"}`}>{detail}</p>}
       </div>
       <FiChevronRight className="shrink-0 text-slate-300 transition group-hover:translate-x-0.5 dark:text-slate-600" aria-hidden="true" />
     </Link>
@@ -287,46 +289,44 @@ export default function DashboardHome() {
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-900" role="tablist" aria-label="Reporting period">
-              {periods.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={periodId === option.id}
-                  onClick={() => {
-                    setPeriodId(option.id);
-                    setShowCustom(false);
-                  }}
-                  className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    periodId === option.id
-                      ? "bg-brand text-black shadow-sm"
-                      : "text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
+            <Dropdown
+              trigger={["click"]}
+              menu={{
+                selectable: true,
+                selectedKeys: [periodId],
+                items: [
+                  ...periods.map((option) => ({ key: option.id, label: option.label })),
+                  { type: "divider" },
+                  { key: "custom", label: "Custom range…", icon: <FiCalendar size={14} /> },
+                ],
+                onClick: ({ key }) => {
+                  if (key === "custom") {
+                    setShowCustom(true);
+                    return;
+                  }
+                  setPeriodId(key);
+                  setShowCustom(false);
+                },
+              }}
+            >
               <button
                 type="button"
-                role="tab"
-                aria-selected={periodId === "custom"}
-                onClick={() => setShowCustom((open) => !open)}
-                className={`flex shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  periodId === "custom"
-                    ? "bg-brand text-black shadow-sm"
-                    : "text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800"
-                }`}
+                aria-label="Choose reporting period"
+                className="flex h-11 min-w-[190px] items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:border-brand dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
-                <FiCalendar size={12} /> {periodId === "custom" ? period.label : "Custom"}
+                <span className="flex items-center gap-2">
+                  <FiCalendar size={16} className="text-brand" />
+                  {period.label}
+                </span>
+                <FiChevronDown size={16} className="text-slate-400" />
               </button>
-            </div>
+            </Dropdown>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => refetch()}
                 aria-label="Refresh numbers"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 <FiRefreshCw size={15} className={isFetching ? "animate-spin" : ""} />
               </button>
@@ -334,7 +334,7 @@ export default function DashboardHome() {
                 type="button"
                 onClick={exportToExcel}
                 disabled={isLoading}
-                className="flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-xs font-bold text-black hover:bg-brand-hover disabled:opacity-50"
+                className="flex h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-black hover:bg-brand-hover disabled:opacity-50"
               >
                 <FiDownload size={14} /> Export report
               </button>
@@ -469,7 +469,7 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 p-5 lg:grid-cols-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 [&>*]:border-slate-100 dark:[&>*]:border-slate-700/60 [&>*]:border-b lg:[&>*:nth-child(4n+1)]:border-l-0 lg:[&>*]:border-l">
           {detailTab === "money" && (
             <>
               <StatTile title="Deposits" hint="M-Pesa deposits that completed successfully." value={kes(a.totalDeposit)} meta={`${count(a.depositCount)} deposits`} loading={isLoading} change={change("totalDeposit")} changeLabel={period.compareLabel} />
@@ -477,19 +477,22 @@ export default function DashboardHome() {
               <StatTile title="First-time depositors" hint="Players whose very first successful deposit happened in this period. The key growth number." value={count(a.firstTimeDepositors)} meta={a.allUsers ? `${pct((a.firstTimeDepositors / a.allUsers) * 100)} of sign-ups` : undefined} loading={isLoading} change={change("firstTimeDepositors")} changeLabel={period.compareLabel} />
               <StatTile title="Failed deposits" hint="Deposit attempts that failed or timed out (cancelled M-Pesa prompt, wrong PIN). A spike can mean a payment problem." value={count(a.failedDeposits)} loading={isLoading} change={change("failedDeposits")} changeLabel={period.compareLabel} positiveIsGood={false} />
               <StatTile title="Tax collected" hint="Excise duty on deposits plus withholding tax on withdrawals, due to KRA." value={kes(a.totalTax)} loading={isLoading} change={change("totalTax")} changeLabel={period.compareLabel} />
+              <StatTile title="Average deposit" hint="Total deposits divided by the number of deposits." value={kes(Math.round(a.depositCount ? a.totalDeposit / a.depositCount : 0))} loading={isLoading} />
+              <StatTile title="Average withdrawal" hint="Total withdrawals paid divided by the number of payouts." value={kes(Math.round(a.withdrawalCount ? a.totalWithdrawal / a.withdrawalCount : 0))} loading={isLoading} />
+              <StatTile title="Deposit success rate" hint="Share of deposit attempts that completed. A drop means players are struggling to pay." value={pct(a.depositCount + a.failedDeposits ? (a.depositCount / (a.depositCount + a.failedDeposits)) * 100 : 0)} loading={isLoading} />
             </>
           )}
           {detailTab === "betting" && (
             <>
               <StatTile title="Paid to winners" hint="Winnings credited to players from settled bets." value={kes(a.winAmount)} meta={a.betAmount ? `${pct((a.winAmount / a.betAmount) * 100)} of stakes returned` : undefined} loading={isLoading} change={change("winAmount")} changeLabel={period.compareLabel} positiveIsGood={false} />
-              <StatTile title="Bets placed" hint="Number of bets placed in this period." value={count(a.betCount)} meta={a.betCount ? `Avg stake ${kes(Math.round(avgStake))}` : undefined} loading={isLoading} change={change("betCount")} changeLabel={period.compareLabel} />
+              <StatTile title="Bets placed" hint="Number of bets placed in this period." value={count(a.betCount)} loading={isLoading} change={change("betCount")} changeLabel={period.compareLabel} />
+              <StatTile title="Average stake" hint="Total staked divided by the number of bets." value={kes(Math.round(avgStake))} loading={isLoading} />
               <StatTile title="Voided bets" hint="Stakes refunded because the game provider cancelled the bet." value={kes(a.rollbackAmount)} loading={isLoading} change={change("rollbackAmount")} changeLabel={period.compareLabel} positiveIsGood={false} />
             </>
           )}
           {detailTab === "players" && (
             <>
-              <StatTile title="New sign-ups" hint="Players who registered in this period." value={count(a.allUsers)} loading={isLoading} change={change("allUsers")} changeLabel={period.compareLabel} />
-              <StatTile title="Referred sign-ups" hint="Players who joined using someone's referral link." value={count(a.totalReferredUsers)} meta={a.allUsers ? `${pct((a.totalReferredUsers / a.allUsers) * 100)} of sign-ups` : undefined} loading={isLoading} change={change("totalReferredUsers")} changeLabel={period.compareLabel} />
+              <StatTile title="New sign-ups" hint="Players who registered in this period." value={count(a.allUsers)} meta={a.allUsers ? `${count(a.totalReferredUsers)} via referral` : undefined} loading={isLoading} change={change("allUsers")} changeLabel={period.compareLabel} />
               <StatTile title="Referral bonus paid" hint="KES 10 paid to the referrer once their friend has deposited KES 50 or more." value={kes(a.totalReferralEarnings)} loading={isLoading} change={change("totalReferralEarnings")} changeLabel={period.compareLabel} />
               <StatTile title="Cashback paid" hint="Daily cashback credited to players on their net losses." value={kes(a.totalCashback)} loading={isLoading} change={change("totalCashback")} changeLabel={period.compareLabel} />
               <StatTile title="Welcome bonus" hint="Sign-up bonus. Switched off for new players; this shows historic awards only." value={kes(a.totalWelcomeBonus)} meta="Switched off" loading={isLoading} />
@@ -498,22 +501,17 @@ export default function DashboardHome() {
         </div>
 
         {/* Balances right now: always visible, one slim strip */}
-        <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/60 px-5 py-4 dark:border-slate-700 dark:bg-slate-900/30 sm:grid-cols-3">
+        <div className="grid grid-cols-2 border-t border-slate-100 bg-slate-50/60 dark:border-slate-700 dark:bg-slate-900/30 lg:grid-cols-4 [&>*]:border-slate-100 dark:[&>*]:border-slate-700/60 lg:[&>*]:border-l lg:[&>*:first-child]:border-l-0">
           <StatTile title="Player balances (total)" hint="Every player's wallet, cash plus bonus. Our liability to players right now." value={kes(a.playerBalance)} loading={isLoading} />
-          <StatTile
-            title="Withdrawable cash"
-            hint="The part of balances players can withdraw today. The payout float should cover this."
-            value={kes(a.playerWithdrawableBalance)}
-            meta={canManageOperations ? `Float covers ${pct(Math.min(floatCoverage, 999))}` : undefined}
-            loading={isLoading}
-          />
+          <StatTile title="Withdrawable cash" hint="The part of balances players can withdraw today." value={kes(a.playerWithdrawableBalance)} loading={isLoading} />
           <StatTile title="Locked bonus funds" hint="Bonus money usable for betting but not yet withdrawable." value={kes(a.playerBonusBalance)} loading={isLoading} />
+          <StatTile title="Payout float covers" hint="How much of the withdrawable cash the payout float could pay out right now. Under 100% means some withdrawals would fail." value={canManageOperations ? pct(Math.min(floatCoverage, 999)) : "—"} loading={isLoading || treasuryLoading} />
         </div>
       </section>
 
       {/* Trend + live feed side by side */}
-      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-5">
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800 xl:col-span-3">
+      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-4">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800 xl:col-span-2">
           <SectionTitle title="Revenue trend" description="GGR, stakes and winnings, last 12 months" />
           <RevenueChart />
         </section>

@@ -55,7 +55,7 @@ function AppRoutes() {
             colorError: "#ef4444",
             colorInfo: "#3b82f6",
             fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
-            fontSize: 14,
+            fontSize: 15,
             borderRadius: 10,
             ...(isDark
               ? {

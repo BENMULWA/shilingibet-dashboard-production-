@@ -129,7 +129,7 @@ export default function ActivityFeed({ limit = 40, maxHeight = 560 }) {
               role="tab"
               aria-selected={filter === f.key}
               onClick={() => setFilter(f.key)}
-              className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                 filter === f.key
                   ? "bg-brand text-black"
                   : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
@@ -170,13 +170,13 @@ export default function ActivityFeed({ limit = 40, maxHeight = 560 }) {
                 <Icon size={15} aria-hidden="true" />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-medium text-slate-800 dark:text-slate-100">{view.title}</p>
-                <p className="truncate text-xs text-slate-500 dark:text-slate-400">{view.sub}</p>
+                <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">{view.title}</p>
+                <p className="truncate text-[13px] text-slate-500 dark:text-slate-400">{view.sub}</p>
               </div>
               <time
                 dateTime={item.at}
                 title={new Date(item.at).toLocaleString("en-KE")}
-                className="tabular shrink-0 text-[11px] text-slate-400 dark:text-slate-500"
+                className="tabular shrink-0 text-xs text-slate-400 dark:text-slate-500"
               >
                 {formatDistanceToNowStrict(new Date(item.at), { addSuffix: true })}
               </time>

@@ -15,7 +15,7 @@ const TONES = {
 export function Trend({ change, positiveIsGood = true, label }) {
   if (change === undefined || change === 0) return null;
   if (change === null) {
-    return <span className="text-[11px] text-slate-400 dark:text-slate-500">New vs {label}</span>;
+    return <span className="text-xs text-slate-400 dark:text-slate-500">New vs {label}</span>;
   }
   const up = change > 0;
   const good = up === positiveIsGood;
@@ -24,7 +24,7 @@ export function Trend({ change, positiveIsGood = true, label }) {
   const text = magnitude > 999 ? ">999" : (Math.round(magnitude * 10) / 10).toString();
   return (
     <span
-      className={`inline-flex items-center gap-1 text-[11px] font-semibold ${
+      className={`inline-flex items-center gap-1 text-xs font-semibold ${
         good ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
       }`}
     >
@@ -76,11 +76,11 @@ export default function KpiCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-1.5">
-          <p className="truncate text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{title}</p>
+          <p className="text-[13px] font-semibold uppercase leading-tight tracking-wide text-slate-500 dark:text-slate-400">{title}</p>
           <Hint title={title} hint={hint} />
         </div>
         {Icon && (
-          <span className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:flex ${TONES[tone]}`}>
+          <span className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl 2xl:flex ${TONES[tone]}`}>
             <Icon size={17} aria-hidden="true" />
           </span>
         )}
@@ -95,7 +95,7 @@ export default function KpiCard({
       )}
 
       <div className="flex min-h-[18px] flex-wrap items-center gap-x-3 gap-y-1">
-        {meta && <span className="text-xs text-slate-500 dark:text-slate-400">{meta}</span>}
+        {meta && <span className="text-[13px] text-slate-500 dark:text-slate-400">{meta}</span>}
         {!loading && <Trend change={change} positiveIsGood={positiveIsGood} label={changeLabel} />}
       </div>
     </div>
@@ -105,18 +105,18 @@ export default function KpiCard({
 /** Quiet secondary figure: no icon box, no border-per-card. Sits inside a shared panel. */
 export function StatTile({ title, value, meta, hint, change, changeLabel, positiveIsGood = true, loading = false }) {
   return (
-    <div className="min-w-0 px-1 py-1">
+    <div className="min-w-0 px-5 py-5 sm:px-6">
       <div className="flex items-center gap-1.5">
-        <p className="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{title}</p>
+        <p className="truncate text-[13px] font-medium text-slate-500 dark:text-slate-400">{title}</p>
         <Hint title={title} hint={hint} />
       </div>
       {loading ? (
-        <div className="mt-2 h-7 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="mt-2 h-8 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
       ) : (
-        <p className="tabular mt-1 truncate text-xl font-semibold text-slate-900 dark:text-white">{value}</p>
+        <p className="tabular mt-1.5 truncate text-2xl font-semibold text-slate-900 dark:text-white">{value}</p>
       )}
       <div className="mt-1 flex min-h-[16px] flex-wrap items-center gap-x-2">
-        {meta && <span className="text-[11px] text-slate-500 dark:text-slate-400">{meta}</span>}
+        {meta && <span className="text-xs text-slate-500 dark:text-slate-400">{meta}</span>}
         {!loading && <Trend change={change} positiveIsGood={positiveIsGood} label={changeLabel} />}
       </div>
     </div>
