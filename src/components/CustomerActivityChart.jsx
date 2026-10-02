@@ -66,17 +66,17 @@ export default function CustomerActivityChart({ deposits = 0, withdrawals = 0 })
             <span className="text-xs text-slate-500 dark:text-slate-400">Deposits</span>
           </div>
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{formatCompact(deposits)}</p>
-          <p className="text-xs text-amber-600 font-medium">{depositPercent}%</p>
+          <p className="text-xs text-amber-600 dark:text-brand font-medium">{depositPercent}%</p>
         </div>
-        <div className="bg-red-50 rounded-lg p-3">
+        <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-6 h-6 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0">
               <TbArrowDown className="text-red-600" size={14} />
             </div>
             <span className="text-xs text-slate-500 dark:text-slate-400">Withdrawals</span>
           </div>
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{formatCompact(withdrawals)}</p>
-          <p className="text-xs text-red-600 font-medium">{withdrawalPercent}%</p>
+          <p className="text-xs text-red-600 dark:text-red-400 font-medium">{withdrawalPercent}%</p>
         </div>
       </div>
     </div>

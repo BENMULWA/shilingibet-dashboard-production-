@@ -102,10 +102,7 @@ const InvoiceTable = () => {
   ];
 
   return (
-    <div className="p-3 sm:p-4 bg-white dark:bg-slate-800 rounded-md shadow">
-      <h2 className="mb-4 text-base sm:text-lg font-semibold text-gray-800">
-        Latest Transactions
-      </h2>
+    <div>
       <Table
         columns={columns}
         dataSource={transactions}

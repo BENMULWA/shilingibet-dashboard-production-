@@ -1,7 +1,26 @@
 import { useState } from "react";
+import { LoaderIcon } from "react-hot-toast";
+import {
+  FiActivity,
+  FiEye,
+  FiEyeOff,
+  FiLock,
+  FiMail,
+  FiPhone,
+  FiShield,
+  FiUsers,
+} from "react-icons/fi";
 
 import { useLogin } from "../../hooks/useLogin";
-import { LoaderIcon } from "react-hot-toast";
+
+const HIGHLIGHTS = [
+  { icon: FiActivity, label: "Live deposits, bets and payouts" },
+  { icon: FiUsers, label: "Player accounts and support" },
+  { icon: FiShield, label: "Every staff action is audited" },
+];
+
+const inputClass =
+  "block w-full rounded-xl border border-white/10 bg-white/[0.06] py-3.5 pl-11 pr-4 text-[15px] text-white placeholder-white/35 outline-none transition focus:border-brand focus:bg-white/[0.09] focus:ring-2 focus:ring-brand/30";
 
 function Login() {
   const {
@@ -20,233 +39,199 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
 
-  async function handleSubmit() {
-    if (challenge?.verificationRequired) {
-      if (!/^\d{6}$/.test(verificationCode)) return;
+  const isCodeStep = Boolean(challenge?.verificationRequired);
+  const isBusy = isLoading || isVerifying;
+  const canSubmit = isCodeStep
+    ? /^\d{6}$/.test(verificationCode)
+    : phone.trim().length >= 9 && password.length > 0;
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    if (!canSubmit || isBusy) return;
+
+    if (isCodeStep) {
       verifyCodeFn({ challengeId: challenge.challengeId, code: verificationCode });
       return;
     }
-    if (!phone.trim() || !password) return;
+    logInFn({ phone: phone.trim(), password });
+  }
 
-    const data = { phone, password };
-
-    logInFn(data);
+  function startOver() {
+    resetLogin();
+    setVerificationCode("");
+    setPassword("");
   }
 
   return (
-    <div
-      className="min-h-screen flex"
-      style={{
-        backgroundImage: "url('/bg.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {/* Left Message Section */}
-      <div className="hidden md:flex w-1/2 items-center justify-center text-white px-12">
-        <div>
-          <img src="/shilingibet.png" className="h-32" />
-          <p className="mt-4 text-lg text-white max-w-md backdrop-blur-sm bg-black/5 p-4 rounded-md">
-            Step into the future of iGaming — where every bet is smarter, every
-            win is bigger, and the experience is crafted for champions. This is
-            more than a platform — it’s where passion, precision, and technology
-            come together to elevate your game.
+    <div className="relative min-h-dvh overflow-hidden bg-[#050a07] font-sans text-white">
+      {/* Stadium backdrop: the brand artwork, darkened so the form stays readable */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center opacity-35"
+        style={{ backgroundImage: "url('/bg.png')" }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,200,83,0.22),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(249,206,54,0.16),transparent_50%),linear-gradient(180deg,rgba(5,10,7,0.55),rgba(5,10,7,0.92))]"
+      />
+
+      <div className="relative mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+        {/* Brand panel */}
+        <section className="hidden lg:block">
+          <img src="/shilingibet.png" alt="ShilingiBet" className="h-14 w-auto" />
+          <h1 className="mt-8 font-display text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
+            Back Office
+            <span className="block text-brand">Control Room</span>
+          </h1>
+          <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
+            Monitor the platform in real time, look after players and keep every
+            shilling accounted for.
           </p>
-        </div>
-      </div>
+          <ul className="mt-8 space-y-3">
+            {HIGHLIGHTS.map((item) => (
+              <li key={item.label} className="flex items-center gap-3 text-sm text-white/80">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 text-brand">
+                  <item.icon size={17} aria-hidden="true" />
+                </span>
+                {item.label}
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      {/* Right Login Form Section */}
-      <div className="flex w-full md:w-1/2 items-center justify-center bg-opacity-95 p-6 sm:p-12">
-        <div className="w-full max-w-md">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit(e);
-            }}
-            className="relative max-w-md mx-auto mt-8 md:mt-16"
-          >
-            {" "}
-            <div className="overflow-hidden bg-white dark:bg-slate-800 rounded-md shadow-md pt-10">
-              <h2 className="text-3xl font-bold text-gray-800 text-center mb-1">
-                {challenge?.verificationRequired ? "Check your phone" : "Welcome Back!"}
+        {/* Form card */}
+        <section className="mx-auto w-full max-w-md">
+          <img src="/shilingibet.png" alt="ShilingiBet" className="mx-auto mb-8 h-11 w-auto lg:hidden" />
+
+          <div className="rounded-2xl border border-white/10 bg-[#0d1712]/90 p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-8">
+            <div className="mb-7">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-pitch/30 bg-pitch/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-pitch">
+                <FiLock size={11} aria-hidden="true" /> Staff only
+              </span>
+              <h2 className="mt-4 text-2xl font-bold text-white">
+                {isCodeStep ? "Check your phone" : "Sign in"}
               </h2>
-              <p className="text-center text-gray-500 mb-6">
-                {challenge?.verificationRequired
-                  ? `Enter the 6-digit code sent to ${challenge.maskedPhone}`
-                  : "Login to your account"}
+              <p className="mt-1.5 text-sm text-white/60">
+                {isCodeStep
+                  ? `We sent a 6-digit code to ${challenge.maskedPhone}.`
+                  : "Use the phone number and password on your staff account."}
               </p>
-              <div className="px-4 py-6 sm:px-8 sm:py-7">
+            </div>
+
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+              {isCodeStep ? (
                 <div>
-                  <div className="space-y-5">
-                    {challenge?.verificationRequired ? (
-                      <>
-                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
-                          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="5" width="18" height="14" rx="2" />
-                            <path d="m3 7 9 6 9-6" />
-                          </svg>
-                        </div>
-                        <div>
-                          <label htmlFor="staff-code" className="text-base font-medium text-gray-900">
-                            Verification code
-                          </label>
-                          <input
-                            id="staff-code"
-                            value={verificationCode}
-                            onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
-                            inputMode="numeric"
-                            autoComplete="one-time-code"
-                            autoFocus
-                            placeholder="000000"
-                            className="mt-2.5 block w-full rounded-md border border-gray-200 bg-white dark:bg-slate-800 px-4 py-4 text-center text-2xl font-semibold tracking-[0.55em] text-black placeholder-gray-400 focus:border-blue-600 focus:outline-none"
-                          />
-                          <p className="mt-2 text-center text-xs text-gray-400">
-                            Code expires in {Math.round((challenge.expiresInSeconds || 600) / 60)} minutes. Five attempts allowed.
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                    <div>
-                      <label
-                        for=""
-                        className="text-base font-medium text-gray-900"
-                      >
-                        {" "}
-                        Phone Number
-                      </label>
-                      <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <svg
-                            className="w-5 h-5"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                            />
-                          </svg>
-                        </div>
-
-                        <input
-                          onChange={(e) => setPhone(e.target.value)}
-                          type="phone"
-                          name=""
-                          id=""
-                          placeholder="Enter phone number to get started"
-                          className="block w-full py-4 pl-10 pr-4 text-black placeholder-gray-500 transition-all duration-200 bg-white dark:bg-slate-800 border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
-                        />
-                      </div>
+                  <label htmlFor="staff-code" className="mb-2 block text-sm font-medium text-white/85">
+                    Verification code
+                  </label>
+                  <div className="relative">
+                    <FiMail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} aria-hidden="true" />
+                    <input
+                      id="staff-code"
+                      value={verificationCode}
+                      onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      autoFocus
+                      placeholder="000000"
+                      aria-describedby="staff-code-help"
+                      className={`${inputClass} text-center text-2xl font-semibold tracking-[0.5em] tabular`}
+                    />
+                  </div>
+                  <p id="staff-code-help" className="mt-2 text-xs text-white/45">
+                    Expires in {Math.round((challenge.expiresInSeconds || 600) / 60)} minutes · 5 attempts allowed
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label htmlFor="staff-phone" className="mb-2 block text-sm font-medium text-white/85">
+                      Phone number
+                    </label>
+                    <div className="relative">
+                      <FiPhone className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} aria-hidden="true" />
+                      <input
+                        id="staff-phone"
+                        name="phone"
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="username"
+                        autoFocus
+                        value={phone}
+                        onChange={(event) => setPhone(event.target.value)}
+                        placeholder="07XX XXX XXX"
+                        className={inputClass}
+                      />
                     </div>
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <label
-                          for=""
-                          className="text-base font-medium text-gray-900"
-                        >
-                          {" "}
-                          Password{" "}
-                        </label>
-                      </div>
-                      <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <svg
-                            className="w-5 h-5"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
-                            />
-                          </svg>
-                        </div>
+                  </div>
 
-                        <input
-                          onChange={(e) => setPassword(e.target.value)}
-                          type={showPassword ? "text" : "password"}
-                          name=""
-                          id=""
-                          placeholder="Enter your password"
-                          className="block w-full py-4 pl-10 pr-12 text-black placeholder-gray-500 transition-all duration-200 bg-white dark:bg-slate-800 border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((visible) => !visible)}
-                          className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-700 focus:outline-none focus:text-gray-700"
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                          aria-pressed={showPassword}
-                        >
-                          {showPassword ? (
-                            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 4.2A10.7 10.7 0 0112 4c5.5 0 9 5 9 8a12.7 12.7 0 01-2.1 3.5M6.6 6.6C4.4 8 3 10.2 3 12c0 3 3.5 8 9 8 1.5 0 2.8-.4 4-.9" />
-                            </svg>
-                          ) : (
-                            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12S6 5 12 5s9.5 7 9.5 7S18 19 12 19s-9.5-7-9.5-7z" />
-                              <circle cx="12" cy="12" r="3" />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                      </>
-                    )}
-
-                    <div>
+                  <div>
+                    <label htmlFor="staff-password" className="mb-2 block text-sm font-medium text-white/85">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <FiLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} aria-hidden="true" />
+                      <input
+                        id="staff-password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder="Enter your password"
+                        className={`${inputClass} pr-12`}
+                      />
                       <button
-                        type="submit"
-                        style={{
-                          backgroundColor: "#f9ce36",
-                          marginTop: "12px",
-                        }}
-                        className="inline-flex bg-[#f9ce36] items-center outline-none justify-center w-full px-4 py-4 text-base font-semibold text-black transition-all duration-200  border border-transparent rounded-md focus:outline-none hover:bg-blue-700 focus:bg-blue-700"
+                        type="button"
+                        onClick={() => setShowPassword((visible) => !visible)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                        className="absolute inset-y-0 right-0 flex items-center px-4 text-white/45 transition hover:text-white"
                       >
-                        {isLoading || isVerifying
-                          ? <LoaderIcon />
-                          : challenge?.verificationRequired ? "Verify and sign in" : "Log in"}
+                        {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                       </button>
                     </div>
-                    {challenge?.verificationRequired && (
-                      <div className="space-y-3 text-center">
-                        <button
-                          type="button"
-                          disabled={isResending}
-                          onClick={() => resendCodeFn(challenge.challengeId)}
-                          className="text-sm font-medium text-amber-700 disabled:opacity-50"
-                        >
-                          {isResending ? "Sending…" : "Resend code"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            resetLogin();
-                            setVerificationCode("");
-                            setPassword("");
-                          }}
-                          className="block w-full rounded-md bg-slate-50 dark:bg-slate-900 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                        >
-                          Use a different account
-                        </button>
-                      </div>
-                    )}
                   </div>
+                </>
+              )}
+
+              <button
+                type="submit"
+                disabled={!canSubmit || isBusy}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3.5 text-[15px] font-bold text-black shadow-[0_10px_30px_-8px_rgba(249,206,54,0.6)] transition hover:bg-brand-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+              >
+                {isBusy ? <LoaderIcon /> : isCodeStep ? "Verify and sign in" : "Continue"}
+              </button>
+
+              {isCodeStep ? (
+                <div className="flex items-center justify-between text-sm">
+                  <button
+                    type="button"
+                    disabled={isResending}
+                    onClick={() => resendCodeFn(challenge.challengeId)}
+                    className="font-medium text-brand hover:underline disabled:opacity-50"
+                  >
+                    {isResending ? "Sending…" : "Resend code"}
+                  </button>
+                  <button type="button" onClick={startOver} className="text-white/60 hover:text-white">
+                    Use a different account
+                  </button>
                 </div>
-              </div>
-            </div>
-          </form>
-        </div>
+              ) : (
+                <p className="text-center text-xs text-white/45">
+                  Forgot your password? Ask a super admin to send you a reset link.
+                </p>
+              )}
+            </form>
+          </div>
+
+          <p className="mt-6 text-center text-[11px] text-white/35">
+            Authorised ShilingiBet staff only. Sign-ins and actions are recorded.
+          </p>
+        </section>
       </div>
     </div>
   );
 }
+
 export default Login;

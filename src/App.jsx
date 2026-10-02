@@ -36,7 +36,8 @@ function AppRoutes() {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 100,
+            staleTime: 10 * 1000,
+            refetchOnWindowFocus: true,
           },
         },
       }),
@@ -53,13 +54,16 @@ function AppRoutes() {
             colorWarning: "#f59e0b",
             colorError: "#ef4444",
             colorInfo: "#3b82f6",
-            fontFamily: "Montserrat, sans-serif",
+            fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+            fontSize: 14,
             borderRadius: 10,
             ...(isDark
               ? {
-                  colorBgContainer: "#1e293b",
-                  colorBgLayout: "#0f172a",
-                  colorBorder: "#334155",
+                  colorBgContainer: "#121d18",
+                  colorBgElevated: "#16231d",
+                  colorBgLayout: "#0a120e",
+                  colorBorder: "#24352c",
+                  colorBorderSecondary: "#1b2a22",
                   colorText: "#e2e8f0",
                   colorTextSecondary: "#94a3b8",
                 }
@@ -89,7 +93,7 @@ function AppRoutes() {
             },
             Table: {
               borderRadius: 12,
-              headerBg: isDark ? "#0f172a" : "#f8fafc",
+              headerBg: isDark ? "#0a120e" : "#f8fafc",
               headerColor: isDark ? "#94a3b8" : "#64748b",
             },
             Modal: {
@@ -187,7 +191,7 @@ function AppRoutes() {
             padding: "14px 20px",
             borderRadius: "12px",
             boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
-            fontFamily: "Montserrat, sans-serif",
+            fontFamily: "Inter, sans-serif",
           },
         }}
       />

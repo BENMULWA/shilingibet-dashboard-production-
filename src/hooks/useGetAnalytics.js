@@ -1,38 +1,36 @@
-import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   analyticsServices,
   getMonthlyAnalytics,
+  getRecentActivity,
 } from "../services/analyticServices";
-import toast from "react-hot-toast";
 
-export function useGetAnalytics(startDate, endDate, { live = false } = {}) {
+// How often the "today" view refreshes itself.
+export const LIVE_REFRESH_MS = 15000;
+
+export function useGetAnalytics(startDate, endDate, { live = false, enabled = true } = {}) {
+  const from = startDate ? new Date(startDate).getTime() : null;
+  const to = endDate ? new Date(endDate).getTime() : null;
+
   const {
     data: analytics,
     isPending: isLoading,
+    isFetching,
     error,
     refetch,
     dataUpdatedAt,
   } = useQuery({
-    queryFn: () => {
-      const start = format(new Date(startDate), "yyyy-MM-dd");
-      const end = format(new Date(endDate), "yyyy-MM-dd");
-
-      return analyticsServices({ startDate: start, endDate: end });
-    },
-    enabled: !!startDate && !!endDate,
-    queryKey: ["analyticsServices", startDate, endDate],
-    refetchInterval: live ? 15000 : false,
+    queryFn: () => analyticsServices({ startDate: from, endDate: to }),
+    enabled: enabled && from !== null && to !== null,
+    queryKey: ["analyticsServices", from, to],
+    refetchInterval: live ? LIVE_REFRESH_MS : false,
     refetchIntervalInBackground: false,
-    onError: (err) => {
-      toast.error(
-        err?.message ?? "Something went wrong fetching your analytics"
-      );
-    },
+    placeholderData: keepPreviousData,
   });
 
-  return { analytics, isLoading, error, refetch, dataUpdatedAt };
+  return { analytics, isLoading, isFetching, error, refetch, dataUpdatedAt };
 }
+
 export function useGetMonthlyAnalytics() {
   const {
     data: monthlyAnalytics,
@@ -42,11 +40,18 @@ export function useGetMonthlyAnalytics() {
   } = useQuery({
     queryFn: () => getMonthlyAnalytics(),
     queryKey: ["monthlyAnalytics"],
-    onError: (error) => {
-      toast.error(
-        error?.message ?? "Something went wrong fetching your monthly analytics"
-      );
-    },
+    staleTime: 5 * 60 * 1000,
   });
   return { monthlyAnalytics, isLoading, error, refetch };
+}
+
+export function useRecentActivity({ limit = 30, enabled = true } = {}) {
+  const { data = [], isPending: isLoading, error, dataUpdatedAt } = useQuery({
+    queryFn: () => getRecentActivity({ limit }),
+    queryKey: ["recentActivity", limit],
+    enabled,
+    refetchInterval: 10000,
+    refetchIntervalInBackground: false,
+  });
+  return { activity: data, isLoading, error, dataUpdatedAt };
 }

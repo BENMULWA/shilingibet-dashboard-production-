@@ -12,9 +12,9 @@ const resolveIsDark = (mode) =>
 export function ThemeProvider({ children }) {
   const [mode, setMode] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || "system";
+      return localStorage.getItem(STORAGE_KEY) || "dark";
     } catch {
-      return "system";
+      return "dark";
     }
   });
   const [isDark, setIsDark] = useState(() => resolveIsDark(mode));

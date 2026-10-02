@@ -2,11 +2,29 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Brand palette shared with shilingibet.com. The dark slate steps are
+   re-tinted green-black so every existing page picks up the gaming theme. */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", "Inter", sans-serif;
+
+  --color-brand: #f9ce36;
+  --color-brand-hover: #e6bd2e;
+  --color-pitch: #00c853;
+
+  --color-slate-700: #24352c;
+  --color-slate-800: #121d18;
+  --color-slate-900: #0a120e;
+  --color-slate-950: #050a07;
+}
+
 :root {
   --color-primary: #f9ce36;
   --color-primary-hover: #e6bd2e;
   --color-primary-active: #d4ad26;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  font-feature-settings: "cv11", "ss01";
   line-height: 1.5;
   font-weight: 400;
   font-optical-sizing: auto;
@@ -39,36 +57,60 @@ body {
 .dark {
   color-scheme: dark;
   color: #e2e8f0;
-  background-color: #0f172a;
+  background-color: #0a120e;
 }
 
 .dark body {
-  background-color: #0f172a;
+  background-color: #0a120e;
 }
 
-/* Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: #1e293b;
-  font-weight: 600;
+/* Money and counts line up in columns and don't jiggle while live-updating. */
+.tabular,
+.ant-table,
+.ant-statistic-content {
+  font-variant-numeric: tabular-nums;
 }
 
-.dark h1,
-.dark h2,
-.dark h3,
-.dark h4,
-.dark h5,
-.dark h6 {
-  color: #f1f5f9;
+:focus-visible {
+  outline: 2px solid #f9ce36;
+  outline-offset: 2px;
 }
 
-h1 {
-  font-size: 2.5em;
-  line-height: 1.2;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Typography defaults live in the base layer so Tailwind classes on a
+   heading (e.g. text-white on the always-dark login) can override them. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #1e293b;
+    font-weight: 600;
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    color: #f1f5f9;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
 }
 
 /* Buttons - Reset for Ant Design compatibility */
@@ -98,11 +140,11 @@ button {
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #0a120e;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #2d4237;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
@@ -140,7 +182,7 @@ button {
 
 .dark .ant-modal-content,
 .dark .ant-modal-header {
-  background: #1e293b !important;
+  background: #121d18 !important;
 }
 
 .dark .ant-modal-title,
@@ -150,7 +192,7 @@ button {
 
 .dark .ant-modal-header,
 .dark .ant-modal-footer {
-  border-color: #334155 !important;
+  border-color: #24352c !important;
 }
 
 /* Ant Design Table Styling */
@@ -180,23 +222,23 @@ button {
 .dark .ant-table,
 .dark .ant-table-container,
 .dark .ant-table-content {
-  background: #1e293b !important;
+  background: #121d18 !important;
 }
 
 .dark .ant-table-thead > tr > th {
-  background: #0f172a !important;
+  background: #0a120e !important;
   color: #94a3b8 !important;
-  border-bottom: 1px solid #334155 !important;
+  border-bottom: 1px solid #24352c !important;
 }
 
 .dark .ant-table-tbody > tr > td {
-  background: #1e293b !important;
+  background: #121d18 !important;
   color: #e2e8f0 !important;
-  border-bottom: 1px solid #334155 !important;
+  border-bottom: 1px solid #24352c !important;
 }
 
 .dark .ant-table-tbody > tr:hover > td {
-  background: #253449 !important;
+  background: #18261f !important;
 }
 
 /* Ant Design Button Styling */
@@ -208,13 +250,13 @@ button {
 .ant-btn-primary {
   background-color: #f9ce36 !important;
   border-color: #f9ce36 !important;
-  color: #1e293b !important;
+  color: #121d18 !important;
 }
 
 .ant-btn-primary:hover {
   background-color: #e6bd2e !important;
   border-color: #e6bd2e !important;
-  color: #1e293b !important;
+  color: #121d18 !important;
 }
 
 /* Ant Design Dropdown Styling */
@@ -230,7 +272,7 @@ button {
 }
 
 .dark .ant-dropdown-menu {
-  background: #1e293b !important;
+  background: #121d18 !important;
 }
 
 .dark .ant-dropdown-menu-item {
@@ -238,12 +280,12 @@ button {
 }
 
 .dark .ant-dropdown-menu-item:hover {
-  background: #334155 !important;
+  background: #24352c !important;
 }
 
 /* Date Picker Styling */
 .react-datepicker {
-  font-family: "Montserrat", sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
@@ -258,7 +300,7 @@ button {
 .react-datepicker__day--selected,
 .react-datepicker__day--in-range {
   background: #f9ce36 !important;
-  color: #1e293b !important;
+  color: #121d18 !important;
 }
 
 .react-datepicker__day:hover {
@@ -266,13 +308,13 @@ button {
 }
 
 .dark .react-datepicker {
-  background: #1e293b !important;
-  border-color: #334155 !important;
+  background: #121d18 !important;
+  border-color: #24352c !important;
 }
 
 .dark .react-datepicker__header {
-  background: #0f172a !important;
-  border-color: #334155 !important;
+  background: #0a120e !important;
+  border-color: #24352c !important;
 }
 
 .dark .react-datepicker__current-month,
@@ -282,7 +324,7 @@ button {
 }
 
 .dark .react-datepicker__day:hover {
-  background: #334155 !important;
+  background: #24352c !important;
 }
 
 /* Ant Design Input Styling */
@@ -301,8 +343,8 @@ button {
 
 .dark .ant-input,
 .dark .ant-input-affix-wrapper {
-  background: #0f172a !important;
-  border-color: #334155 !important;
+  background: #0a120e !important;
+  border-color: #24352c !important;
   color: #e2e8f0 !important;
 }
 
@@ -315,4 +357,12 @@ button {
 ::selection {
   background: #e2e8f0;
   color: #1e293b;
+}
+
+/* Horizontal chip rows scroll without a visible bar on touch screens. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

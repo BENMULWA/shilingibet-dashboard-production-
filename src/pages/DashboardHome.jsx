@@ -1,591 +1,659 @@
-import { useEffect, useState } from "react";
-import { FiCalendar, FiFilter, FiDownload } from "react-icons/fi";
-import {
-  FaUser,
-  FaUsers,
-  FaMoneyBillWave,
-  FaCoins,
-  FaTrophy,
-  FaPiggyBank,
-  FaGift,
-} from "react-icons/fa";
-import { FiRefreshCw, FiDatabase, FiAlertTriangle } from "react-icons/fi";
-import { HiOutlineBanknotes } from "react-icons/hi2";
-import { TbArrowDown, TbArrowUp, TbReceiptTax } from "react-icons/tb";
-import * as XLSX from "xlsx";
-import { useGetAnalytics } from "../hooks/useGetAnalytics";
-import { useGetSecondaryWallet } from "../hooks/useTransfer";
-import { useFormatCurrency } from "../hooks/useFormatCurrency";
-import { useAuthState } from "../context/AuthContext";
-import { normalizeStaffRole } from "../utils/authSession";
-import Shimmer from "../components/Shimmer";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
+  differenceInCalendarDays,
+  endOfDay,
+  endOfMonth,
   format,
   startOfDay,
-  endOfDay,
-  subDays,
-  startOfWeek,
-  endOfWeek,
   startOfMonth,
-  endOfMonth,
-  differenceInDays,
-  addDays,
+  subDays,
+  subMonths,
 } from "date-fns";
-import StatsCard from "../components/StatsCard";
-import { Dropdown, Button, Space } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-import InvoiceTable from "../components/InvoiceTable";
+import * as XLSX from "xlsx";
+import {
+  FiAlertTriangle,
+  FiArrowDownLeft,
+  FiArrowUpRight,
+  FiAward,
+  FiCalendar,
+  FiChevronRight,
+  FiClock,
+  FiDownload,
+  FiGift,
+  FiLock,
+  FiPercent,
+  FiRefreshCw,
+  FiRotateCcw,
+  FiShield,
+  FiTarget,
+  FiTrendingUp,
+  FiUserCheck,
+  FiUserPlus,
+  FiUsers,
+  FiXCircle,
+} from "react-icons/fi";
+import { HiOutlineBanknotes } from "react-icons/hi2";
+import { TbReceiptTax } from "react-icons/tb";
+
+import { useGetAnalytics } from "../hooks/useGetAnalytics";
+import { useGetSecondaryWallet } from "../hooks/useTransfer";
+import { useAuthState } from "../context/AuthContext";
+import { normalizeStaffRole } from "../utils/authSession";
+import KpiCard from "../components/dashboard/KpiCard";
+import { percentChange } from "../utils/metrics";
+import ActivityFeed from "../components/dashboard/ActivityFeed";
 import RevenueChart from "../components/RevenueChart";
 import CustomerActivityChart from "../components/CustomerActivityChart";
+import InvoiceTable from "../components/InvoiceTable";
 
-// Treasury balance below this is flagged red; below 2x this is flagged amber.
-// Tune this to whatever float level actually feels "safe" for your payout volume.
+// Payout float at or below this is critical; below twice this is a warning.
 const TREASURY_LOW_THRESHOLD = 5000;
 
-function SectionHeading({ children }) {
+const kes = (amount, { compact = false } = {}) => {
+  const value = Number(amount) || 0;
+  if (compact && Math.abs(value) >= 1_000_000) return `KES ${(value / 1_000_000).toFixed(2)}M`;
+  return `KES ${value.toLocaleString("en-KE", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+};
+const count = (value) => (Number(value) || 0).toLocaleString("en-KE");
+const pct = (value) => `${(Number.isFinite(value) ? value : 0).toFixed(1)}%`;
+
+// Each period knows its own range and the equal-length range before it,
+// so every card can say "up 12% vs yesterday".
+const buildPeriods = (now) => {
+  const today = [startOfDay(now), endOfDay(now)];
+  const yesterday = [startOfDay(subDays(now, 1)), endOfDay(subDays(now, 1))];
+  const lastMonthStart = startOfMonth(subMonths(now, 1));
+  return [
+    { id: "today", label: "Today", compareLabel: "yesterday", range: today, previous: yesterday },
+    {
+      id: "yesterday",
+      label: "Yesterday",
+      compareLabel: "day before",
+      range: yesterday,
+      previous: [startOfDay(subDays(now, 2)), endOfDay(subDays(now, 2))],
+    },
+    {
+      id: "7d",
+      label: "Last 7 days",
+      compareLabel: "prior 7 days",
+      range: [startOfDay(subDays(now, 6)), endOfDay(now)],
+      previous: [startOfDay(subDays(now, 13)), endOfDay(subDays(now, 7))],
+    },
+    {
+      id: "month",
+      label: "This month",
+      compareLabel: "same days last month",
+      range: [startOfMonth(now), endOfDay(now)],
+      previous: [lastMonthStart, endOfDay(subMonths(now, 1))],
+    },
+    {
+      id: "last_month",
+      label: "Last month",
+      compareLabel: "month before",
+      range: [lastMonthStart, endOfMonth(lastMonthStart)],
+      previous: [startOfMonth(subMonths(now, 2)), endOfMonth(subMonths(now, 2))],
+    },
+  ];
+};
+
+function SectionTitle({ title, description, action }) {
   return (
-    <h5 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-3">
-      {children}
-    </h5>
-  );
-}
-
-function LiveIndicator({ live, updatedAt }) {
-  const [, forceTick] = useState(0);
-
-  useEffect(() => {
-    if (!live) return undefined;
-    const id = setInterval(() => forceTick((n) => n + 1), 1000);
-    return () => clearInterval(id);
-  }, [live]);
-
-  if (!live) return null;
-
-  const secondsAgo = updatedAt ? Math.max(0, Math.round((Date.now() - updatedAt) / 1000)) : null;
-
-  return (
-    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-      </span>
-      Live{secondsAgo !== null ? ` · updated ${secondsAgo}s ago` : ""}
+    <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+      <div>
+        <h2 className="text-[15px] font-semibold text-slate-800 dark:text-slate-100">{title}</h2>
+        {description && <p className="text-xs text-slate-500 dark:text-slate-400">{description}</p>}
+      </div>
+      {action}
     </div>
   );
 }
 
+function LiveBadge({ live, updatedAt, fetching }) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (!live) return undefined;
+    const id = setInterval(() => tick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [live]);
+
+  if (!live) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-300">
+        <FiClock size={11} /> Historical view
+      </span>
+    );
+  }
+  const seconds = updatedAt ? Math.max(0, Math.round((Date.now() - updatedAt) / 1000)) : null;
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+      </span>
+      LIVE
+      <span className="tabular font-normal">
+        {fetching ? "· updating…" : seconds !== null ? `· ${seconds}s ago` : ""}
+      </span>
+    </span>
+  );
+}
+
+function AttentionItem({ to, icon, label, value, detail, tone }) {
+  const Icon = icon;
+  const tones = {
+    red: "border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300",
+    amber: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300",
+    ok: "border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300",
+  };
+  return (
+    <Link
+      to={to}
+      className={`group flex items-center gap-3 rounded-xl border px-4 py-3 transition hover:shadow-sm ${tones[tone]}`}
+    >
+      <Icon size={18} className="shrink-0" aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium opacity-80">{label}</p>
+        <p className="tabular truncate text-base font-bold">{value}</p>
+        {detail && <p className="truncate text-[11px] opacity-75">{detail}</p>}
+      </div>
+      <FiChevronRight className="shrink-0 opacity-50 transition group-hover:translate-x-0.5" aria-hidden="true" />
+    </Link>
+  );
+}
+
 export default function DashboardHome() {
-  const { formatCurrency } = useFormatCurrency();
   const { user } = useAuthState();
-  const canManageOperations = ["admin", "super_admin"].includes(
-    normalizeStaffRole(user)
-  );
-  const today = new Date();
+  const canManageOperations = ["admin", "super_admin"].includes(normalizeStaffRole(user));
 
-  const [dateRange, setDateRange] = useState([
-    startOfDay(today),
-    endOfDay(today),
-  ]);
-  const [startDate, endDate] = dateRange;
-  const [activeFilter, setActiveFilter] = useState("today");
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const periods = useMemo(() => buildPeriods(new Date()), []);
+  const [periodId, setPeriodId] = useState("today");
+  const [customRange, setCustomRange] = useState([null, null]);
+  const [showCustom, setShowCustom] = useState(false);
 
-  const isLiveEligible = activeFilter === "today";
-  const { analytics, isLoading, refetch, dataUpdatedAt } = useGetAnalytics(
-    startDate,
-    endDate,
-    { live: isLiveEligible }
-  );
-  const { secondaryWalletBalance, isLoading: treasuryLoading } =
-    useGetSecondaryWallet(canManageOperations, { live: isLiveEligible });
+  const period = useMemo(() => {
+    if (periodId !== "custom") return periods.find((p) => p.id === periodId);
+    const [start, end] = customRange;
+    const days = differenceInCalendarDays(end, start) + 1;
+    return {
+      id: "custom",
+      label: `${format(start, "d MMM")} – ${format(end, "d MMM yyyy")}`,
+      compareLabel: `prior ${days} day${days === 1 ? "" : "s"}`,
+      range: [startOfDay(start), endOfDay(end)],
+      previous: [startOfDay(subDays(start, days)), endOfDay(subDays(start, 1))],
+    };
+  }, [periodId, customRange, periods]);
+
+  const isLive = period.id === "today";
+  const [startDate, endDate] = period.range;
+
+  const { analytics: current, isLoading, isFetching, refetch, dataUpdatedAt } = useGetAnalytics(startDate, endDate, { live: isLive });
+  const { analytics: previous } = useGetAnalytics(period.previous[0], period.previous[1]);
+  const { secondaryWalletBalance, isLoading: treasuryLoading } = useGetSecondaryWallet(canManageOperations, { live: isLive });
+
+  const a = current?.analytics || {};
+  const p = previous?.analytics;
+  const attention = current?.attention || {};
+  const change = (key) => (p ? percentChange(a[key], p[key]) : undefined);
 
   const treasuryBalance = Number(secondaryWalletBalance?.balance || 0);
-  const treasuryStatus =
-    treasuryBalance <= TREASURY_LOW_THRESHOLD
-      ? "critical"
-      : treasuryBalance <= TREASURY_LOW_THRESHOLD * 2
-        ? "warning"
-        : "healthy";
+  const treasuryTone =
+    treasuryBalance <= TREASURY_LOW_THRESHOLD ? "red" : treasuryBalance <= TREASURY_LOW_THRESHOLD * 2 ? "amber" : "ok";
+  const ggrMargin = a.betAmount ? (a.totalRevenue / a.betAmount) * 100 : 0;
+  const floatCoverage = a.playerWithdrawableBalance ? (treasuryBalance / a.playerWithdrawableBalance) * 100 : 100;
+  const avgStake = a.betCount ? a.betAmount / a.betCount : 0;
+  const netCash = a.totalDeposit - a.totalWithdrawal;
 
-  const treasuryStyles = {
-    critical: {
-      border: "border-red-200 dark:border-red-900",
-      bg: "bg-red-50 dark:bg-red-950/40",
-      icon: "bg-red-100 dark:bg-red-900/50",
-      iconColor: "text-red-600 dark:text-red-400",
-      text: "text-red-700 dark:text-red-400",
-    },
-    warning: {
-      border: "border-amber-200 dark:border-amber-900",
-      bg: "bg-amber-50 dark:bg-amber-950/40",
-      icon: "bg-amber-100 dark:bg-amber-900/50",
-      iconColor: "text-amber-600 dark:text-amber-400",
-      text: "text-amber-700 dark:text-amber-400",
-    },
-    healthy: {
-      border: "border-emerald-200 dark:border-emerald-900",
-      bg: "bg-emerald-50 dark:bg-emerald-950/40",
-      icon: "bg-emerald-100 dark:bg-emerald-900/50",
-      iconColor: "text-emerald-600 dark:text-emerald-400",
-      text: "text-emerald-700 dark:text-emerald-400",
-    },
-  }[treasuryStatus];
-
-  // ✅ Export to Excel
-  const exportToExcel = () => {
-    const data = [
-      ["Metric", "Value"],
-      ["Registered Users", analytics?.analytics?.allUsers ?? 0],
-      ["Referred Users", analytics?.analytics?.totalReferredUsers ?? 0],
-      ["Total Revenue", analytics?.analytics?.totalRevenue ?? 0],
-      ["Bet Amount", analytics?.analytics?.betAmount ?? 0],
-      ["Win Amount", analytics?.analytics?.winAmount ?? 0],
-      ["Profit", analytics?.analytics?.profit ?? 0],
-      ["Users Balance", analytics?.analytics?.playerBalance ?? 0],
-      ["Users Bonus Balance", analytics?.analytics?.playerBonusBalance ?? 0],
-      ["Users Withdrawable Balance", analytics?.analytics?.playerWithdrawableBalance ?? 0],
-      ["Total Deposit", analytics?.analytics?.totalDeposit ?? 0],
-      ["Total Withdrawal", analytics?.analytics?.totalWithdrawal ?? 0],
-      ["Referral Bonus", analytics?.analytics?.totalReferralEarnings ?? 0],
-      ["Welcome Bonus", analytics?.analytics?.totalWelcomeBonus ?? 0],
-      ["Cashback", analytics?.analytics?.totalCashback ?? 0],
-      ["Tax", analytics?.analytics?.totalTax ?? 0],
-      ["Withdrawal Treasury Balance", treasuryBalance],
-    ];
-
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Analytics");
-
-    const fileName = `Analytics_${format(startDate, "yyyy-MM-dd")}_to_${format(
-      endDate,
-      "yyyy-MM-dd"
-    )}.xlsx`;
-    XLSX.writeFile(wb, fileName);
-  };
-
-  const timeFilters = [
-    {
-      id: "today",
-      label: "Today",
-      dates: [startOfDay(today), endOfDay(today)],
-    },
-    {
-      id: "yesterday",
-      label: "Yesterday",
-      dates: [startOfDay(subDays(today, 1)), endOfDay(subDays(today, 1))],
-    },
-    {
-      id: "this_week",
-      label: "This Week",
-      dates: [startOfWeek(today), endOfWeek(today)],
-    },
-    {
-      id: "last_week",
-      label: "Last Week",
-      dates: [startOfWeek(subDays(today, 7)), endOfWeek(subDays(today, 7))],
-    },
-    {
-      id: "this_month",
-      label: "This Month",
-      dates: [startOfMonth(today), endOfMonth(today)],
-    },
-    {
-      id: "last_month",
-      label: "Last Month",
-      dates: [
-        startOfMonth(new Date(today.getFullYear(), today.getMonth() - 1, 1)),
-        endOfMonth(new Date(today.getFullYear(), today.getMonth() - 1, 1)),
-      ],
-    },
-  ];
-
-  const handleFilterChange = (filterId) => {
-    const filter = timeFilters.find((f) => f.id === filterId);
-    setDateRange(filter.dates);
-    setActiveFilter(filterId);
-    setShowDatePicker(false);
-    refetch();
-  };
-
-  const handleDateChange = (dates) => {
+  const applyCustomRange = (dates) => {
     const [start, end] = dates;
-    if (!start && !end) return handleFilterChange("today");
-    if (start && !end) {
-      const rangeLength = differenceInDays(today, start);
-      const smartEndDate = rangeLength > 30 ? addDays(start, 30) : today;
-      setDateRange([start, smartEndDate]);
-      setActiveFilter("custom");
-      return;
+    setCustomRange([start, end]);
+    if (start && end) {
+      setPeriodId("custom");
+      setShowCustom(false);
     }
-    setDateRange([start, end]);
-    if (start && end) setActiveFilter("custom");
   };
 
-  const applyFilters = () => {
-    refetch();
-    setShowDatePicker(false);
+  const exportToExcel = () => {
+    const rows = [
+      ["ShilingiBet performance report"],
+      ["Period", `${format(startDate, "d MMM yyyy HH:mm")} – ${format(endDate, "d MMM yyyy HH:mm")}`],
+      ["Generated", format(new Date(), "d MMM yyyy HH:mm")],
+      [],
+      ["Metric", "Value", "Previous period"],
+      ["Gross gaming revenue (GGR)", a.totalRevenue, p?.totalRevenue ?? ""],
+      ["Total staked (turnover)", a.betAmount, p?.betAmount ?? ""],
+      ["Bets placed", a.betCount, p?.betCount ?? ""],
+      ["Paid to winners", a.winAmount, p?.winAmount ?? ""],
+      ["Voided / refunded", a.rollbackAmount, p?.rollbackAmount ?? ""],
+      ["Active players", a.activeBettors, p?.activeBettors ?? ""],
+      ["New sign-ups", a.allUsers, p?.allUsers ?? ""],
+      ["First-time depositors", a.firstTimeDepositors, p?.firstTimeDepositors ?? ""],
+      ["Deposits (KES)", a.totalDeposit, p?.totalDeposit ?? ""],
+      ["Deposits (count)", a.depositCount, p?.depositCount ?? ""],
+      ["Failed deposits", a.failedDeposits, p?.failedDeposits ?? ""],
+      ["Withdrawals (KES)", a.totalWithdrawal, p?.totalWithdrawal ?? ""],
+      ["Withdrawals (count)", a.withdrawalCount, p?.withdrawalCount ?? ""],
+      ["Net cash in", netCash, p ? p.totalDeposit - p.totalWithdrawal : ""],
+      ["Tax collected", a.totalTax, p?.totalTax ?? ""],
+      ["Referral bonus paid", a.totalReferralEarnings, p?.totalReferralEarnings ?? ""],
+      ["Cashback paid", a.totalCashback, p?.totalCashback ?? ""],
+      ["Welcome bonus paid", a.totalWelcomeBonus, p?.totalWelcomeBonus ?? ""],
+      [],
+      ["Right now"],
+      ["Player balances (total)", a.playerBalance],
+      ["Withdrawable by players", a.playerWithdrawableBalance],
+      ["Locked bonus funds", a.playerBonusBalance],
+      ["Payout float", treasuryBalance],
+      ["Withdrawals waiting", attention.pendingWithdrawals],
+      ["Withdrawals waiting (KES)", attention.pendingWithdrawalAmount],
+    ];
+    const sheet = XLSX.utils.aoa_to_sheet(rows);
+    sheet["!cols"] = [{ wch: 30 }, { wch: 22 }, { wch: 18 }];
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, "Report");
+    XLSX.writeFile(book, `ShilingiBet_${format(startDate, "yyyy-MM-dd")}_to_${format(endDate, "yyyy-MM-dd")}.xlsx`);
   };
 
-  const getActiveFilterLabel = () =>
-    timeFilters.find((f) => f.id === activeFilter)?.label || "Custom Range";
-
-  const items = timeFilters.map((filter) => ({
-    key: filter.id,
-    label: (
-      <span
-        className={
-          activeFilter === filter.id ? "text-green-600 font-medium" : ""
-        }
-      >
-        {filter.label}
-      </span>
-    ),
-  }));
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    return hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  })();
 
   return (
     <div className="space-y-6">
-      {/* Filters Section */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+      {/* Header + period selector */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-                Analytics Overview
-              </h3>
-              <LiveIndicator live={isLiveEligible} updatedAt={dataUpdatedAt} />
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {greeting}
+              {user?.name ? `, ${user.name.split(" ")[0]}` : ""}
+            </p>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Platform overview</h1>
+              <LiveBadge live={isLive} updatedAt={dataUpdatedAt} fetching={isFetching} />
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              {startDate && endDate
-                ? `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`
-                : "Select a date range"}
+            <p className="tabular mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {format(startDate, "EEE d MMM yyyy, HH:mm")} – {format(endDate, "EEE d MMM yyyy, HH:mm")} · compared with {period.compareLabel}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Dropdown
-              menu={{
-                items,
-                onClick: (e) => handleFilterChange(e.key),
-                selectable: true,
-              }}
-              trigger={["click"]}
-            >
-              <Button className="h-9 px-3 rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50">
-                <Space>
-                  <FiCalendar className="text-slate-500" size={14} />
-                  {getActiveFilterLabel()}
-                  <DownOutlined className="text-slate-400" />
-                </Space>
-              </Button>
-            </Dropdown>
 
-            <Button
-              icon={<FiFilter size={14} />}
-              onClick={() => setShowDatePicker(!showDatePicker)}
-              className={`h-9 px-3 rounded-lg ${
-                activeFilter === "custom"
-                  ? "bg-[#f9ce36] text-slate-900 border-[#f9ce36]"
-                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-              }`}
-            >
-              Custom Range
-            </Button>
-
-            <Button
-              icon={<FiDownload size={14} />}
-              onClick={exportToExcel}
-              disabled={isLoading}
-              className="h-9 px-3 rounded-lg bg-[#f9ce36] text-slate-900 border-[#f9ce36] hover:bg-[#e6bd2e]"
-            >
-              Export
-            </Button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-900" role="tablist" aria-label="Reporting period">
+              {periods.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={periodId === option.id}
+                  onClick={() => {
+                    setPeriodId(option.id);
+                    setShowCustom(false);
+                  }}
+                  className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    periodId === option.id
+                      ? "bg-brand text-black shadow-sm"
+                      : "text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                role="tab"
+                aria-selected={periodId === "custom"}
+                onClick={() => setShowCustom((open) => !open)}
+                className={`flex shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  periodId === "custom"
+                    ? "bg-brand text-black shadow-sm"
+                    : "text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-800"
+                }`}
+              >
+                <FiCalendar size={12} /> {periodId === "custom" ? period.label : "Custom"}
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => refetch()}
+                aria-label="Refresh numbers"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700"
+              >
+                <FiRefreshCw size={15} className={isFetching ? "animate-spin" : ""} />
+              </button>
+              <button
+                type="button"
+                onClick={exportToExcel}
+                disabled={isLoading}
+                className="flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-xs font-bold text-black hover:bg-brand-hover disabled:opacity-50"
+              >
+                <FiDownload size={14} /> Export report
+              </button>
+            </div>
           </div>
         </div>
 
-        {showDatePicker && (
-          <div className="flex flex-col sm:flex-row gap-3 items-center pt-4 mt-4 border-t border-slate-100 dark:border-slate-700">
-            <div className="flex items-center rounded-lg px-3 py-2 w-full sm:w-auto border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus-within:border-slate-400 focus-within:bg-white transition-colors">
-              <FiCalendar className="text-slate-400 mr-2" size={16} />
-              <DatePicker
-                selectsRange
-                startDate={startDate}
-                endDate={endDate}
-                onChange={handleDateChange}
-                placeholderText="Select date range"
-                dateFormat="MMM d, yyyy"
-                className="bg-transparent text-slate-700 dark:text-slate-200 outline-none w-full sm:w-48 text-sm"
-              />
-            </div>
-            <Button
-              type="primary"
-              onClick={applyFilters}
-              className="h-9 px-4 rounded-lg bg-[#f9ce36] hover:bg-[#e6bd2e] border-0 w-full sm:w-auto text-slate-900"
-            >
-              Apply
-            </Button>
+        {showCustom && (
+          <div className="mt-4 flex flex-col items-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-700 sm:flex-row sm:items-center">
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Pick a start and end date:</span>
+            <DatePicker
+              selectsRange
+              inline
+              startDate={customRange[0]}
+              endDate={customRange[1]}
+              maxDate={new Date()}
+              onChange={applyCustomRange}
+            />
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Treasury alert banner — persistent, not just a toast, so it can't be missed */}
-      {canManageOperations && !treasuryLoading && treasuryStatus !== "healthy" && (
-        <div
-          className={`flex items-center gap-3 rounded-xl border p-4 ${treasuryStyles.border} ${treasuryStyles.bg}`}
-        >
-          <FiAlertTriangle className={`shrink-0 ${treasuryStyles.iconColor}`} size={20} />
-          <p className={`text-sm font-medium ${treasuryStyles.text}`}>
-            {treasuryStatus === "critical"
-              ? `Withdrawal treasury critically low (KES ${treasuryBalance.toLocaleString()}) — most withdrawals will fail until it's funded.`
-              : `Withdrawal treasury is running low (KES ${treasuryBalance.toLocaleString()}) — consider topping it up soon.`}
-          </p>
-        </div>
+      {/* Needs attention */}
+      {canManageOperations && (
+        <section>
+          <SectionTitle title="Needs attention" description="Live items waiting on staff — click to act." />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <AttentionItem
+              to="/settings"
+              icon={HiOutlineBanknotes}
+              label="Payout float"
+              value={treasuryLoading ? "…" : kes(treasuryBalance)}
+              detail={
+                treasuryTone === "red"
+                  ? "Critically low — withdrawals will fail. Top up now."
+                  : treasuryTone === "amber"
+                    ? "Running low — plan a top-up."
+                    : `Covers ${pct(Math.min(floatCoverage, 999))} of withdrawable balances`
+              }
+              tone={treasuryTone}
+            />
+            <AttentionItem
+              to="/transactions"
+              icon={FiClock}
+              label="Withdrawals waiting"
+              value={`${count(attention.pendingWithdrawals)} · ${kes(attention.pendingWithdrawalAmount)}`}
+              detail="Requested but not yet paid out"
+              tone={attention.pendingWithdrawals > 0 ? "amber" : "ok"}
+            />
+            <AttentionItem
+              to="/transactions"
+              icon={FiAlertTriangle}
+              label="Manual review"
+              value={count(attention.manualReview)}
+              detail="Payments the system couldn't confirm"
+              tone={attention.manualReview > 0 ? "red" : "ok"}
+            />
+            <AttentionItem
+              to="/fraud-alerts"
+              icon={FiShield}
+              label="Bonuses on hold"
+              value={count(attention.heldReferralAwards)}
+              detail="Referral bonuses flagged as suspicious"
+              tone={attention.heldReferralAwards > 0 ? "amber" : "ok"}
+            />
+          </div>
+        </section>
       )}
 
-      {/* Pulse Strip — the numbers to check first */}
-      <div>
-        <SectionHeading>Platform Pulse</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {canManageOperations && (
-            <div className={`rounded-xl p-5 border ${treasuryStyles.border} ${treasuryStyles.bg}`}>
-              <div className="flex justify-between items-start gap-3">
-                <div className="flex-1 min-w-0 space-y-1">
-                  <p className={`text-xs font-medium uppercase tracking-wide truncate ${treasuryStyles.text}`}>
-                    Withdrawal Treasury
-                  </p>
-                  <h3 className={`text-base font-semibold truncate ${treasuryStyles.text}`}>
-                    {treasuryLoading ? <Shimmer /> : formatCurrency(treasuryBalance)}
-                  </h3>
-                  <p className={`text-xs truncate ${treasuryStyles.text} opacity-80`}>
-                    {treasuryStatus === "critical"
-                      ? "Critical — fund now"
-                      : treasuryStatus === "warning"
-                        ? "Running low"
-                        : "Healthy"}
-                  </p>
-                </div>
-                <div className={`${treasuryStyles.icon} p-3 rounded-lg flex-shrink-0`}>
-                  <HiOutlineBanknotes size={20} className={treasuryStyles.iconColor} />
-                </div>
-              </div>
+      {/* Headline KPIs */}
+      <section>
+        <SectionTitle title="Key results" description="The four numbers to check first." />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <KpiCard
+            emphasis
+            title="Gross gaming revenue"
+            hint="GGR: what the house kept from bets — stakes on losing bets plus net virtual-game results. This is our gaming income before costs."
+            value={kes(a.totalRevenue, { compact: true })}
+            meta={`Margin ${pct(ggrMargin)} of stakes`}
+            icon={FiTrendingUp}
+            tone="gold"
+            loading={isLoading}
+            change={change("totalRevenue")}
+            changeLabel={period.compareLabel}
+          />
+          <KpiCard
+            title="Net cash in"
+            hint="Deposits minus withdrawals paid in this period. Negative means more money left the platform than came in."
+            value={kes(netCash, { compact: true })}
+            valueClassName={netCash < 0 ? "!text-red-600 dark:!text-red-400" : ""}
+            meta={`${kes(a.totalDeposit, { compact: true })} in · ${kes(a.totalWithdrawal, { compact: true })} out`}
+            icon={HiOutlineBanknotes}
+            tone={netCash < 0 ? "red" : "green"}
+            loading={isLoading}
+            change={p ? percentChange(netCash, p.totalDeposit - p.totalWithdrawal) : undefined}
+            changeLabel={period.compareLabel}
+          />
+          <KpiCard
+            title="Total staked"
+            hint="Turnover: the total amount players bet, win or lose."
+            value={kes(a.betAmount, { compact: true })}
+            meta={`${count(a.betCount)} bets · avg ${kes(Math.round(avgStake))}`}
+            icon={FiTarget}
+            tone="blue"
+            loading={isLoading}
+            change={change("betAmount")}
+            changeLabel={period.compareLabel}
+          />
+          <KpiCard
+            title="Active players"
+            hint="Players who placed at least one bet in this period."
+            value={count(a.activeBettors)}
+            meta={`${count(a.allUsers)} new sign-ups`}
+            icon={FiUsers}
+            tone="violet"
+            loading={isLoading}
+            change={change("activeBettors")}
+            changeLabel={period.compareLabel}
+          />
+        </div>
+      </section>
+
+      {/* Main grid: KPIs on the left, live feed on the right */}
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[1fr_400px]">
+        <div className="min-w-0 space-y-6">
+          <section>
+            <SectionTitle title="Money in" description="Completed M-Pesa deposits and new paying players." />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <KpiCard
+                title="Deposits"
+                hint="Money players added through M-Pesa that completed successfully."
+                value={kes(a.totalDeposit)}
+                meta={`${count(a.depositCount)} deposits`}
+                icon={FiArrowDownLeft}
+                tone="green"
+                loading={isLoading}
+                change={change("totalDeposit")}
+                changeLabel={period.compareLabel}
+              />
+              <KpiCard
+                title="First-time depositors"
+                hint="Players whose very first successful deposit happened in this period. The key growth number."
+                value={count(a.firstTimeDepositors)}
+                meta={a.allUsers ? `${pct((a.firstTimeDepositors / a.allUsers) * 100)} of sign-ups` : "of new sign-ups"}
+                icon={FiUserPlus}
+                tone="violet"
+                loading={isLoading}
+                change={change("firstTimeDepositors")}
+                changeLabel={period.compareLabel}
+              />
+              <KpiCard
+                title="Failed deposits"
+                hint="Deposit attempts that failed or timed out (e.g. cancelled M-Pesa prompt, wrong PIN). A spike can mean a payment problem."
+                value={count(a.failedDeposits)}
+                meta="Cancelled, failed or expired"
+                icon={FiXCircle}
+                tone="red"
+                loading={isLoading}
+                change={change("failedDeposits")}
+                changeLabel={period.compareLabel}
+                positiveIsGood={false}
+              />
+              <KpiCard
+                title="Tax collected"
+                hint="Excise duty on deposits plus withholding tax on withdrawals, due to KRA."
+                value={kes(a.totalTax)}
+                meta="Excise + withholding"
+                icon={TbReceiptTax}
+                tone="slate"
+                loading={isLoading}
+                change={change("totalTax")}
+                changeLabel={period.compareLabel}
+              />
             </div>
-          )}
-          <StatsCard
-            icon={<FaUser size={20} className="text-blue-600" />}
-            bgColor="bg-blue-100"
-            number={isLoading ? <Shimmer /> : analytics?.analytics?.allUsers ?? 0}
-            title="Registered Users"
-            change="All users on platform"
-          />
-          <StatsCard
-            icon={<FaMoneyBillWave size={20} className="text-green-600" />}
-            bgColor="bg-green-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.totalRevenue ?? 0)
-            }
-            title="Gross Gaming Revenue"
-            change="Revenue earned"
-          />
-          <StatsCard
-            icon={<FaMoneyBillWave size={20} className="text-orange-600" />}
-            bgColor="bg-orange-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.profit ?? 0)
-            }
-            title={analytics?.analytics?.isLoss ? "Net Loss" : "Net Profit"}
-            change={
-              analytics?.analytics?.isLoss
-                ? "Withdrawals exceed deposits"
-                : "Deposits minus withdrawals"
-            }
-            isLoss={analytics?.analytics?.isLoss}
-          />
+          </section>
+
+          <section>
+            <SectionTitle title="Betting & money out" description="What players won and what left the platform." />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <KpiCard
+                title="Paid to winners"
+                hint="Total winnings credited to players' wallets from settled bets."
+                value={kes(a.winAmount)}
+                meta={a.betAmount ? `${pct((a.winAmount / a.betAmount) * 100)} of stakes returned` : "Return to player"}
+                icon={FiAward}
+                tone="gold"
+                loading={isLoading}
+                change={change("winAmount")}
+                changeLabel={period.compareLabel}
+                positiveIsGood={false}
+              />
+              <KpiCard
+                title="Withdrawals paid"
+                hint="Money successfully sent to players' M-Pesa."
+                value={kes(a.totalWithdrawal)}
+                meta={`${count(a.withdrawalCount)} payouts`}
+                icon={FiArrowUpRight}
+                tone="blue"
+                loading={isLoading}
+                change={change("totalWithdrawal")}
+                changeLabel={period.compareLabel}
+                positiveIsGood={false}
+              />
+              <KpiCard
+                title="Voided bets"
+                hint="Stakes refunded because the game provider cancelled (rolled back) the bet."
+                value={kes(a.rollbackAmount)}
+                meta="Refunded to players"
+                icon={FiRotateCcw}
+                tone="slate"
+                loading={isLoading}
+                change={change("rollbackAmount")}
+                changeLabel={period.compareLabel}
+                positiveIsGood={false}
+              />
+              <KpiCard
+                title="Referred sign-ups"
+                hint="New players who joined using someone's referral link."
+                value={count(a.totalReferredUsers)}
+                meta={a.allUsers ? `${pct((a.totalReferredUsers / a.allUsers) * 100)} of sign-ups` : "via referral links"}
+                icon={FiUserCheck}
+                tone="violet"
+                loading={isLoading}
+                change={change("totalReferredUsers")}
+                changeLabel={period.compareLabel}
+              />
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle title="Bonuses & promotions" description="Promotional money given to players." />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <KpiCard
+                title="Referral bonus"
+                hint="KES 10 paid to the referrer once their friend has deposited KES 50 or more."
+                value={kes(a.totalReferralEarnings)}
+                icon={FiGift}
+                tone="green"
+                loading={isLoading}
+                change={change("totalReferralEarnings")}
+                changeLabel={period.compareLabel}
+              />
+              <KpiCard
+                title="Cashback"
+                hint="Daily cashback credited to players on their net losses."
+                value={kes(a.totalCashback)}
+                icon={FiPercent}
+                tone="blue"
+                loading={isLoading}
+                change={change("totalCashback")}
+                changeLabel={period.compareLabel}
+              />
+              <KpiCard
+                title="Welcome bonus"
+                hint="Sign-up bonus. Currently switched off for new players; shows only historic awards."
+                value={kes(a.totalWelcomeBonus)}
+                meta="Switched off"
+                icon={FiGift}
+                tone="slate"
+                loading={isLoading}
+              />
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle title="Player balances right now" description="What we owe players at this moment, across all accounts." />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <KpiCard
+                title="Total player balances"
+                hint="Sum of every player's wallet: cash plus bonus funds. This is our liability to players."
+                value={kes(a.playerBalance)}
+                icon={HiOutlineBanknotes}
+                tone="violet"
+                loading={isLoading}
+              />
+              <KpiCard
+                title="Withdrawable cash"
+                hint="The part of player balances they're allowed to withdraw today. The payout float should cover this."
+                value={kes(a.playerWithdrawableBalance)}
+                meta={canManageOperations ? `Float covers ${pct(Math.min(floatCoverage, 999))}` : undefined}
+                icon={FiArrowUpRight}
+                tone={floatCoverage < 100 ? "red" : "green"}
+                loading={isLoading}
+              />
+              <KpiCard
+                title="Locked bonus funds"
+                hint="Bonus money that can be used for betting but can't be withdrawn until it's converted."
+                value={kes(a.playerBonusBalance)}
+                icon={FiLock}
+                tone="slate"
+                loading={isLoading}
+              />
+            </div>
+          </section>
         </div>
+
+        <aside className="min-w-0 2xl:sticky 2xl:top-0 2xl:self-start">
+          {canManageOperations && <ActivityFeed />}
+        </aside>
       </div>
 
-      {/* Money In */}
-      <div>
-        <SectionHeading>Money In</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            icon={<TbArrowUp size={20} className="text-green-600" />}
-            bgColor="bg-green-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.totalDeposit ?? 0)
-            }
-            title="Deposits"
-            change="Total deposits"
-          />
-          <StatsCard
-            icon={<FaPiggyBank size={20} className="text-emerald-600" />}
-            bgColor="bg-emerald-100"
-            number={
-              isLoading
-                ? <Shimmer />
-                : formatCurrency(analytics?.analytics?.totalReferralEarnings ?? 0)
-            }
-            title="Referral Bonus"
-            change="Bonus awarded"
-          />
-          <StatsCard
-            icon={<FaGift size={20} className="text-fuchsia-600" />}
-            bgColor="bg-fuchsia-100"
-            number={
-              isLoading
-                ? <Shimmer />
-                : formatCurrency(analytics?.analytics?.totalWelcomeBonus ?? 0)
-            }
-            title="Welcome Bonus"
-            change="Disabled for new signups"
-          />
-          <StatsCard
-            icon={<FaCoins size={20} className="text-cyan-600" />}
-            bgColor="bg-cyan-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.totalCashback ?? 0)
-            }
-            title="Cashback"
-            change="Cashback awarded"
-          />
-        </div>
-      </div>
-
-      {/* Betting Activity */}
-      <div>
-        <SectionHeading>Betting Activity</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <StatsCard
-            icon={<FaCoins size={20} className="text-yellow-600" />}
-            bgColor="bg-yellow-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.betAmount ?? 0)
-            }
-            title="Total Staked"
-            change="Total amount bet"
-          />
-          <StatsCard
-            icon={<FaTrophy size={20} className="text-pink-600" />}
-            bgColor="bg-pink-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.winAmount ?? 0)
-            }
-            title="Payouts to Players"
-            change="Winnings paid"
-          />
-          <StatsCard
-            icon={<FiRefreshCw size={20} className="text-teal-600" />}
-            bgColor="bg-teal-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.rollbackAmount ?? 0)
-            }
-            title="Voided / Refunded Bets"
-            change="Total rolled back"
-          />
-        </div>
-      </div>
-
-      {/* Money Out & Player Liability */}
-      <div>
-        <SectionHeading>Money Out &amp; Player Liability</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            icon={<TbArrowDown size={20} className="text-red-600" />}
-            bgColor="bg-red-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.totalWithdrawal ?? 0)
-            }
-            title="Withdrawals"
-            change="Total withdrawals"
-          />
-          <StatsCard
-            icon={<FiDatabase size={20} className="text-violet-600" />}
-            bgColor="bg-violet-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.playerBalance ?? 0)
-            }
-            title="Total Player Liability"
-            change="Total balance across players"
-          />
-          <StatsCard
-            icon={<FiDatabase size={20} className="text-fuchsia-600" />}
-            bgColor="bg-fuchsia-100"
-            number={
-              isLoading
-                ? <Shimmer />
-                : formatCurrency(analytics?.analytics?.playerBonusBalance ?? 0)
-            }
-            title="Locked Bonus Funds"
-            change="Restricted betting funds"
-          />
-          <StatsCard
-            icon={<FiDatabase size={20} className="text-sky-600" />}
-            bgColor="bg-sky-100"
-            number={
-              isLoading
-                ? <Shimmer />
-                : formatCurrency(analytics?.analytics?.playerWithdrawableBalance ?? 0)
-            }
-            title="Real Cash Exposure"
-            change="Cash available for withdrawal"
-          />
-        </div>
-      </div>
-
-      {/* Financial Health */}
-      <div>
-        <SectionHeading>Financial Health</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            icon={<TbReceiptTax size={20} className="text-indigo-600" />}
-            bgColor="bg-indigo-100"
-            number={
-              isLoading ? <Shimmer /> : formatCurrency(analytics?.analytics?.totalTax ?? 0)
-            }
-            title="Tax"
-            change="Tax collected"
-          />
-          <StatsCard
-            icon={<FaUsers size={20} className="text-purple-600" />}
-            bgColor="bg-purple-100"
-            number={
-              isLoading ? <Shimmer /> : analytics?.analytics?.totalReferredUsers ?? 0
-            }
-            title="Referred Users"
-            change="Users joined via referral"
-          />
-        </div>
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="col-span-1 lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 min-h-[320px]">
-          <div className="mb-4">
-            <h4 className="text-base font-semibold text-slate-800 dark:text-slate-100">Revenue Trends</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Monthly revenue performance</p>
-          </div>
+      {/* Trends */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <section className="min-h-[320px] rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800 lg:col-span-2">
+          <SectionTitle title="Revenue trend" description="GGR, stakes and winnings over the last 12 months." />
           <RevenueChart />
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 min-h-[320px]">
-          <div className="mb-4">
-            <h4 className="text-base font-semibold text-slate-800 dark:text-slate-100">Transaction Flow</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Deposits vs Withdrawals</p>
-          </div>
-          <CustomerActivityChart
-            deposits={analytics?.analytics?.totalDeposit}
-            withdrawals={analytics?.analytics?.totalWithdrawal}
-          />
-        </div>
+        </section>
+        <section className="min-h-[320px] rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+          <SectionTitle title="Cash flow" description={`Deposits vs withdrawals · ${period.label}`} />
+          <CustomerActivityChart deposits={a.totalDeposit} withdrawals={a.totalWithdrawal} />
+        </section>
       </div>
 
-      {/* Recent Transactions */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
-        <div className="mb-4">
-          <h4 className="text-base font-semibold text-slate-800 dark:text-slate-100">Recent Transactions</h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Latest transaction records</p>
-        </div>
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+        <SectionTitle
+          title="Latest transactions"
+          description="The five most recent deposits and withdrawals."
+          action={
+            <Link to="/transactions" className="flex items-center gap-1 text-xs font-semibold text-amber-600 hover:underline dark:text-brand">
+              View all <FiChevronRight />
+            </Link>
+          }
+        />
         <InvoiceTable />
-      </div>
+      </section>
     </div>
   );
 }

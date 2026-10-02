@@ -9,3 +9,5 @@ export const getAuditDates = () => get("dates");
 export const getAuditStats = () => get("stats");
 export const getAuditLogsByUser = (userId, page = 1, limit = 10) =>
   get(`user/${encodeURIComponent(userId)}?page=${page}&limit=${limit}`);
+export const getAuthEvents = ({ page = 1, limit = 20, outcome } = {}) =>
+  get(`auth-events?page=${page}&limit=${limit}${outcome ? `&outcome=${outcome}` : ""}`);

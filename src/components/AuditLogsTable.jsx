@@ -247,7 +247,7 @@ function AuditLogsTable() {
         width: 170,
         render: (timestamp) => (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
               <FiClock size={14} className="text-slate-500 dark:text-slate-400" />
             </div>
             <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">{formatShortDate(timestamp)}</span>
@@ -261,7 +261,7 @@ function AuditLogsTable() {
         width: 220,
         render: (userId) => (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-500/15 dark:to-indigo-500/15 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center flex-shrink-0">
               <FiUser className="text-indigo-600" size={14} />
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
@@ -344,7 +344,7 @@ function AuditLogsTable() {
           }
           if (record.details.amount !== undefined) {
             return (
-              <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 rounded-lg px-3 py-1.5 border border-emerald-200/50 inline-block">
+              <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-500/10 dark:to-emerald-500/10 rounded-lg px-3 py-1.5 border border-emerald-200/50 dark:border-emerald-500/30 inline-block">
                 <div className="font-bold text-emerald-700 text-sm">
                   {formatCurrency(record.details.amount)}
                 </div>
@@ -372,7 +372,7 @@ function AuditLogsTable() {
           <Tooltip title="View Details">
             <button
               onClick={() => showDetails(record)}
-              className="p-2 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:from-indigo-50 hover:to-indigo-100 transition-all text-slate-500 dark:text-slate-400 hover:text-indigo-600 shadow-sm"
+              className="p-2 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:from-indigo-50 hover:to-indigo-100 transition-all text-slate-500 dark:text-slate-400 hover:text-indigo-600 shadow-sm"
             >
               <FiEye size={16} />
             </button>
@@ -386,7 +386,7 @@ function AuditLogsTable() {
   // Custom empty state component
   const EmptyState = ({ title, description, icon: Icon }) => (
     <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mb-6 shadow-inner">
+      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-700 flex items-center justify-center mb-6 shadow-inner">
         {createElement(Icon, { className: "text-slate-400 dark:text-slate-500", size: 36 })}
       </div>
       <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">{title}</h3>
@@ -428,7 +428,7 @@ function AuditLogsTable() {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 via-white to-slate-50">
+      <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
@@ -538,11 +538,11 @@ function AuditLogsTable() {
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {logs?.map((log, index) => (
-              <div key={log._id || index} className="p-4 hover:bg-gradient-to-r hover:from-slate-50 hover:to-white transition-colors">
+              <div key={log._id || index} className="p-4 hover:bg-gradient-to-r hover:from-slate-50 hover:to-white dark:hover:from-slate-700/40 dark:hover:to-slate-800 transition-colors">
                 {/* Header: Time & Action */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-700 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
                       <FiClock size={14} className="text-slate-500 dark:text-slate-400" />
                     </div>
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{formatShortDate(log.timestamp)}</span>
@@ -552,7 +552,7 @@ function AuditLogsTable() {
 
                 {/* User ID */}
                 <div className="flex items-center gap-2 mb-4 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-700">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-500/15 dark:to-indigo-500/15 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center flex-shrink-0">
                     <FiUser className="text-indigo-600" size={14} />
                   </div>
                   <div className="flex items-center gap-1.5 min-w-0 flex-1">
@@ -678,7 +678,7 @@ function AuditLogsTable() {
               />
             ),
           }}
-          rowClassName="hover:bg-gradient-to-r hover:from-slate-50 hover:to-white transition-colors"
+          rowClassName="hover:bg-gradient-to-r hover:from-slate-50 hover:to-white dark:hover:from-slate-700/40 dark:hover:to-slate-800 transition-colors"
           className="audit-logs-table"
         />
       </div>
