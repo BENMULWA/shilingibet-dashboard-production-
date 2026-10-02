@@ -18,7 +18,7 @@ export default function AccountOverview() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-md font-semibold text-gray-700">
                 Withdrawal Treasury

@@ -11,18 +11,18 @@ import Shimmer from "./Shimmer";
 
 function StatCard({ icon, bgColor, title, value, subtitle, isLoading }) {
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center`}>
           {icon}
         </div>
-        <span className="text-sm text-slate-500">{title}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">{title}</span>
       </div>
-      <div className="text-2xl font-bold text-slate-900">
+      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
         {isLoading ? <Shimmer /> : value}
       </div>
       {subtitle && (
-        <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{subtitle}</p>
       )}
     </div>
   );
@@ -51,8 +51,8 @@ function ActionBreakdown({ actionCounts, isLoading }) {
     .slice(0, 6); // Show top 6 actions
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200">
-      <h4 className="text-sm font-semibold text-slate-700 mb-4">Action Types</h4>
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Action Types</h4>
       {isLoading ? (
         <div className="space-y-3">
           <Shimmer />
@@ -67,10 +67,10 @@ function ActionBreakdown({ actionCounts, isLoading }) {
             return (
               <div key={action}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-slate-600 truncate max-w-[150px]">{config.label}</span>
-                  <span className="text-sm font-medium text-slate-900">{count.toLocaleString()}</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-300 truncate max-w-[150px]">{config.label}</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{count.toLocaleString()}</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
                   <div
                     className={`${config.color} h-2 rounded-full transition-all`}
                     style={{ width: `${percentage}%` }}
@@ -81,7 +81,7 @@ function ActionBreakdown({ actionCounts, isLoading }) {
           })}
         </div>
       ) : (
-        <p className="text-sm text-slate-500">No data available</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">No data available</p>
       )}
     </div>
   );
@@ -96,8 +96,8 @@ function TopUsers({ userCounts, isLoading }) {
   const maxCount = topUsers[0]?.[1] || 1;
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200">
-      <h4 className="text-sm font-semibold text-slate-700 mb-4">Most Active Users</h4>
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Most Active Users</h4>
       {isLoading ? (
         <div className="space-y-3">
           <Shimmer />
@@ -111,12 +111,12 @@ function TopUsers({ userCounts, isLoading }) {
             return (
               <div key={userId}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-slate-600 font-mono" title={userId}>
+                  <span className="text-sm text-slate-600 dark:text-slate-300 font-mono" title={userId}>
                     {userId}
                   </span>
-                  <span className="text-sm font-medium text-slate-900">{count} events</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{count} events</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
                   <div
                     className="bg-indigo-500 h-2 rounded-full transition-all"
                     style={{ width: `${percentage}%` }}
@@ -127,7 +127,7 @@ function TopUsers({ userCounts, isLoading }) {
           })}
         </div>
       ) : (
-        <p className="text-sm text-slate-500">No data available</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">No data available</p>
       )}
     </div>
   );
@@ -145,7 +145,7 @@ function AuditStatsCards() {
       {/* Header */}
       <div className="flex items-center gap-2">
         <HiOutlineClipboardDocumentList className="text-indigo-500" size={24} />
-        <h3 className="text-lg font-semibold text-slate-800">Audit Statistics</h3>
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Audit Statistics</h3>
       </div>
 
       {/* Stats Cards Row */}

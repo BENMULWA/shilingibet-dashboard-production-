@@ -47,8 +47,8 @@ export default function FreeBetAwardHistory() {
       key: "player",
       render: (_, award) => (
         <div>
-          <p className="font-medium text-slate-800">{award.player?.name || award.player?.phone || "Unknown player"}</p>
-          <p className="text-xs text-slate-500">{award.player_id}</p>
+          <p className="font-medium text-slate-800 dark:text-slate-100">{award.player?.name || award.player?.phone || "Unknown player"}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{award.player_id}</p>
         </div>
       ),
     },
@@ -56,7 +56,7 @@ export default function FreeBetAwardHistory() {
       title: "Free-bet ID",
       dataIndex: "freebet_id",
       key: "freebet_id",
-      render: (value) => <span className="text-xs text-slate-600">{value}</span>,
+      render: (value) => <span className="text-xs text-slate-600 dark:text-slate-300">{value}</span>,
     },
     { title: "Value", key: "value", render: (_, award) => `${award.currency} ${Number(award.amount).toLocaleString()}` },
     {
@@ -162,7 +162,7 @@ export default function FreeBetAwardHistory() {
           setRevokeReason("");
         }}
       >
-        <p className="mb-3 text-sm text-slate-600">
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
           This stops the player from using this free bet. Used or expired awards cannot be revoked.
         </p>
         <Input.TextArea

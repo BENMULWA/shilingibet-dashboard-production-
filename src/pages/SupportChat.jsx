@@ -203,7 +203,7 @@ function SupportChat() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] flex items-center justify-center">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] flex items-center justify-center">
         <Spin size="large" tip="Connecting to chat..." />
       </div>
     );
@@ -211,7 +211,7 @@ function SupportChat() {
 
   if (error && !isConnected) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] flex items-center justify-center p-4">
         <Alert
           type="error"
           message="Connection Error"
@@ -223,19 +223,19 @@ function SupportChat() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] flex flex-col md:flex-row">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden h-[calc(100vh-120px)] md:h-[calc(100vh-180px)] flex flex-col md:flex-row">
       {/* Sidebar */}
-      <div className={`w-full md:w-80 lg:w-96 border-r border-slate-200 flex flex-col ${currentSession ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-full md:w-80 lg:w-96 border-r border-slate-200 dark:border-slate-700 flex flex-col ${currentSession ? 'hidden md:flex' : 'flex'}`}>
         {/* Header */}
-        <div className="px-3 md:px-4 py-3 md:py-4 border-b border-slate-100">
+        <div className="px-3 md:px-4 py-3 md:py-4 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#f9ce36]/20 flex items-center justify-center flex-shrink-0">
                 <HiOutlineChatBubbleLeftRight className="text-amber-600" size={18} />
               </div>
               <div>
-                <h3 className="text-base md:text-lg font-semibold text-slate-900">Support Chat</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="text-base md:text-lg font-semibold text-slate-900 dark:text-slate-100">Support Chat</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {queue.length} waiting · {activeChats.length} active · {history.length} closed
                 </p>
               </div>
@@ -256,7 +256,7 @@ function SupportChat() {
               className={`flex-1 py-1.5 md:py-2 px-2 md:px-3 rounded-lg text-xs md:text-sm font-medium transition-colors ${
                 viewMode === "queue"
                   ? "bg-amber-100 text-amber-800"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
               }`}
             >
               Queue
@@ -272,8 +272,8 @@ function SupportChat() {
               onClick={() => setViewMode("history")}
               className={`flex-1 py-1.5 md:py-2 px-2 md:px-3 rounded-lg text-xs md:text-sm font-medium transition-colors ${
                 viewMode === "history"
-                  ? "bg-slate-200 text-slate-800"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "bg-slate-200 text-slate-800 dark:text-slate-100"
+                  : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
               }`}
             >
               History
@@ -283,7 +283,7 @@ function SupportChat() {
               className={`flex-1 py-1.5 md:py-2 px-2 md:px-3 rounded-lg text-xs md:text-sm font-medium transition-colors ${
                 viewMode === "active"
                   ? "bg-emerald-100 text-emerald-800"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
               }`}
             >
               Active
@@ -299,7 +299,7 @@ function SupportChat() {
 
           <div className="relative">
             <Input
-              prefix={<FiSearch className="text-slate-400" size={14} />}
+              prefix={<FiSearch className="text-slate-400 dark:text-slate-500" size={14} />}
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -339,13 +339,13 @@ function SupportChat() {
                 className={`px-4 py-3 cursor-pointer border-b border-slate-50 transition-colors ${
                   currentSession?.sessionId === session.sessionId
                     ? "bg-[#f9ce36]/10 border-l-2 border-l-[#f9ce36]"
-                    : "hover:bg-slate-50"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-800"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div className="relative">
-                    <div className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center">
-                      <FiUser className="text-slate-500" size={18} />
+                    <div className="w-11 h-11 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                      <FiUser className="text-slate-500 dark:text-slate-400" size={18} />
                     </div>
                     {viewMode === "queue" && (
                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-amber-500 rounded-full border-2 border-white" />
@@ -359,14 +359,14 @@ function SupportChat() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-slate-900 text-sm">
+                      <span className="font-medium text-slate-900 dark:text-slate-100 text-sm">
                         {session.customer?.name || "Guest"}
                       </span>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-slate-400 dark:text-slate-500">
                         {formatTime(session.lastMessageAt || session.waitingStartedAt || session.createdAt)}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-500 truncate">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
                       {session.customer?.email || "No email"}
                     </p>
                     {viewMode === "queue" && session.queuePosition && (
@@ -383,21 +383,21 @@ function SupportChat() {
 
         {/* Stats */}
         {stats && (
-          <div className="px-4 py-3 border-t border-slate-100 bg-slate-50">
+          <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
             <div className="grid grid-cols-3 gap-2 text-center">
               <div>
-                <div className="text-lg font-bold text-slate-900">{stats.todayChats || 0}</div>
-                <div className="text-xs text-slate-500">Today</div>
+                <div className="text-lg font-bold text-slate-900 dark:text-slate-100">{stats.todayChats || 0}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">Today</div>
               </div>
               <div>
-                <div className="text-lg font-bold text-slate-900">{stats.totalChats || 0}</div>
-                <div className="text-xs text-slate-500">Total</div>
+                <div className="text-lg font-bold text-slate-900 dark:text-slate-100">{stats.totalChats || 0}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">Total</div>
               </div>
               <div>
-                <div className="text-lg font-bold text-slate-900">
+                <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   {stats.avgRating ? stats.avgRating.toFixed(1) : "N/A"}
                 </div>
-                <div className="text-xs text-slate-500">Rating</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">Rating</div>
               </div>
             </div>
           </div>
@@ -409,30 +409,30 @@ function SupportChat() {
         {currentSession ? (
           <>
             {/* Chat Header */}
-            <div className="px-3 md:px-5 py-3 md:py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="px-3 md:px-5 py-3 md:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
               <div className="flex items-center gap-2 md:gap-3">
                 {/* Back button for mobile */}
                 <button
                   onClick={() => setCurrentSession(null)}
                   className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-slate-200 transition-colors"
                 >
-                  <FiArrowRight className="text-slate-600 rotate-180" size={18} />
+                  <FiArrowRight className="text-slate-600 dark:text-slate-300 rotate-180" size={18} />
                 </button>
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#f9ce36] flex items-center justify-center flex-shrink-0">
-                  <span className="text-slate-900 font-semibold text-xs md:text-sm">
+                  <span className="text-slate-900 dark:text-slate-100 font-semibold text-xs md:text-sm">
                     {(currentSession.customer?.name || "G").charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <h4 className="font-semibold text-slate-900 text-sm md:text-base truncate">
+                    <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm md:text-base truncate">
                       {currentSession.customer?.name || currentSession.customer?.phone || "Guest"}
                     </h4>
                     {currentSession.customer?.phone && (
                       <button
                         type="button"
                         onClick={handleCopyCustomerPhone}
-                        className="shrink-0 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+                        className="shrink-0 p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors"
                         title="Copy phone number"
                         aria-label="Copy customer phone number"
                       >
@@ -444,13 +444,13 @@ function SupportChat() {
                       </button>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 truncate hidden sm:block">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate hidden sm:block">
                     {currentSession.customer?.email || "No email"}
                   </p>
                 </div>
               </div>
               {currentSession.status === "closed" ? (
-                <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-medium text-slate-600">
+                <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                   Closed
                 </span>
               ) : (
@@ -494,7 +494,7 @@ function SupportChat() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 md:space-y-4 bg-slate-50/50">
+            <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 md:space-y-4 bg-slate-50 dark:bg-slate-900/50">
               {messages.map((msg, index) => (
                 <div
                   key={msg._id || index}
@@ -514,8 +514,8 @@ function SupportChat() {
                     <div
                       className={`max-w-[85%] md:max-w-[70%] ${
                         msg.senderType === "agent"
-                          ? "bg-[#f9ce36] text-slate-900 rounded-2xl rounded-br-md"
-                          : "bg-white text-slate-800 rounded-2xl rounded-bl-md border border-slate-200"
+                          ? "bg-[#f9ce36] text-slate-900 dark:text-slate-100 rounded-2xl rounded-br-md"
+                          : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl rounded-bl-md border border-slate-200 dark:border-slate-700"
                       } px-3 md:px-4 py-2 md:py-2.5 shadow-sm`}
                     >
                       <p className="text-sm leading-relaxed">{msg.content}</p>
@@ -528,15 +528,15 @@ function SupportChat() {
                           size={10}
                           className={
                             msg.senderType === "agent"
-                              ? "text-slate-700/60"
-                              : "text-slate-400"
+                              ? "text-slate-700 dark:text-slate-200/60"
+                              : "text-slate-400 dark:text-slate-500"
                           }
                         />
                         <span
                           className={`text-xs ${
                             msg.senderType === "agent"
-                              ? "text-slate-700/60"
-                              : "text-slate-400"
+                              ? "text-slate-700 dark:text-slate-200/60"
+                              : "text-slate-400 dark:text-slate-500"
                           }`}
                         >
                           {formatMessageTime(msg.createdAt)}
@@ -545,7 +545,7 @@ function SupportChat() {
                           <>
                             <FiCheckCircle
                               size={12}
-                              className="text-slate-700/60 ml-1"
+                              className="text-slate-700 dark:text-slate-200/60 ml-1"
                             />
                             <button
                               onClick={(e) => {
@@ -564,7 +564,7 @@ function SupportChat() {
                               className="ml-2 p-1 rounded hover:bg-slate-900/10 transition-colors"
                               title="Delete message"
                             >
-                              <FiTrash2 size={12} className="text-slate-700/60 hover:text-red-600" />
+                              <FiTrash2 size={12} className="text-slate-700 dark:text-slate-200/60 hover:text-red-600 dark:hover:text-red-400" />
                             </button>
                           </>
                         )}
@@ -575,7 +575,7 @@ function SupportChat() {
               ))}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-white text-slate-500 px-3 md:px-4 py-1.5 md:py-2 rounded-2xl border border-slate-200 text-xs md:text-sm italic">
+                  <div className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-3 md:px-4 py-1.5 md:py-2 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs md:text-sm italic">
                     Customer is typing...
                   </div>
                 </div>
@@ -585,11 +585,11 @@ function SupportChat() {
 
             {/* Message Input / history status */}
             {currentSession.status === "closed" ? (
-              <div className="border-t border-slate-100 bg-white px-4 py-3 text-center text-sm text-slate-500">
+              <div className="border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-center text-sm text-slate-500 dark:text-slate-400">
                 This conversation is closed and available as read-only history.
               </div>
             ) : (
-            <div className="px-3 md:px-5 py-3 md:py-4 border-t border-slate-100 bg-white">
+            <div className="px-3 md:px-5 py-3 md:py-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
               <div className="flex items-end gap-2 md:gap-3">
                 <div className="flex-1">
                   <Input.TextArea
@@ -612,7 +612,7 @@ function SupportChat() {
                   <span className="hidden sm:inline">Send</span>
                 </Button>
               </div>
-              <p className="text-xs text-slate-400 mt-1.5 md:mt-2 hidden sm:block">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 md:mt-2 hidden sm:block">
                 {!isConnected
                   ? "Disconnected - reconnecting..."
                   : agentStatus === "offline"
@@ -624,17 +624,17 @@ function SupportChat() {
           </>
         ) : (
           /* Empty State */
-          <div className="flex-1 hidden md:flex items-center justify-center bg-slate-50/50">
+          <div className="flex-1 hidden md:flex items-center justify-center bg-slate-50 dark:bg-slate-900/50">
             <div className="text-center px-4">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#f9ce36]/20 flex items-center justify-center mx-auto mb-4">
                 <HiOutlineChatBubbleLeftRight className="text-amber-600" size={28} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-800 mb-2">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
                 {agentStatus === "offline"
                   ? "You are offline"
                   : "Select a chat"}
               </h3>
-              <p className="text-sm text-slate-500 max-w-xs">
+              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
                 {agentStatus === "offline"
                   ? "Go online to start receiving chats"
                   : "Accept a chat from the queue or select from active chats"}
@@ -669,7 +669,7 @@ function SupportChat() {
         confirmLoading={loadingAgents}
       >
         <div className="py-4">
-          <p className="text-slate-600 mb-4">
+          <p className="text-slate-600 dark:text-slate-300 mb-4">
             Select an agent to transfer this chat to:
           </p>
 
@@ -678,7 +678,7 @@ function SupportChat() {
               <Spin tip="Loading agents..." />
             </div>
           ) : onlineAgents.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
               No other agents are online
             </div>
           ) : (
@@ -692,7 +692,7 @@ function SupportChat() {
                   <Radio
                     key={agent.userId}
                     value={agent.userId}
-                    className="w-full p-3 border rounded-lg hover:bg-slate-50"
+                    className="w-full p-3 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
                   >
                     <div className="flex items-center justify-between w-full">
                       <span className="font-medium">{agent.username}</span>
@@ -708,7 +708,7 @@ function SupportChat() {
           )}
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
               Reason (optional)
             </label>
             <Input.TextArea

@@ -6,12 +6,13 @@ import {
 } from "../services/analyticServices";
 import toast from "react-hot-toast";
 
-export function useGetAnalytics(startDate, endDate) {
+export function useGetAnalytics(startDate, endDate, { live = false } = {}) {
   const {
     data: analytics,
     isPending: isLoading,
     error,
     refetch,
+    dataUpdatedAt,
   } = useQuery({
     queryFn: () => {
       const start = format(new Date(startDate), "yyyy-MM-dd");
@@ -21,6 +22,8 @@ export function useGetAnalytics(startDate, endDate) {
     },
     enabled: !!startDate && !!endDate,
     queryKey: ["analyticsServices", startDate, endDate],
+    refetchInterval: live ? 15000 : false,
+    refetchIntervalInBackground: false,
     onError: (err) => {
       toast.error(
         err?.message ?? "Something went wrong fetching your analytics"
@@ -28,7 +31,7 @@ export function useGetAnalytics(startDate, endDate) {
     },
   });
 
-  return { analytics, isLoading, error, refetch };
+  return { analytics, isLoading, error, refetch, dataUpdatedAt };
 }
 export function useGetMonthlyAnalytics() {
   const {

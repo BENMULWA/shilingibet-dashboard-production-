@@ -29,7 +29,7 @@ export default function FreeBetAwardPlayers() {
     Modal.confirm({
       title: `Award ${selectedUserIds.length} selected player${selectedUserIds.length === 1 ? "" : "s"}?`,
       content: (
-        <div className="space-y-1 text-sm text-slate-600">
+        <div className="space-y-1 text-sm text-slate-600 dark:text-slate-300">
           <p><strong>Campaign:</strong> {campaign.name}</p>
           <p><strong>Value:</strong> {campaign.currency} {Number(campaign.amount).toLocaleString()}</p>
           <p><strong>Free bets per player:</strong> {campaign.count_per_player}</p>
@@ -51,8 +51,8 @@ export default function FreeBetAwardPlayers() {
       key: "player",
       render: (_, user) => (
         <div>
-          <p className="font-medium text-slate-800">{user.name || "Unnamed player"}</p>
-          <p className="text-xs text-slate-500">{user._id}</p>
+          <p className="font-medium text-slate-800 dark:text-slate-100">{user.name || "Unnamed player"}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{user._id}</p>
         </div>
       ),
     },
@@ -129,10 +129,10 @@ export default function FreeBetAwardPlayers() {
         </Button>
       </div>
       {selectedUserIds.length > 0 && (
-        <p className="mb-3 text-sm text-slate-600">{selectedUserIds.length} of 100 players selected</p>
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{selectedUserIds.length} of 100 players selected</p>
       )}
       {!campaignId ? (
-        <div className="rounded-xl border border-dashed border-slate-300 py-14 text-center text-slate-500">
+        <div className="rounded-xl border border-dashed border-slate-300 py-14 text-center text-slate-500 dark:text-slate-400">
           Select a campaign to load eligible players.
         </div>
       ) : (

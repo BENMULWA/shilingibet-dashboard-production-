@@ -158,7 +158,7 @@ export default function FreeBets() {
 
   const columns = [
     { title: "Campaign", dataIndex: "name", key: "name", render: (name, row) => (
-      <div><p className="font-medium text-slate-800">{name}</p><p className="text-xs text-slate-500">{row.campaign_id}</p></div>
+      <div><p className="font-medium text-slate-800 dark:text-slate-100">{name}</p><p className="text-xs text-slate-500 dark:text-slate-400">{row.campaign_id}</p></div>
     ) },
     { title: "Game", dataIndex: "game_uuid", key: "game_uuid", render: (id) => (
       gamesQuery.data?.find((game) => game.game_uuid === id)?.game_name || id
@@ -166,7 +166,7 @@ export default function FreeBets() {
     { title: "Value", key: "value", render: (_, row) => `${row.currency} ${Number(row.amount).toLocaleString()}` },
     { title: "Per player", dataIndex: "count_per_player", key: "count_per_player" },
     { title: "Period", key: "period", render: (_, row) => (
-      <div className="text-xs"><p>{formatDate(row.start_date)}</p><p className="text-slate-500">to {formatDate(row.end_date)}</p></div>
+      <div className="text-xs"><p>{formatDate(row.start_date)}</p><p className="text-slate-500 dark:text-slate-400">to {formatDate(row.end_date)}</p></div>
     ) },
     { title: "Status", dataIndex: "status", key: "status", render: (status) => (
       <Tag color={Number(status) === 1 ? "green" : "default"}>{Number(status) === 1 ? "Active" : "Inactive"}</Tag>
@@ -187,8 +187,8 @@ export default function FreeBets() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">Free Bets</h1>
-          <p className="text-sm text-slate-500">Create and manage EuroVirtuals campaigns.</p>
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Free Bets</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Create and manage EuroVirtuals campaigns.</p>
         </div>
         <Space>
           <Button icon={<FiRefreshCw />} onClick={() => campaignsQuery.refetch()} loading={campaignsQuery.isFetching}>

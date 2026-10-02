@@ -91,7 +91,7 @@ function FraudAlertsTable() {
       high: { color: "red", bg: "bg-red-50", text: "text-red-700", border: "border-red-200", label: "High" },
       critical: { color: "magenta", bg: "bg-pink-50", text: "text-pink-700", border: "border-pink-200", label: "Critical" },
     };
-    return config[level] || { color: "default", bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", label: level || "N/A" };
+    return config[level] || { color: "default", bg: "bg-slate-50 dark:bg-slate-900", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-700", label: level || "N/A" };
   }, []);
 
   const getRiskLevelBadge = useCallback((level) => {
@@ -114,7 +114,7 @@ function FraudAlertsTable() {
       referral_bonus: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", label: "Referral Bonus" },
       welcome_bonus: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Welcome Bonus" },
     };
-    const { bg, text, border, label } = config[type] || { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", label: type || "N/A" };
+    const { bg, text, border, label } = config[type] || { bg: "bg-slate-50 dark:bg-slate-900", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-700", label: type || "N/A" };
     return (
       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${bg} ${text} border ${border}`}>
         {label}
@@ -129,9 +129,9 @@ function FraudAlertsTable() {
       resolved: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", dot: "bg-emerald-500", label: "Resolved" },
       resolved_legitimate: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", dot: "bg-emerald-500", label: "Legitimate" },
       resolved_fraud: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", dot: "bg-red-500", label: "Fraud" },
-      dismissed: { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400", label: "Dismissed" },
+      dismissed: { bg: "bg-slate-50 dark:bg-slate-900", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-700", dot: "bg-slate-400", label: "Dismissed" },
     };
-    const { bg, text, border, dot, label } = config[status] || { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400", label: status || "N/A" };
+    const { bg, text, border, dot, label } = config[status] || { bg: "bg-slate-50 dark:bg-slate-900", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-700", dot: "bg-slate-400", label: status || "N/A" };
     return (
       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${bg} ${text} border ${border}`}>
         <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
@@ -195,32 +195,32 @@ function FraudAlertsTable() {
   const columns = useMemo(
     () => [
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">User</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">User</span>,
         dataIndex: "phone",
         key: "phone",
         width: 180,
         render: (phone, record) => (
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-bold text-slate-600">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
                 {phone?.slice(-2) || "??"}
               </span>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-slate-900 text-sm truncate">{phone || "N/A"}</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm truncate">{phone || "N/A"}</span>
                 {phone && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleCopy(phone);
                     }}
-                    className="p-0.5 rounded hover:bg-slate-100 transition-colors flex-shrink-0"
+                    className="p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
                   >
                     {copiedText === phone ? (
                       <FiCheck className="text-emerald-500" size={12} />
                     ) : (
-                      <FiCopy className="text-slate-400 hover:text-slate-600" size={12} />
+                      <FiCopy className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" size={12} />
                     )}
                   </button>
                 )}
@@ -242,21 +242,21 @@ function FraudAlertsTable() {
         ),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Alert Type</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Alert Type</span>,
         dataIndex: "type",
         key: "type",
         width: 140,
         render: (type) => getTypeBadge(type),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Risk</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Risk</span>,
         key: "risk",
         width: 130,
         render: (_, record) => (
           <div className="space-y-1">
             {getRiskLevelBadge(record.riskLevel)}
             <div className="flex items-center gap-1">
-              <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     record.riskScore >= 50
@@ -268,35 +268,35 @@ function FraudAlertsTable() {
                   style={{ width: `${Math.min(record.riskScore, 100)}%` }}
                 />
               </div>
-              <span className="text-xs font-semibold text-slate-600">{record.riskScore}</span>
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{record.riskScore}</span>
             </div>
           </div>
         ),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Reward</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Reward</span>,
         key: "betDetails",
         width: 150,
         render: (_, record) => (
           <div className="space-y-0.5">
-            <div className="font-semibold text-slate-900">
+            <div className="font-semibold text-slate-900 dark:text-slate-100">
               {formatCurrency(record.context?.betAmount ?? 0)}
             </div>
-            <div className="text-xs text-slate-500 truncate" title={record.context?.provider}>
+            <div className="text-xs text-slate-500 dark:text-slate-400 truncate" title={record.context?.provider}>
               {record.context?.provider?.replace(/_/g, " ") || "N/A"}
             </div>
           </div>
         ),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">IP Info</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">IP Info</span>,
         key: "ipInfo",
         width: 130,
         render: (_, record) => (
           <div className="space-y-0.5">
             <div className="text-xs">
-              <span className="text-slate-500">Client: </span>
-              <span className="font-mono text-slate-700">{record.context?.clientIp?.split('.').slice(0, 2).join('.') + '...' || "N/A"}</span>
+              <span className="text-slate-500 dark:text-slate-400">Client: </span>
+              <span className="font-mono text-slate-700 dark:text-slate-200">{record.context?.clientIp?.split('.').slice(0, 2).join('.') + '...' || "N/A"}</span>
             </div>
             {record.context?.clientIp !== record.context?.registrationIp && (
               <div className="text-xs text-amber-600 flex items-center gap-1">
@@ -308,19 +308,19 @@ function FraudAlertsTable() {
         ),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</span>,
         dataIndex: "status",
         key: "status",
         width: 120,
         render: (status) => getStatusBadge(status),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Time</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Time</span>,
         dataIndex: "createdAt",
         key: "createdAt",
         width: 110,
         render: (date) => (
-          <div className="flex items-center gap-1.5 text-slate-500">
+          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
             <FiClock size={12} />
             <span className="text-xs">{formatShortDate(date)}</span>
           </div>
@@ -337,7 +337,7 @@ function FraudAlertsTable() {
             <Tooltip title="View Details">
               <button
                 onClick={() => showDetails(record)}
-                className="p-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all text-slate-600 hover:text-slate-800"
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-slate-600 dark:text-slate-300 hover:text-slate-800"
               >
                 <FiEye size={16} />
               </button>
@@ -360,13 +360,13 @@ function FraudAlertsTable() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-8">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
             <div className="text-center">
-              <p className="text-slate-600 mb-4">Failed to load fraud alerts</p>
-              <p className="text-slate-400 text-sm mb-4">{error.message}</p>
+              <p className="text-slate-600 dark:text-slate-300 mb-4">Failed to load fraud alerts</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mb-4">{error.message}</p>
               <Button
                 type="primary"
                 onClick={() => refetch()}
@@ -382,18 +382,18 @@ function FraudAlertsTable() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+      <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
               <HiOutlineShieldExclamation className="text-white" size={24} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Fraud Alerts</h3>
-              <p className="text-sm text-slate-500 mt-0.5">
-                <span className="font-semibold text-slate-700">{apiPagination?.total?.toLocaleString() ?? 0}</span> alerts detected
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Fraud Alerts</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{apiPagination?.total?.toLocaleString() ?? 0}</span> alerts detected
               </p>
             </div>
           </div>
@@ -401,7 +401,7 @@ function FraudAlertsTable() {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative">
               <Input
-                prefix={<FiSearch className="text-slate-400" size={16} />}
+                prefix={<FiSearch className="text-slate-400 dark:text-slate-500" size={16} />}
                 placeholder="Search by phone..."
                 value={searchPhone}
                 onChange={handleSearch}
@@ -417,7 +417,7 @@ function FraudAlertsTable() {
                 onClick={handleRefresh}
                 loading={isFetching}
                 size="large"
-                className="border-slate-200 hover:border-slate-300 rounded-lg"
+                className="border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-lg"
               >
                 Refresh
               </Button>
@@ -429,41 +429,41 @@ function FraudAlertsTable() {
       {/* Mobile Card View */}
       <div className="block lg:hidden">
         {isLoading || isFetching ? (
-          <div className="p-6 text-center text-slate-500">Loading...</div>
+          <div className="p-6 text-center text-slate-500 dark:text-slate-400">Loading...</div>
         ) : filteredAlerts?.length === 0 ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <div className="text-center py-4">
-                <p className="text-slate-500 mb-1">No fraud alerts found</p>
-                <p className="text-slate-400 text-xs">All clear for now</p>
+                <p className="text-slate-500 dark:text-slate-400 mb-1">No fraud alerts found</p>
+                <p className="text-slate-400 dark:text-slate-500 text-xs">All clear for now</p>
               </div>
             }
           />
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {filteredAlerts?.map((alert) => (
-              <div key={alert._id} className="p-4 hover:bg-slate-50/50 transition-colors">
+              <div key={alert._id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 {/* Header: User & Status */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-slate-600">
+                      <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
                         {alert.phone?.slice(-2) || "??"}
                       </span>
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-slate-900 text-sm">{alert.phone || "N/A"}</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{alert.phone || "N/A"}</span>
                         {alert.phone && (
                           <button
                             onClick={() => handleCopy(alert.phone)}
-                            className="p-0.5 rounded hover:bg-slate-100 transition-colors"
+                            className="p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                           >
                             {copiedText === alert.phone ? (
                               <FiCheck className="text-emerald-500" size={12} />
                             ) : (
-                              <FiCopy className="text-slate-400" size={12} />
+                              <FiCopy className="text-slate-400 dark:text-slate-500" size={12} />
                             )}
                           </button>
                         )}
@@ -487,7 +487,7 @@ function FraudAlertsTable() {
                   {getTypeBadge(alert.type)}
                   {getRiskLevelBadge(alert.riskLevel)}
                   <div className="flex items-center gap-1 ml-auto">
-                    <div className="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-12 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${
                           alert.riskScore >= 50
@@ -499,27 +499,27 @@ function FraudAlertsTable() {
                         style={{ width: `${Math.min(alert.riskScore, 100)}%` }}
                       />
                     </div>
-                    <span className="text-xs font-semibold text-slate-600">{alert.riskScore}</span>
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{alert.riskScore}</span>
                   </div>
                 </div>
 
                 {/* Details Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
                   <div>
-                    <span className="text-slate-500 text-xs">Bet Amount</span>
-                    <p className="font-semibold text-slate-900">{formatCurrency(alert.context?.betAmount ?? 0)}</p>
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">Bet Amount</span>
+                    <p className="font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(alert.context?.betAmount ?? 0)}</p>
                   </div>
                   <div>
-                    <span className="text-slate-500 text-xs">Provider</span>
-                    <p className="text-slate-700 truncate">{alert.context?.provider?.replace(/_/g, " ") || "N/A"}</p>
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">Provider</span>
+                    <p className="text-slate-700 dark:text-slate-200 truncate">{alert.context?.provider?.replace(/_/g, " ") || "N/A"}</p>
                   </div>
                   <div>
-                    <span className="text-slate-500 text-xs">Client IP</span>
-                    <p className="font-mono text-xs text-slate-700">{alert.context?.clientIp || "N/A"}</p>
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">Client IP</span>
+                    <p className="font-mono text-xs text-slate-700 dark:text-slate-200">{alert.context?.clientIp || "N/A"}</p>
                   </div>
                   <div>
-                    <span className="text-slate-500 text-xs">Time</span>
-                    <p className="text-slate-700 text-xs flex items-center gap-1">
+                    <span className="text-slate-500 dark:text-slate-400 text-xs">Time</span>
+                    <p className="text-slate-700 dark:text-slate-200 text-xs flex items-center gap-1">
                       <FiClock size={10} />
                       {formatShortDate(alert.createdAt)}
                     </p>
@@ -535,10 +535,10 @@ function FraudAlertsTable() {
                 )}
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                   <button
                     onClick={() => showDetails(alert)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all text-slate-600 hover:text-slate-800 text-sm font-medium flex items-center justify-center gap-1.5"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-slate-600 dark:text-slate-300 hover:text-slate-800 text-sm font-medium flex items-center justify-center gap-1.5"
                   >
                     <FiEye size={14} />
                     Details
@@ -559,8 +559,8 @@ function FraudAlertsTable() {
         )}
 
         {/* Mobile Pagination */}
-        <div className="px-4 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-slate-500 text-sm">
+        <div className="px-4 py-4 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="text-slate-500 dark:text-slate-400 text-sm">
             Page {currentPage} of {Math.ceil((apiPagination?.total ?? 0) / pageSize) || 1}
           </span>
           <div className="flex items-center gap-2">
@@ -599,8 +599,8 @@ function FraudAlertsTable() {
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100"],
             showTotal: (total, range) => (
-              <span className="text-slate-500 text-sm">
-                Showing <span className="font-semibold text-slate-700">{range[0]}-{range[1]}</span> of <span className="font-semibold text-slate-700">{total}</span>
+              <span className="text-slate-500 dark:text-slate-400 text-sm">
+                Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{range[0]}-{range[1]}</span> of <span className="font-semibold text-slate-700 dark:text-slate-200">{total}</span>
               </span>
             ),
             className: "px-6 py-4",
@@ -612,14 +612,14 @@ function FraudAlertsTable() {
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
                   <div className="text-center py-4">
-                    <p className="text-slate-500 mb-1">No fraud alerts found</p>
-                    <p className="text-slate-400 text-xs">All clear for now</p>
+                    <p className="text-slate-500 dark:text-slate-400 mb-1">No fraud alerts found</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-xs">All clear for now</p>
                   </div>
                 }
               />
             ),
           }}
-          rowClassName="hover:bg-slate-50/50 transition-colors"
+          rowClassName="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
           className="fraud-alerts-table"
         />
       </div>
@@ -632,8 +632,8 @@ function FraudAlertsTable() {
               <FiAlertTriangle className="text-white" size={16} />
             </div>
             <div className="min-w-0">
-              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Fraud Alert Details</h3>
-              <p className="text-xs text-slate-500 font-normal truncate">ID: {selectedAlert?._id?.slice(-8)}</p>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base">Fraud Alert Details</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-normal truncate">ID: {selectedAlert?._id?.slice(-8)}</p>
             </div>
           </div>
         }
@@ -665,50 +665,50 @@ function FraudAlertsTable() {
         {selectedAlert && (
           <div className="space-y-4 sm:space-y-5 mt-3 sm:mt-4">
             {/* Basic Info */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg sm:rounded-xl p-3 sm:p-5 border border-slate-200">
-              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg sm:rounded-xl p-3 sm:p-5 border border-slate-200 dark:border-slate-700">
+              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 sm:mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
                 Basic Information
               </h4>
               <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Phone</span>
-                  <p className="font-semibold text-slate-900 text-xs sm:text-sm truncate">{selectedAlert.phone}</p>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Phone</span>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100 text-xs sm:text-sm truncate">{selectedAlert.phone}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Type</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Type</span>
                   <p>{getTypeBadge(selectedAlert.type)}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Risk Level</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Risk Level</span>
                   <p>{getRiskLevelBadge(selectedAlert.riskLevel)}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Risk Score</span>
-                  <p className="font-bold text-xl sm:text-2xl text-slate-900">{selectedAlert.riskScore}</p>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Risk Score</span>
+                  <p className="font-bold text-xl sm:text-2xl text-slate-900 dark:text-slate-100">{selectedAlert.riskScore}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Status</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Status</span>
                   <p>{getStatusBadge(selectedAlert.status)}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Action</span>
-                  <p className="font-medium text-slate-700 capitalize text-xs sm:text-sm">{selectedAlert.action?.replace(/_/g, " ")}</p>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Action</span>
+                  <p className="font-medium text-slate-700 dark:text-slate-200 capitalize text-xs sm:text-sm">{selectedAlert.action?.replace(/_/g, " ")}</p>
                 </div>
               </div>
             </div>
 
             {/* Context Info */}
             <div className="bg-gradient-to-br from-blue-50/50 to-blue-100/30 rounded-lg sm:rounded-xl p-3 sm:p-5 border border-blue-200/50">
-              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
+              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 sm:mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
                 Bet Context
               </h4>
               <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div className="space-y-1 col-span-2 sm:col-span-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Bet ID</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Bet ID</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] sm:text-xs bg-white px-2 py-1 rounded border border-slate-200 truncate max-w-[120px] sm:max-w-none">{selectedAlert.context?.betId}</span>
+                    <span className="font-mono text-[10px] sm:text-xs bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 truncate max-w-[120px] sm:max-w-none">{selectedAlert.context?.betId}</span>
                     <button
                       onClick={() => handleCopy(selectedAlert.context?.betId)}
                       className="p-1 rounded hover:bg-white/50 flex-shrink-0"
@@ -716,43 +716,43 @@ function FraudAlertsTable() {
                       {copiedText === selectedAlert.context?.betId ? (
                         <FiCheck className="text-emerald-500" size={12} />
                       ) : (
-                        <FiCopy className="text-slate-400" size={12} />
+                        <FiCopy className="text-slate-400 dark:text-slate-500" size={12} />
                       )}
                     </button>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Provider</span>
-                  <p className="font-medium text-slate-900 text-xs sm:text-sm truncate">{selectedAlert.context?.provider?.replace(/_/g, " ")}</p>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Provider</span>
+                  <p className="font-medium text-slate-900 dark:text-slate-100 text-xs sm:text-sm truncate">{selectedAlert.context?.provider?.replace(/_/g, " ")}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Bet Amount</span>
-                  <p className="font-bold text-base sm:text-lg text-slate-900">
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Bet Amount</span>
+                  <p className="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100">
                     {formatCurrency(selectedAlert.context?.betAmount ?? 0)}
                   </p>
                 </div>
                 {selectedAlert.context?.amountVariety !== undefined && (
                   <div className="space-y-1">
-                    <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Amount Variety</span>
-                    <p className="font-medium text-slate-900 text-xs sm:text-sm">{selectedAlert.context.amountVariety}</p>
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Amount Variety</span>
+                    <p className="font-medium text-slate-900 dark:text-slate-100 text-xs sm:text-sm">{selectedAlert.context.amountVariety}</p>
                   </div>
                 )}
                 {selectedAlert.context?.intervalStdDev !== undefined && (
                   <div className="space-y-1">
-                    <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Interval Std Dev</span>
-                    <p className="font-medium text-slate-900 text-xs sm:text-sm">{selectedAlert.context.intervalStdDev?.toLocaleString()}</p>
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Interval Std Dev</span>
+                    <p className="font-medium text-slate-900 dark:text-slate-100 text-xs sm:text-sm">{selectedAlert.context.intervalStdDev?.toLocaleString()}</p>
                   </div>
                 )}
                 {selectedAlert.context?.winRate !== undefined && (
                   <div className="space-y-1">
-                    <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Win Rate</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Win Rate</span>
                     <p className="font-bold text-amber-600 text-xs sm:text-sm">{(selectedAlert.context.winRate * 100).toFixed(1)}%</p>
                   </div>
                 )}
                 {selectedAlert.context?.profitRatio !== undefined && (
                   <div className="space-y-1">
-                    <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Profit Ratio</span>
-                    <p className="font-medium text-slate-900 text-xs sm:text-sm">{selectedAlert.context.profitRatio}</p>
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Profit Ratio</span>
+                    <p className="font-medium text-slate-900 dark:text-slate-100 text-xs sm:text-sm">{selectedAlert.context.profitRatio}</p>
                   </div>
                 )}
               </div>
@@ -760,18 +760,18 @@ function FraudAlertsTable() {
 
             {/* IP Info */}
             <div className="bg-gradient-to-br from-purple-50/50 to-purple-100/30 rounded-lg sm:rounded-xl p-3 sm:p-5 border border-purple-200/50">
-              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
+              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 sm:mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-purple-400 rounded-full" />
                 IP Information
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Client IP</span>
-                  <p className="font-mono text-[10px] sm:text-xs bg-white px-2 sm:px-3 py-1 sm:py-1.5 rounded border border-slate-200 text-slate-900 inline-block break-all">{selectedAlert.context?.clientIp}</p>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Client IP</span>
+                  <p className="font-mono text-[10px] sm:text-xs bg-white dark:bg-slate-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 inline-block break-all">{selectedAlert.context?.clientIp}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Registration IP</span>
-                  <p className="font-mono text-[10px] sm:text-xs bg-white px-2 sm:px-3 py-1 sm:py-1.5 rounded border border-slate-200 text-slate-900 inline-block break-all">{selectedAlert.context?.registrationIp}</p>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Registration IP</span>
+                  <p className="font-mono text-[10px] sm:text-xs bg-white dark:bg-slate-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 inline-block break-all">{selectedAlert.context?.registrationIp}</p>
                 </div>
               </div>
               {selectedAlert.context?.clientIp !== selectedAlert.context?.registrationIp && (
@@ -783,26 +783,26 @@ function FraudAlertsTable() {
             </div>
 
             {/* Timestamps */}
-            <div className="bg-slate-50 rounded-lg sm:rounded-xl p-3 sm:p-5 border border-slate-200">
-              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-lg sm:rounded-xl p-3 sm:p-5 border border-slate-200 dark:border-slate-700">
+              <h4 className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 sm:mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
                 Timeline
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Created</span>
-                  <p className="font-medium text-slate-900 flex items-center gap-2 text-xs sm:text-sm">
-                    <FiClock size={12} className="text-slate-400 flex-shrink-0" />
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Created</span>
+                  <p className="font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2 text-xs sm:text-sm">
+                    <FiClock size={12} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
                     <span className="truncate">{formatDate(selectedAlert.createdAt)}</span>
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Expires</span>
-                  <p className="font-medium text-slate-900 text-xs sm:text-sm truncate">{formatDate(selectedAlert.expiresAt)}</p>
+                  <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Expires</span>
+                  <p className="font-medium text-slate-900 dark:text-slate-100 text-xs sm:text-sm truncate">{formatDate(selectedAlert.expiresAt)}</p>
                 </div>
                 {selectedAlert.resolvedAt && (
                   <div className="space-y-1 col-span-1 sm:col-span-2">
-                    <span className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-wide">Resolved</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs uppercase tracking-wide">Resolved</span>
                     <p className="font-medium text-emerald-600 text-xs sm:text-sm">{formatDate(selectedAlert.resolvedAt)}</p>
                   </div>
                 )}
@@ -846,9 +846,9 @@ function FraudAlertsTable() {
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20">
               <FiCheckCircle className="text-white" size={28} />
             </div>
-            <h3 className="font-bold text-lg text-slate-900">Resolve Alert</h3>
-            <p className="text-sm text-slate-500 mt-1">
-              Phone: <span className="font-semibold text-slate-700">{selectedAlert?.phone}</span>
+            <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">Resolve Alert</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Phone: <span className="font-semibold text-slate-700 dark:text-slate-200">{selectedAlert?.phone}</span>
             </p>
           </div>
 
@@ -861,7 +861,7 @@ function FraudAlertsTable() {
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                 resolutionStatus === "resolved_legitimate"
                   ? "border-emerald-500 bg-emerald-50"
-                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -876,7 +876,7 @@ function FraudAlertsTable() {
                 </div>
                 <div>
                   <p className="font-semibold text-emerald-700">Legitimate</p>
-                  <p className="text-xs text-slate-500">User is innocent, alert was wrong</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">User is innocent, alert was wrong</p>
                 </div>
               </div>
             </button>
@@ -888,7 +888,7 @@ function FraudAlertsTable() {
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                 resolutionStatus === "resolved_fraud"
                   ? "border-red-500 bg-red-50"
-                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -903,7 +903,7 @@ function FraudAlertsTable() {
                 </div>
                 <div>
                   <p className="font-semibold text-red-700">Confirmed Fraud</p>
-                  <p className="text-xs text-slate-500">You have confirmed it was a fraud</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">You have confirmed it was a fraud</p>
                 </div>
               </div>
             </button>
@@ -914,8 +914,8 @@ function FraudAlertsTable() {
               onClick={() => setResolutionStatus("dismissed")}
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                 resolutionStatus === "dismissed"
-                  ? "border-slate-500 bg-slate-100"
-                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  ? "border-slate-500 bg-slate-100 dark:bg-slate-700"
+                  : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -929,8 +929,8 @@ function FraudAlertsTable() {
                   )}
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-700">Dismissed</p>
-                  <p className="text-xs text-slate-500">Noted but no action taken</p>
+                  <p className="font-semibold text-slate-700 dark:text-slate-200">Dismissed</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Noted but no action taken</p>
                 </div>
               </div>
             </button>

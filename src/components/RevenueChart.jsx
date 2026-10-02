@@ -21,7 +21,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl border border-slate-700">
-        <p className="text-xs text-slate-400 mb-2">{label}</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">{label}</p>
         {payload.map((item, index) => (
           <div key={index} className="flex items-center gap-2 text-sm">
             <span
@@ -82,15 +82,15 @@ export default function RevenueChart() {
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-blue-500" />
-            <span className="text-xs text-slate-600">Revenue</span>
+            <span className="text-xs text-slate-600 dark:text-slate-300">Revenue</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-emerald-500" />
-            <span className="text-xs text-slate-600">Bet Amount</span>
+            <span className="text-xs text-slate-600 dark:text-slate-300">Bet Amount</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-[#f9ce36]" />
-            <span className="text-xs text-slate-600">Win Amount</span>
+            <span className="text-xs text-slate-600 dark:text-slate-300">Win Amount</span>
           </div>
         </div>
         <div

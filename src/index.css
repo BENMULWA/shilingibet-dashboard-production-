@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --color-primary: #f9ce36;
   --color-primary-hover: #e6bd2e;
@@ -31,6 +33,17 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark {
+  color-scheme: dark;
+  color: #e2e8f0;
+  background-color: #0f172a;
+}
+
+.dark body {
+  background-color: #0f172a;
 }
 
 /* Typography */
@@ -42,6 +55,15 @@ h5,
 h6 {
   color: #1e293b;
   font-weight: 600;
+}
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #f1f5f9;
 }
 
 h1 {
@@ -75,6 +97,18 @@ button {
   background: #94a3b8;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 /* Ant Design Overrides */
 .custom-switch.ant-switch {
   background-color: #e2e8f0;
@@ -104,6 +138,21 @@ button {
   padding: 16px 24px !important;
 }
 
+.dark .ant-modal-content,
+.dark .ant-modal-header {
+  background: #1e293b !important;
+}
+
+.dark .ant-modal-title,
+.dark .ant-modal-close-x {
+  color: #f1f5f9 !important;
+}
+
+.dark .ant-modal-header,
+.dark .ant-modal-footer {
+  border-color: #334155 !important;
+}
+
 /* Ant Design Table Styling */
 .ant-table {
   border-radius: 12px !important;
@@ -126,6 +175,28 @@ button {
 
 .ant-table-tbody > tr:hover > td {
   background: #f8fafc !important;
+}
+
+.dark .ant-table,
+.dark .ant-table-container,
+.dark .ant-table-content {
+  background: #1e293b !important;
+}
+
+.dark .ant-table-thead > tr > th {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .ant-table-tbody > tr > td {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .ant-table-tbody > tr:hover > td {
+  background: #253449 !important;
 }
 
 /* Ant Design Button Styling */
@@ -158,6 +229,18 @@ button {
   padding: 10px 16px !important;
 }
 
+.dark .ant-dropdown-menu {
+  background: #1e293b !important;
+}
+
+.dark .ant-dropdown-menu-item {
+  color: #e2e8f0 !important;
+}
+
+.dark .ant-dropdown-menu-item:hover {
+  background: #334155 !important;
+}
+
 /* Date Picker Styling */
 .react-datepicker {
   font-family: "Montserrat", sans-serif !important;
@@ -182,6 +265,26 @@ button {
   background: #f1f5f9 !important;
 }
 
+.dark .react-datepicker {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark .react-datepicker__header {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark .react-datepicker__current-month,
+.dark .react-datepicker__day-name,
+.dark .react-datepicker__day {
+  color: #e2e8f0 !important;
+}
+
+.dark .react-datepicker__day:hover {
+  background: #334155 !important;
+}
+
 /* Ant Design Input Styling */
 .ant-input,
 .ant-input-affix-wrapper {
@@ -194,6 +297,13 @@ button {
 .ant-input-affix-wrapper-focused {
   border-color: #94a3b8 !important;
   box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark .ant-input,
+.dark .ant-input-affix-wrapper {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
 }
 
 /* Badge Animation */

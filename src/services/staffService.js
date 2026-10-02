@@ -6,6 +6,10 @@ export async function listStaff(page = 1, limit = 20) {
   return fetchAPI(`admin/staff?page=${page}&limit=${limit}`, "GET", null, token());
 }
 
+export async function createStaff(payload) {
+  return fetchAPI("admin/staff", "POST", payload, token());
+}
+
 export async function updateStaff(id, changes) {
   return fetchAPI(`admin/staff/${id}`, "PATCH", changes, token());
 }

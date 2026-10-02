@@ -61,7 +61,7 @@ function UserRiskProfileModal({ open, onClose, userId }) {
       dataIndex: "riskScore",
       key: "riskScore",
       render: (score) => (
-        <span className={`font-medium ${score >= 25 ? "text-red-600" : "text-slate-700"}`}>
+        <span className={`font-medium ${score >= 25 ? "text-red-600" : "text-slate-700 dark:text-slate-200"}`}>
           {score}
         </span>
       ),
@@ -75,7 +75,7 @@ function UserRiskProfileModal({ open, onClose, userId }) {
       title: "Date",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (date) => <span className="text-sm text-slate-500">{formatDate(date)}</span>,
+      render: (date) => <span className="text-sm text-slate-500 dark:text-slate-400">{formatDate(date)}</span>,
     },
   ];
 
@@ -101,18 +101,18 @@ function UserRiskProfileModal({ open, onClose, userId }) {
       ) : profile ? (
         <div className="space-y-6">
           {/* User Info */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
                 <FiUser className="text-red-600" size={24} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <FiPhone className="text-slate-400" size={14} />
-                  <span className="font-semibold text-slate-900">{profile.phone}</span>
+                  <FiPhone className="text-slate-400 dark:text-slate-500" size={14} />
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">{profile.phone}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <FiGlobe className="text-slate-400" size={14} />
+                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                  <FiGlobe className="text-slate-400 dark:text-slate-500" size={14} />
                   <span>Registration IP: {profile.registrationIp}</span>
                 </div>
               </div>
@@ -151,13 +151,13 @@ function UserRiskProfileModal({ open, onClose, userId }) {
           </div>
 
           {/* Alert Types Breakdown */}
-          <div className="bg-slate-50 rounded-lg p-4">
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">Alert Types Breakdown</h4>
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Alert Types Breakdown</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Object.entries(profile.riskProfile?.alertTypes || {}).map(([type, count]) => (
-                <div key={type} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-slate-200">
+                <div key={type} className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-slate-200 dark:border-slate-700">
                   {getTypeBadge(type)}
-                  <span className="font-semibold text-slate-900">{count}</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">{count}</span>
                 </div>
               ))}
             </div>
@@ -165,7 +165,7 @@ function UserRiskProfileModal({ open, onClose, userId }) {
 
           {/* Recent Alerts */}
           <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">Recent Alerts</h4>
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Recent Alerts</h4>
             <Table
               columns={recentAlertsColumns}
               dataSource={profile.recentAlerts?.slice(0, 10)?.map((alert) => ({

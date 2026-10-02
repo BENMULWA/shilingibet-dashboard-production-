@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Alert, Button, Modal, Select, Table, Tag, message } from "antd";
-import { FiKey, FiRefreshCw } from "react-icons/fi";
-import { listStaff, sendStaffPasswordReset, updateStaff } from "../services/staffService";
+import { Alert, Button, Form, Input, Modal, Select, Table, Tag, message } from "antd";
+import { FiKey, FiPlus, FiRefreshCw } from "react-icons/fi";
+import { createStaff, listStaff, sendStaffPasswordReset, updateStaff } from "../services/staffService";
 import { readStoredUser } from "../utils/authSession";
+
+const KENYAN_PHONE_PATTERN = /^(?:\+?254|0)?[71]\d{8}$/;
 
 const roleLabels = {
   support: "Support",
@@ -23,6 +25,29 @@ function StaffManagement() {
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["staff"] });
   const updateMutation = useMutation({ mutationFn: ({ id, changes }) => updateStaff(id, changes) });
   const resetMutation = useMutation({ mutationFn: sendStaffPasswordReset });
+  const createMutation = useMutation({ mutationFn: createStaff });
+
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addForm] = Form.useForm();
+
+  const openAddModal = () => setAddModalOpen(true);
+  const closeAddModal = () => {
+    setAddModalOpen(false);
+    addForm.resetFields();
+  };
+
+  const handleCreateStaff = async () => {
+    try {
+      const values = await addForm.validateFields();
+      const response = await createMutation.mutateAsync(values);
+      message.success(response.message || "Staff account created");
+      closeAddModal();
+      refresh();
+    } catch (error) {
+      if (error?.errorFields) return; // antd form validation error, already shown inline
+      message.error(error.message || "Unable to create staff account");
+    }
+  };
 
   const confirmUpdate = (staff, changes, title) => {
     Modal.confirm({
@@ -122,13 +147,16 @@ function StaffManagement() {
         message="Super-admin staff controls"
         description="Password reset codes are sent directly to the staff member. Passwords are never displayed to administrators."
       />
-      <div className="rounded-xl bg-white p-5 shadow-sm">
+      <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-slate-900">Staff Management</h2>
-            <p className="text-sm text-slate-500">Manage access, roles, and password recovery.</p>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Staff Management</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Manage access, roles, and password recovery.</p>
           </div>
-          <Button icon={<FiRefreshCw />} onClick={() => query.refetch()}>Refresh</Button>
+          <div className="flex gap-2">
+            <Button type="primary" icon={<FiPlus />} onClick={openAddModal}>Add Staff</Button>
+            <Button icon={<FiRefreshCw />} onClick={() => query.refetch()}>Refresh</Button>
+          </div>
         </div>
         <Table
           rowKey="_id"
@@ -148,6 +176,63 @@ function StaffManagement() {
           scroll={{ x: "max-content" }}
         />
       </div>
+
+      <Modal
+        title="Add staff account"
+        open={addModalOpen}
+        onCancel={closeAddModal}
+        onOk={handleCreateStaff}
+        okText="Create account"
+        confirmLoading={createMutation.isPending}
+        destroyOnClose
+      >
+        <Form form={addForm} layout="vertical" requiredMark={false} className="mt-4">
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ min: 2, max: 80, message: "Name must be 2-80 characters" }]}
+          >
+            <Input placeholder="Optional" />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label="Phone number"
+            rules={[
+              { required: true, message: "Phone number is required" },
+              { pattern: KENYAN_PHONE_PATTERN, message: "Enter a valid Kenyan phone number" },
+            ]}
+          >
+            <Input placeholder="0712345678" />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[{ type: "email", message: "Enter a valid email address" }]}
+          >
+            <Input placeholder="Optional" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Temporary password"
+            rules={[
+              { required: true, message: "Password is required" },
+              { min: 8, message: "Password must be at least 8 characters" },
+            ]}
+          >
+            <Input.Password placeholder="At least 8 characters" />
+          </Form.Item>
+          <Form.Item
+            name="adminLevel"
+            label="Role"
+            initialValue="support"
+            rules={[{ required: true, message: "Select a role" }]}
+          >
+            <Select
+              options={Object.entries(roleLabels).map(([value, label]) => ({ value, label }))}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

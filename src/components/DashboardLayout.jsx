@@ -29,8 +29,10 @@ import {
 import { MdOutlineSms } from "react-icons/md";
 import { useAuthState } from "../context/AuthContext";
 import { normalizeStaffRole } from "../utils/authSession";
-import { Modal, Badge } from "antd";
+import { Modal } from "antd";
 import { useGetSecondaryWallet } from "../hooks/useTransfer";
+import ThemeToggle from "./ThemeToggle";
+import NotificationBell from "./NotificationBell";
 
 function DashboardLayout() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -82,16 +84,16 @@ function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
       {/* Sidebar */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-30 flex flex-col bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
+        className={`fixed md:static inset-y-0 left-0 z-30 flex flex-col bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 ease-in-out
           ${sidebarOpen ? "w-64" : "w-20"}
           ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0`}
       >
         {/* Logo Section */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-100">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-100 dark:border-slate-700">
           {sidebarOpen ? (
             <Link to="/" className="flex items-center space-x-2">
               <img src="/shilingibet.png" className="h-8 w-auto" alt="Logo" />
@@ -109,7 +111,7 @@ function DashboardLayout() {
                 ? setMobileMenuOpen(false)
                 : setSidebarOpen(!sidebarOpen)
             }
-            className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
+            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
           >
             {sidebarOpen ? (
               <FiChevronLeft size={18} />
@@ -227,10 +229,10 @@ function DashboardLayout() {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-3 border-t border-slate-100">
+        <div className="p-3 border-t border-slate-100 dark:border-slate-700">
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors ${
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors ${
               !sidebarOpen && "justify-center"
             }`}
           >
@@ -251,17 +253,17 @@ function DashboardLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation */}
-        <header className="bg-white border-b border-slate-200 z-10 sticky top-0">
+        <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 z-10 sticky top-0">
           <div className="flex items-center justify-between px-4 lg:px-6 h-16">
             <div className="flex items-center space-x-4">
               <button
-                className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
               >
-                <FiMenu className="text-slate-600" size={22} />
+                <FiMenu className="text-slate-600 dark:text-slate-300" size={22} />
               </button>
               <div className="hidden sm:block">
-                <h4 className="text-base font-semibold text-slate-800">
+                <h4 className="text-base font-semibold text-slate-800 dark:text-slate-100">
                   {getPageTitle()}
                 </h4>
               </div>
@@ -269,18 +271,18 @@ function DashboardLayout() {
 
             <div className="flex items-center space-x-2 sm:space-x-3">
               {canManageOperations && <div
-                className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5"
+                className="flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5"
                 title="Available withdrawal treasury balance"
               >
                 <HiOutlineBanknotes
-                  className="shrink-0 text-emerald-600"
+                  className="shrink-0 text-emerald-600 dark:text-emerald-400"
                   size={18}
                 />
                 <div className="leading-tight">
-                  <p className="hidden md:block text-[10px] uppercase tracking-wide text-emerald-700">
+                  <p className="hidden md:block text-[10px] uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
                     Withdrawal balance
                   </p>
-                  <p className="text-xs sm:text-sm font-semibold text-emerald-800 whitespace-nowrap">
+                  <p className="text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-300 whitespace-nowrap">
                     {treasuryLoading
                       ? "Loading…"
                       : `${secondaryWalletBalance?.currency || "KES"} ${treasuryBalance}`}
@@ -288,26 +290,24 @@ function DashboardLayout() {
                 </div>
               </div>}
 
+              <ThemeToggle />
+
               {/* Notifications */}
-              <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                <Badge dot status="processing" offset={[-2, 2]}>
-                  <FiBell className="text-slate-600" size={20} />
-                </Badge>
-              </button>
+              <NotificationBell />
 
               {/* User Avatar */}
-              <div className="flex items-center space-x-3 pl-3 border-l border-slate-200">
+              <div className="flex items-center space-x-3 pl-3 border-l border-slate-200 dark:border-slate-700">
                 <div className="relative">
                   <div className="w-9 h-9 rounded-lg bg-[#f9ce36] flex items-center justify-center">
                     <span className="text-slate-900 font-medium text-sm">
                       AD
                     </span>
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800" />
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-medium text-slate-700">Admin</p>
-                  <p className="text-xs text-slate-500">Administrator</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Admin</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Administrator</p>
                 </div>
               </div>
             </div>
@@ -315,15 +315,15 @@ function DashboardLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-slate-50">
+        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
           <div className="p-4 lg:p-6">
             <Outlet />
           </div>
         </main>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-slate-200 py-3 px-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500">
+        <footer className="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-3 px-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span>{`© ${new Date().getFullYear()} ShilingiBet. All rights reserved.`}</span>
             <span>Powered by ShilingiBet</span>
           </div>
@@ -341,7 +341,7 @@ function DashboardLayout() {
         okButtonProps={{ danger: true }}
         centered
       >
-        <p className="text-slate-600">Are you sure you want to logout?</p>
+        <p className="text-slate-600 dark:text-slate-300">Are you sure you want to logout?</p>
       </Modal>
     </div>
   );
@@ -357,7 +357,9 @@ function SidebarItem({ icon, text, to, sidebarOpen, onNavigate }) {
         `flex items-center rounded-lg px-3 py-2.5 transition-colors ${
           sidebarOpen ? "" : "justify-center"
         } ${
-          isActive ? "bg-[#f9ce36] text-black" : "text-black hover:bg-amber-50"
+          isActive
+            ? "bg-[#f9ce36] text-black"
+            : "text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-700"
         }`
       }
     >

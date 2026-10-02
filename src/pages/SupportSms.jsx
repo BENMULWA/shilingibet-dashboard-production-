@@ -174,7 +174,7 @@ function SupportSms() {
         <Card title="Send bulk SMS">
           <Space direction="vertical" size="middle" className="w-full">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">SMS provider</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">SMS provider</label>
               <Select
                 value={provider}
                 onChange={setProvider}
@@ -185,22 +185,22 @@ function SupportSms() {
                   disabled: !item.configured,
                 }))}
               />
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Choose the gateway for this batch. Unconfigured providers are disabled.
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Recipients</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Recipients</label>
               <TextArea
                 rows={5}
                 value={recipientsText}
                 onChange={(event) => setRecipientsText(event.target.value)}
                 placeholder="Paste Kenyan phone numbers separated by commas, spaces, or new lines"
               />
-              <p className="mt-1 text-xs text-slate-500">{recipients.length} valid unique recipients</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{recipients.length} valid unique recipients</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Message</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Message</label>
               <TextArea
                 rows={4}
                 maxLength={480}

@@ -119,7 +119,7 @@ function AuditLogsTable() {
   const getActionBadge = useCallback((action) => {
     if (!action) {
       return (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
           Login Activity
         </span>
       );
@@ -137,7 +137,7 @@ function AuditLogsTable() {
       internal_transfer_failed: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", label: "Transfer Failed", icon: "x" },
       secondary_wallet_transfer: { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200", label: "Wallet Transfer", icon: "=" },
     };
-    const { bg, text, border, label } = config[action] || { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", label: action };
+    const { bg, text, border, label } = config[action] || { bg: "bg-slate-50 dark:bg-slate-900", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-700", label: action };
     return (
       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${bg} ${text} border ${border}`}>
         {label}
@@ -241,21 +241,21 @@ function AuditLogsTable() {
   const columns = useMemo(
     () => [
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Timestamp</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Timestamp</span>,
         dataIndex: "timestamp",
         key: "timestamp",
         width: 170,
         render: (timestamp) => (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center">
-              <FiClock size={14} className="text-slate-500" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+              <FiClock size={14} className="text-slate-500 dark:text-slate-400" />
             </div>
-            <span className="text-sm text-slate-700 font-medium">{formatShortDate(timestamp)}</span>
+            <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">{formatShortDate(timestamp)}</span>
           </div>
         ),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">User ID</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">User ID</span>,
         dataIndex: "userId",
         key: "userId",
         width: 220,
@@ -265,7 +265,7 @@ function AuditLogsTable() {
               <FiUser className="text-indigo-600" size={14} />
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-xs text-slate-700 truncate" title={userId}>
+              <span className="font-mono text-xs text-slate-700 dark:text-slate-200 truncate" title={userId}>
                 {userId ? `${userId.slice(0, 8)}...${userId.slice(-4)}` : "-"}
               </span>
               {userId && (
@@ -274,12 +274,12 @@ function AuditLogsTable() {
                     e.stopPropagation();
                     handleCopy(userId);
                   }}
-                  className="p-1 rounded-md hover:bg-slate-100 transition-colors flex-shrink-0"
+                  className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
                 >
                   {copiedText === userId ? (
                     <FiCheck className="text-emerald-500" size={12} />
                   ) : (
-                    <FiCopy className="text-slate-400 hover:text-slate-600" size={12} />
+                    <FiCopy className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" size={12} />
                   )}
                 </button>
               )}
@@ -288,14 +288,14 @@ function AuditLogsTable() {
         ),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Action</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Action</span>,
         dataIndex: "action",
         key: "action",
         width: 180,
         render: (action) => getActionBadge(action),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">IP Address</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">IP Address</span>,
         dataIndex: "ipAddress",
         key: "ipAddress",
         width: 150,
@@ -305,7 +305,7 @@ function AuditLogsTable() {
               <div className="w-6 h-6 rounded bg-blue-50 flex items-center justify-center">
                 <FiGlobe className="text-blue-500" size={12} />
               </div>
-              <span className="font-mono text-xs text-slate-700">{ipAddress}</span>
+              <span className="font-mono text-xs text-slate-700 dark:text-slate-200">{ipAddress}</span>
             </div>
           ) : (
             <span className="text-sm text-slate-300 italic">No IP recorded</span>
@@ -313,7 +313,7 @@ function AuditLogsTable() {
         ),
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Device</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Device</span>,
         dataIndex: "userAgent",
         key: "device",
         width: 140,
@@ -326,16 +326,16 @@ function AuditLogsTable() {
                 <FiMonitor className="text-purple-500" size={12} />
               </div>
               <div className="text-xs">
-                <span className="text-slate-700 font-medium">{device}</span>
-                <span className="text-slate-400 mx-1">/</span>
-                <span className="text-slate-500">{os}</span>
+                <span className="text-slate-700 dark:text-slate-200 font-medium">{device}</span>
+                <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
+                <span className="text-slate-500 dark:text-slate-400">{os}</span>
               </div>
             </div>
           );
         },
       },
       {
-        title: <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Details</span>,
+        title: <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Details</span>,
         key: "details",
         width: 160,
         render: (_, record) => {
@@ -355,7 +355,7 @@ function AuditLogsTable() {
             );
           }
           return (
-            <span className="inline-flex items-center gap-1 text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-200">
+            <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
               <FiActivity size={10} />
               Has details
             </span>
@@ -372,7 +372,7 @@ function AuditLogsTable() {
           <Tooltip title="View Details">
             <button
               onClick={() => showDetails(record)}
-              className="p-2 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 hover:border-indigo-300 hover:from-indigo-50 hover:to-indigo-100 transition-all text-slate-500 hover:text-indigo-600 shadow-sm"
+              className="p-2 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:from-indigo-50 hover:to-indigo-100 transition-all text-slate-500 dark:text-slate-400 hover:text-indigo-600 shadow-sm"
             >
               <FiEye size={16} />
             </button>
@@ -387,10 +387,10 @@ function AuditLogsTable() {
   const EmptyState = ({ title, description, icon: Icon }) => (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mb-6 shadow-inner">
-        {createElement(Icon, { className: "text-slate-400", size: 36 })}
+        {createElement(Icon, { className: "text-slate-400 dark:text-slate-500", size: 36 })}
       </div>
-      <h3 className="text-lg font-semibold text-slate-700 mb-2">{title}</h3>
-      <p className="text-slate-500 text-sm text-center max-w-sm">{description}</p>
+      <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">{title}</h3>
+      <p className="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm">{description}</p>
     </div>
   );
 
@@ -398,13 +398,13 @@ function AuditLogsTable() {
   const LoadingState = () => (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <Spin size="large" />
-      <p className="text-slate-500 mt-4">Loading audit logs...</p>
+      <p className="text-slate-500 dark:text-slate-400 mt-4">Loading audit logs...</p>
     </div>
   );
 
   if (error) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div className="p-8">
           <EmptyState
             icon={HiOutlineDocumentMagnifyingGlass}
@@ -426,16 +426,16 @@ function AuditLogsTable() {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-slate-50">
+      <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 via-white to-slate-50">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
               <HiOutlineClipboardDocumentList className="text-white" size={28} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Audit Logs</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Audit Logs</h3>
               <div className="flex items-center gap-2 mt-1">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-100">
                   <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
@@ -461,7 +461,7 @@ function AuditLogsTable() {
               onChange={handleViewModeChange}
               className="w-full sm:w-36"
               size="large"
-              suffixIcon={<FiFilter className="text-slate-400" size={14} />}
+              suffixIcon={<FiFilter className="text-slate-400 dark:text-slate-500" size={14} />}
               options={[
                 { value: "paginated", label: "All Logs" },
                 { value: "byDate", label: "By Date" },
@@ -475,7 +475,7 @@ function AuditLogsTable() {
                 onChange={handleDateChange}
                 className="w-full sm:w-44"
                 size="large"
-                suffixIcon={<FiCalendar className="text-slate-400" size={14} />}
+                suffixIcon={<FiCalendar className="text-slate-400 dark:text-slate-500" size={14} />}
                 disabledDate={(current) => {
                   if (!availableDates.length) return false;
                   const dateStr = current.format("YYYY-MM-DD");
@@ -488,7 +488,7 @@ function AuditLogsTable() {
             {/* Search */}
             <div className="flex gap-2">
               <Input
-                prefix={<FiSearch className="text-slate-400" size={16} />}
+                prefix={<FiSearch className="text-slate-400 dark:text-slate-500" size={16} />}
                 placeholder="Search by user ID..."
                 value={searchUserId}
                 onChange={handleSearch}
@@ -518,7 +518,7 @@ function AuditLogsTable() {
                 icon={<FiRefreshCw size={16} className={isFetching ? "animate-spin" : ""} />}
                 onClick={handleRefresh}
                 size="large"
-                className="border-slate-200 hover:border-indigo-300 hover:text-indigo-600 rounded-lg shadow-sm"
+                className="border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 rounded-lg shadow-sm"
               />
             </Tooltip>
           </div>
@@ -536,27 +536,27 @@ function AuditLogsTable() {
             description={viewMode === "byUser" ? "No logs found for this user ID." : viewMode === "byDate" ? "No logs recorded for this date." : "No activity has been recorded yet."}
           />
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {logs?.map((log, index) => (
               <div key={log._id || index} className="p-4 hover:bg-gradient-to-r hover:from-slate-50 hover:to-white transition-colors">
                 {/* Header: Time & Action */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center">
-                      <FiClock size={14} className="text-slate-500" />
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                      <FiClock size={14} className="text-slate-500 dark:text-slate-400" />
                     </div>
-                    <span className="text-sm font-medium text-slate-700">{formatShortDate(log.timestamp)}</span>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{formatShortDate(log.timestamp)}</span>
                   </div>
                   {getActionBadge(log.action)}
                 </div>
 
                 {/* User ID */}
-                <div className="flex items-center gap-2 mb-4 p-2 bg-slate-50 rounded-lg border border-slate-100">
+                <div className="flex items-center gap-2 mb-4 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-700">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 flex items-center justify-center flex-shrink-0">
                     <FiUser className="text-indigo-600" size={14} />
                   </div>
                   <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                    <span className="font-mono text-xs text-slate-700 truncate" title={log.userId}>
+                    <span className="font-mono text-xs text-slate-700 dark:text-slate-200 truncate" title={log.userId}>
                       {log.userId}
                     </span>
                     {log.userId && (
@@ -567,7 +567,7 @@ function AuditLogsTable() {
                         {copiedText === log.userId ? (
                           <FiCheck className="text-emerald-500" size={12} />
                         ) : (
-                          <FiCopy className="text-slate-400" size={12} />
+                          <FiCopy className="text-slate-400 dark:text-slate-500" size={12} />
                         )}
                       </button>
                     )}
@@ -578,17 +578,17 @@ function AuditLogsTable() {
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="p-2.5 bg-blue-50/50 rounded-lg border border-blue-100">
                     <span className="text-[10px] text-blue-600 uppercase tracking-wide font-semibold">IP Address</span>
-                    <p className="font-mono text-xs text-slate-700 mt-0.5">
-                      {log.ipAddress || <span className="text-slate-400 italic">Not recorded</span>}
+                    <p className="font-mono text-xs text-slate-700 dark:text-slate-200 mt-0.5">
+                      {log.ipAddress || <span className="text-slate-400 dark:text-slate-500 italic">Not recorded</span>}
                     </p>
                   </div>
                   <div className="p-2.5 bg-purple-50/50 rounded-lg border border-purple-100">
                     <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Device</span>
-                    <p className="text-xs text-slate-700 mt-0.5">
+                    <p className="text-xs text-slate-700 dark:text-slate-200 mt-0.5">
                       {log.userAgent ? (
                         `${parseUserAgent(log.userAgent).device} / ${parseUserAgent(log.userAgent).os}`
                       ) : (
-                        <span className="text-slate-400 italic">Not recorded</span>
+                        <span className="text-slate-400 dark:text-slate-500 italic">Not recorded</span>
                       )}
                     </p>
                   </div>
@@ -601,7 +601,7 @@ function AuditLogsTable() {
                   {log.details?.method && (
                     <div className="p-2.5 bg-amber-50/50 rounded-lg border border-amber-100">
                       <span className="text-[10px] text-amber-600 uppercase tracking-wide font-semibold">Method</span>
-                      <p className="text-slate-700 capitalize text-xs mt-0.5">{log.details.method}</p>
+                      <p className="text-slate-700 dark:text-slate-200 capitalize text-xs mt-0.5">{log.details.method}</p>
                     </div>
                   )}
                 </div>
@@ -621,22 +621,22 @@ function AuditLogsTable() {
 
         {/* Mobile Pagination */}
         {logs?.length > 0 && (
-          <div className="px-4 py-4 border-t border-slate-100 bg-gradient-to-r from-slate-50 to-white flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="text-slate-500 text-sm font-medium">
-              Page <span className="text-indigo-600">{currentPage}</span> of <span className="text-slate-700">{pagination?.totalPages || 1}</span>
+          <div className="px-4 py-4 border-t border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+              Page <span className="text-indigo-600">{currentPage}</span> of <span className="text-slate-700 dark:text-slate-200">{pagination?.totalPages || 1}</span>
             </span>
             <div className="flex items-center gap-2">
               <Button
                 disabled={currentPage <= 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="border-slate-200"
+                className="border-slate-200 dark:border-slate-700"
               >
                 Previous
               </Button>
               <Button
                 disabled={currentPage >= (pagination?.totalPages || 1)}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className="border-slate-200"
+                className="border-slate-200 dark:border-slate-700"
               >
                 Next
               </Button>
@@ -662,8 +662,8 @@ function AuditLogsTable() {
             showSizeChanger: viewMode !== "byDate",
             pageSizeOptions: ["10", "20", "50", "100"],
             showTotal: (total, range) => (
-              <span className="text-slate-500 text-sm">
-                Showing <span className="font-semibold text-indigo-600">{range[0]}-{range[1]}</span> of <span className="font-semibold text-slate-700">{total}</span> logs
+              <span className="text-slate-500 dark:text-slate-400 text-sm">
+                Showing <span className="font-semibold text-indigo-600">{range[0]}-{range[1]}</span> of <span className="font-semibold text-slate-700 dark:text-slate-200">{total}</span> logs
               </span>
             ),
             className: "px-6 py-4",
@@ -691,8 +691,8 @@ function AuditLogsTable() {
               <FiActivity className="text-white" size={18} />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900">Audit Log Details</h3>
-              <p className="text-xs text-slate-500 font-normal">{formatDate(selectedLog?.timestamp)}</p>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100">Audit Log Details</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">{formatDate(selectedLog?.timestamp)}</p>
             </div>
           </div>
         }
@@ -709,36 +709,36 @@ function AuditLogsTable() {
         {selectedLog && (
           <div className="space-y-5 mt-4">
             {/* Basic Info */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl p-5 border border-slate-200">
-              <h4 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
                 Basic Information
               </h4>
               <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2 p-3 bg-white rounded-lg border border-slate-200">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">User ID</span>
+                <div className="col-span-2 p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">User ID</span>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="font-mono text-sm text-slate-700 truncate">{selectedLog.userId}</span>
+                    <span className="font-mono text-sm text-slate-700 dark:text-slate-200 truncate">{selectedLog.userId}</span>
                     <button
                       onClick={() => handleCopy(selectedLog.userId)}
-                      className="p-1.5 rounded-md hover:bg-slate-100 flex-shrink-0"
+                      className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 flex-shrink-0"
                     >
                       {copiedText === selectedLog.userId ? (
                         <FiCheck className="text-emerald-500" size={14} />
                       ) : (
-                        <FiCopy className="text-slate-400" size={14} />
+                        <FiCopy className="text-slate-400 dark:text-slate-500" size={14} />
                       )}
                     </button>
                   </div>
                 </div>
-                <div className="p-3 bg-white rounded-lg border border-slate-200">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">Action</span>
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">Action</span>
                   <div className="mt-1">{getActionBadge(selectedLog.action)}</div>
                 </div>
-                <div className="p-3 bg-white rounded-lg border border-slate-200">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">Timestamp</span>
-                  <p className="font-medium text-slate-700 text-sm mt-1 flex items-center gap-2">
-                    <FiClock size={14} className="text-slate-400" />
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold">Timestamp</span>
+                  <p className="font-medium text-slate-700 dark:text-slate-200 text-sm mt-1 flex items-center gap-2">
+                    <FiClock size={14} className="text-slate-400 dark:text-slate-500" />
                     {formatDate(selectedLog.timestamp)}
                   </p>
                 </div>
@@ -747,45 +747,45 @@ function AuditLogsTable() {
 
             {/* Connection Info */}
             <div className="bg-gradient-to-br from-blue-50/70 to-indigo-50/50 rounded-xl p-5 border border-blue-200/50">
-              <h4 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                 Connection Information
               </h4>
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-white/80 rounded-lg border border-blue-200/50">
+                <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-blue-200/50">
                   <span className="text-[10px] text-blue-600 uppercase tracking-wide font-semibold">IP Address</span>
                   <div className="flex items-center gap-2 mt-1">
                     <FiGlobe className="text-blue-500" size={14} />
-                    <span className="font-mono text-sm text-slate-700">
-                      {selectedLog.ipAddress || <span className="text-slate-400 italic">Not recorded</span>}
+                    <span className="font-mono text-sm text-slate-700 dark:text-slate-200">
+                      {selectedLog.ipAddress || <span className="text-slate-400 dark:text-slate-500 italic">Not recorded</span>}
                     </span>
                   </div>
                 </div>
-                <div className="p-3 bg-white/80 rounded-lg border border-blue-200/50">
+                <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-blue-200/50">
                   <span className="text-[10px] text-blue-600 uppercase tracking-wide font-semibold">Device</span>
                   <div className="flex items-center gap-2 mt-1">
                     <FiMonitor className="text-blue-500" size={14} />
-                    <span className="text-sm text-slate-700">
-                      {selectedLog.userAgent ? parseUserAgent(selectedLog.userAgent).device : <span className="text-slate-400 italic">Not recorded</span>}
+                    <span className="text-sm text-slate-700 dark:text-slate-200">
+                      {selectedLog.userAgent ? parseUserAgent(selectedLog.userAgent).device : <span className="text-slate-400 dark:text-slate-500 italic">Not recorded</span>}
                     </span>
                   </div>
                 </div>
-                <div className="p-3 bg-white/80 rounded-lg border border-blue-200/50">
+                <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-blue-200/50">
                   <span className="text-[10px] text-blue-600 uppercase tracking-wide font-semibold">Operating System</span>
-                  <p className="text-sm text-slate-700 mt-1">
-                    {selectedLog.userAgent ? parseUserAgent(selectedLog.userAgent).os : <span className="text-slate-400 italic">Not recorded</span>}
+                  <p className="text-sm text-slate-700 dark:text-slate-200 mt-1">
+                    {selectedLog.userAgent ? parseUserAgent(selectedLog.userAgent).os : <span className="text-slate-400 dark:text-slate-500 italic">Not recorded</span>}
                   </p>
                 </div>
-                <div className="p-3 bg-white/80 rounded-lg border border-blue-200/50">
+                <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-blue-200/50">
                   <span className="text-[10px] text-blue-600 uppercase tracking-wide font-semibold">Browser</span>
-                  <p className="text-sm text-slate-700 mt-1">
-                    {selectedLog.userAgent ? parseUserAgent(selectedLog.userAgent).browser : <span className="text-slate-400 italic">Not recorded</span>}
+                  <p className="text-sm text-slate-700 dark:text-slate-200 mt-1">
+                    {selectedLog.userAgent ? parseUserAgent(selectedLog.userAgent).browser : <span className="text-slate-400 dark:text-slate-500 italic">Not recorded</span>}
                   </p>
                 </div>
                 {selectedLog.userAgent && (
-                  <div className="col-span-2 p-3 bg-white/80 rounded-lg border border-blue-200/50">
+                  <div className="col-span-2 p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-blue-200/50">
                     <span className="text-[10px] text-blue-600 uppercase tracking-wide font-semibold">Full User Agent</span>
-                    <p className="font-mono text-[11px] text-slate-600 mt-1 break-all leading-relaxed">{selectedLog.userAgent}</p>
+                    <p className="font-mono text-[11px] text-slate-600 dark:text-slate-300 mt-1 break-all leading-relaxed">{selectedLog.userAgent}</p>
                   </div>
                 )}
               </div>
@@ -794,40 +794,40 @@ function AuditLogsTable() {
             {/* Action Details */}
             {selectedLog.details && (
               <div className="bg-gradient-to-br from-purple-50/70 to-pink-50/50 rounded-xl p-5 border border-purple-200/50">
-                <h4 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                   <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
                   Transaction Details
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
                   {selectedLog.details.amount !== undefined && (
-                    <div className="p-3 bg-white/80 rounded-lg border border-purple-200/50">
+                    <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-purple-200/50">
                       <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Amount</span>
-                      <p className="font-bold text-xl text-slate-900 mt-1">{formatCurrency(selectedLog.details.amount)}</p>
+                      <p className="font-bold text-xl text-slate-900 dark:text-slate-100 mt-1">{formatCurrency(selectedLog.details.amount)}</p>
                     </div>
                   )}
                   {selectedLog.details.phone && (
-                    <div className="p-3 bg-white/80 rounded-lg border border-purple-200/50">
+                    <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-purple-200/50">
                       <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Phone</span>
-                      <p className="font-medium text-slate-700 text-sm mt-1">{selectedLog.details.phone}</p>
+                      <p className="font-medium text-slate-700 dark:text-slate-200 text-sm mt-1">{selectedLog.details.phone}</p>
                     </div>
                   )}
                   {selectedLog.details.method && (
-                    <div className="p-3 bg-white/80 rounded-lg border border-purple-200/50">
+                    <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-purple-200/50">
                       <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Method</span>
-                      <p className="font-medium text-slate-700 capitalize text-sm mt-1">{selectedLog.details.method}</p>
+                      <p className="font-medium text-slate-700 dark:text-slate-200 capitalize text-sm mt-1">{selectedLog.details.method}</p>
                     </div>
                   )}
                   {selectedLog.details.type && (
-                    <div className="p-3 bg-white/80 rounded-lg border border-purple-200/50">
+                    <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-purple-200/50">
                       <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Type</span>
-                      <p className="font-medium text-slate-700 capitalize text-sm mt-1">{selectedLog.details.type}</p>
+                      <p className="font-medium text-slate-700 dark:text-slate-200 capitalize text-sm mt-1">{selectedLog.details.type}</p>
                     </div>
                   )}
                   {selectedLog.details.transactionId && (
-                    <div className="col-span-2 p-3 bg-white/80 rounded-lg border border-purple-200/50">
+                    <div className="col-span-2 p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-purple-200/50">
                       <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Transaction ID</span>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="font-mono text-xs text-slate-700 truncate">{selectedLog.details.transactionId}</span>
+                        <span className="font-mono text-xs text-slate-700 dark:text-slate-200 truncate">{selectedLog.details.transactionId}</span>
                         <button
                           onClick={() => handleCopy(selectedLog.details.transactionId)}
                           className="p-1.5 rounded-md hover:bg-white flex-shrink-0"
@@ -835,22 +835,22 @@ function AuditLogsTable() {
                           {copiedText === selectedLog.details.transactionId ? (
                             <FiCheck className="text-emerald-500" size={14} />
                           ) : (
-                            <FiCopy className="text-slate-400" size={14} />
+                            <FiCopy className="text-slate-400 dark:text-slate-500" size={14} />
                           )}
                         </button>
                       </div>
                     </div>
                   )}
                   {selectedLog.details.availableBefore !== undefined && (
-                    <div className="p-3 bg-white/80 rounded-lg border border-purple-200/50">
+                    <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-purple-200/50">
                       <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Balance Before</span>
-                      <p className="font-medium text-slate-700 text-sm mt-1">{formatCurrency(selectedLog.details.availableBefore)}</p>
+                      <p className="font-medium text-slate-700 dark:text-slate-200 text-sm mt-1">{formatCurrency(selectedLog.details.availableBefore)}</p>
                     </div>
                   )}
                   {selectedLog.details.availableAfter !== undefined && (
-                    <div className="p-3 bg-white/80 rounded-lg border border-purple-200/50">
+                    <div className="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-purple-200/50">
                       <span className="text-[10px] text-purple-600 uppercase tracking-wide font-semibold">Balance After</span>
-                      <p className="font-medium text-slate-700 text-sm mt-1">{formatCurrency(selectedLog.details.availableAfter)}</p>
+                      <p className="font-medium text-slate-700 dark:text-slate-200 text-sm mt-1">{formatCurrency(selectedLog.details.availableAfter)}</p>
                     </div>
                   )}
                 </div>

@@ -79,7 +79,7 @@ function UsersTable() {
     const statusConfig = {
       active: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
       blocked: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
-      inactive: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
+      inactive: { bg: "bg-slate-100 dark:bg-slate-700", text: "text-slate-600 dark:text-slate-300", border: "border-slate-200 dark:border-slate-700" },
     };
     const config = statusConfig[status] || statusConfig.inactive;
     return (
@@ -176,20 +176,20 @@ function UsersTable() {
         key: "phone",
         render: (phone) => (
           <div className="flex items-center gap-2">
-            <span className="font-medium text-slate-900">{phone || "N/A"}</span>
+            <span className="font-medium text-slate-900 dark:text-slate-100">{phone || "N/A"}</span>
             {phone && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCopyPhone(phone);
                 }}
-                className="p-1 rounded hover:bg-slate-100 transition-colors"
+                className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 title="Copy phone number"
               >
                 {copiedPhone === phone ? (
                   <FiCheck className="text-emerald-500" size={14} />
                 ) : (
-                  <FiCopy className="text-slate-400 hover:text-slate-600" size={14} />
+                  <FiCopy className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" size={14} />
                 )}
               </button>
             )}
@@ -211,20 +211,20 @@ function UsersTable() {
           }
           return (
             <div className="flex items-center gap-2">
-              <span className="text-slate-600">{referralText || "—"}</span>
+              <span className="text-slate-600 dark:text-slate-300">{referralText || "—"}</span>
               {referralText && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCopyPhone(referralText);
                   }}
-                  className="p-1 rounded hover:bg-slate-100 transition-colors"
+                  className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   title="Copy referral"
                 >
                   {copiedPhone === referralText ? (
                     <FiCheck className="text-emerald-500" size={14} />
                   ) : (
-                    <FiCopy className="text-slate-400 hover:text-slate-600" size={14} />
+                    <FiCopy className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" size={14} />
                   )}
                 </button>
               )}
@@ -239,7 +239,7 @@ function UsersTable() {
         render: (balance) => (
           <span
             className={`font-semibold ${
-              balance > 1000 ? "text-emerald-600" : "text-slate-700"
+              balance > 1000 ? "text-emerald-600" : "text-slate-700 dark:text-slate-200"
             }`}
           >
             {formatCurrency(balance ?? 0)}
@@ -283,7 +283,7 @@ function UsersTable() {
         dataIndex: "createdAt",
         key: "createdAt",
         render: (date) => (
-          <span className="text-slate-500 text-sm">{formatDate(date)}</span>
+          <span className="text-slate-500 dark:text-slate-400 text-sm">{formatDate(date)}</span>
         ),
       },
       {
@@ -310,13 +310,13 @@ function UsersTable() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-8">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
             <div className="text-center">
-              <p className="text-slate-600 mb-4">Failed to load users</p>
-              <p className="text-slate-400 text-sm mb-4">{error.message}</p>
+              <p className="text-slate-600 dark:text-slate-300 mb-4">Failed to load users</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mb-4">{error.message}</p>
               <Button
                 type="primary"
                 onClick={() => window.location.reload()}
@@ -332,7 +332,7 @@ function UsersTable() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       {showDeleteModal && (
         <DeletionModal
           cancelDelete={() => setShowDeleteModal(false)}
@@ -343,15 +343,15 @@ function UsersTable() {
       )}
 
       {/* Header */}
-      <div className="px-5 py-4 border-b border-slate-100">
+      <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-[#f9ce36]/20 flex items-center justify-center">
               <FiUsers className="text-amber-600" size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">Users</h3>
-              <p className="text-sm text-slate-500">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Users</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 {apiPagination?.total ?? 0} total users
               </p>
             </div>
@@ -360,7 +360,7 @@ function UsersTable() {
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative">
               <Input
-                prefix={<FiSearch className="text-slate-400" size={16} />}
+                prefix={<FiSearch className="text-slate-400 dark:text-slate-500" size={16} />}
                 placeholder="Search by phone..."
                 value={searchPhone}
                 onChange={handleSearch}
@@ -368,7 +368,7 @@ function UsersTable() {
                 className="w-full sm:w-64"
                 suffix={
                   isSearching ? (
-                    <span className="text-slate-400 text-xs">Searching...</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-xs">Searching...</span>
                   ) : searchError ? (
                     <Tooltip title={searchError.message}>
                       <ExclamationCircleOutlined className="text-red-500" />
@@ -384,7 +384,7 @@ function UsersTable() {
                   icon={<FiRefreshCw size={14} />}
                   onClick={handleRefresh}
                   loading={isFetching}
-                  className="border-slate-200"
+                  className="border-slate-200 dark:border-slate-700"
                 />
               </Tooltip>
 
@@ -394,7 +394,7 @@ function UsersTable() {
                 className={
                   hasActiveFilters
                     ? "bg-[#f9ce36] text-black border-[#f9ce36]"
-                    : "border-slate-200"
+                    : "border-slate-200 dark:border-slate-700"
                 }
               >
                 <span className="hidden sm:inline">Filter</span>
@@ -437,7 +437,7 @@ function UsersTable() {
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100"],
             showTotal: (total, range) => (
-              <span className="text-slate-500 text-sm">
+              <span className="text-slate-500 dark:text-slate-400 text-sm">
                 Showing {range[0]}-{range[1]} of {total}
               </span>
             ),

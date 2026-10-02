@@ -66,7 +66,7 @@ function Login() {
             className="relative max-w-md mx-auto mt-8 md:mt-16"
           >
             {" "}
-            <div className="overflow-hidden bg-white rounded-md shadow-md pt-10">
+            <div className="overflow-hidden bg-white dark:bg-slate-800 rounded-md shadow-md pt-10">
               <h2 className="text-3xl font-bold text-gray-800 text-center mb-1">
                 {challenge?.verificationRequired ? "Check your phone" : "Welcome Back!"}
               </h2>
@@ -98,7 +98,7 @@ function Login() {
                             autoComplete="one-time-code"
                             autoFocus
                             placeholder="000000"
-                            className="mt-2.5 block w-full rounded-md border border-gray-200 bg-white px-4 py-4 text-center text-2xl font-semibold tracking-[0.55em] text-black placeholder-gray-400 focus:border-blue-600 focus:outline-none"
+                            className="mt-2.5 block w-full rounded-md border border-gray-200 bg-white dark:bg-slate-800 px-4 py-4 text-center text-2xl font-semibold tracking-[0.55em] text-black placeholder-gray-400 focus:border-blue-600 focus:outline-none"
                           />
                           <p className="mt-2 text-center text-xs text-gray-400">
                             Code expires in {Math.round((challenge.expiresInSeconds || 600) / 60)} minutes. Five attempts allowed.
@@ -139,7 +139,7 @@ function Login() {
                           name=""
                           id=""
                           placeholder="Enter phone number to get started"
-                          className="block w-full py-4 pl-10 pr-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                          className="block w-full py-4 pl-10 pr-4 text-black placeholder-gray-500 transition-all duration-200 bg-white dark:bg-slate-800 border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
                         />
                       </div>
                     </div>
@@ -177,7 +177,7 @@ function Login() {
                           name=""
                           id=""
                           placeholder="Enter your password"
-                          className="block w-full py-4 pl-10 pr-12 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                          className="block w-full py-4 pl-10 pr-12 text-black placeholder-gray-500 transition-all duration-200 bg-white dark:bg-slate-800 border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
                         />
                         <button
                           type="button"
@@ -233,7 +233,7 @@ function Login() {
                             setVerificationCode("");
                             setPassword("");
                           }}
-                          className="block w-full rounded-md bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                          className="block w-full rounded-md bg-slate-50 dark:bg-slate-900 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
                           Use a different account
                         </button>

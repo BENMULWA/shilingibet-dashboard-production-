@@ -33,7 +33,7 @@ function ForgotCard() {
   }
 
   return (
-    <div className="bg-white shadow rounded-lg mx-4  p-6">
+    <div className="bg-white dark:bg-slate-800 shadow rounded-lg mx-4  p-6">
       <p className="text-base font-bold text-textGrey">Forgot Password</p>
       <p className="text-textGrey font-normal text-sm my-4">
         Enter your phone number to receive a reset code

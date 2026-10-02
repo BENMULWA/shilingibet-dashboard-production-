@@ -304,13 +304,13 @@ function TransactionsTable() {
                 e.stopPropagation();
                 handleCopyPhone(record.phone);
               }}
-              className="p-1 rounded hover:bg-slate-100 transition-colors"
+              className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               title="Copy phone number"
             >
               {copiedPhone === record.phone ? (
                 <FiCheck className="text-emerald-500" size={14} />
               ) : (
-                <FiCopy className="text-slate-400 hover:text-slate-600" size={14} />
+                <FiCopy className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" size={14} />
               )}
             </button>
           )}
@@ -354,7 +354,7 @@ function TransactionsTable() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden p-6">
         <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
@@ -365,7 +365,7 @@ function TransactionsTable() {
   if (error) {
     console.log(error);
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden p-6">
         <Alert
           message="Error loading transactions"
           description={error.message}
@@ -381,7 +381,7 @@ function TransactionsTable() {
   console.log(error);
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
       <div className="lg:px-6 py-4 border-b border-gray-200 flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
         <h3 className="text-lg font-semibold text-gray-800">
           Transaction History

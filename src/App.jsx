@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { BrowserRouter as Router, Navigate, Routes, Route } from "react-router-dom";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
@@ -7,12 +8,13 @@ import Settings from "./pages/Settings";
 import Login from "./pages/auth/Login";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { Toaster } from "react-hot-toast";
 
 import AppLayout from "./pages/AppLayout";
 import AgentAppLayout from "./pages/AgentAppLayout";
 import Bets from "./pages/Bets";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, theme as antdTheme } from "antd";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import AgentLayout from "./components/AgentLayout";
 import SupportSms from "./pages/SupportSms";
@@ -27,18 +29,24 @@ import FraudAlerts from "./pages/FraudAlerts";
 import Cashbacks from "./pages/Cashbacks";
 import Audit from "./pages/Audit";
 
-function App() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 100,
-      },
-    },
-  });
+function AppRoutes() {
+  const { isDark } = useTheme();
+  const queryClient = useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 100,
+          },
+        },
+      }),
+    []
+  );
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider
         theme={{
+          algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
           token: {
             colorPrimary: "#f9ce36",
             colorSuccess: "#10b981",
@@ -47,11 +55,21 @@ function App() {
             colorInfo: "#3b82f6",
             fontFamily: "Montserrat, sans-serif",
             borderRadius: 10,
-            colorBgContainer: "#ffffff",
-            colorBgLayout: "#f8fafc",
-            colorBorder: "#e2e8f0",
-            colorText: "#1e293b",
-            colorTextSecondary: "#64748b",
+            ...(isDark
+              ? {
+                  colorBgContainer: "#1e293b",
+                  colorBgLayout: "#0f172a",
+                  colorBorder: "#334155",
+                  colorText: "#e2e8f0",
+                  colorTextSecondary: "#94a3b8",
+                }
+              : {
+                  colorBgContainer: "#ffffff",
+                  colorBgLayout: "#f8fafc",
+                  colorBorder: "#e2e8f0",
+                  colorText: "#1e293b",
+                  colorTextSecondary: "#64748b",
+                }),
           },
           components: {
             Button: {
@@ -71,8 +89,8 @@ function App() {
             },
             Table: {
               borderRadius: 12,
-              headerBg: "#f8fafc",
-              headerColor: "#64748b",
+              headerBg: isDark ? "#0f172a" : "#f8fafc",
+              headerColor: isDark ? "#94a3b8" : "#64748b",
             },
             Modal: {
               borderRadiusLG: 16,
@@ -174,6 +192,14 @@ function App() {
         }}
       />
     </QueryClientProvider>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppRoutes />
+    </ThemeProvider>
   );
 }
 

@@ -17,18 +17,18 @@ import Shimmer from "./Shimmer";
 
 function StatCard({ icon, bgColor, title, value, subtitle, isLoading }) {
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center`}>
           {icon}
         </div>
-        <span className="text-sm text-slate-500">{title}</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">{title}</span>
       </div>
-      <div className="text-2xl font-bold text-slate-900">
+      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
         {isLoading ? <Shimmer /> : value}
       </div>
       {subtitle && (
-        <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{subtitle}</p>
       )}
     </div>
   );
@@ -46,8 +46,8 @@ function TypeBreakdown({ byType, isLoading }) {
   const total = Object.values(byType || {}).reduce((a, b) => a + b, 0) || 1;
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200">
-      <h4 className="text-sm font-semibold text-slate-700 mb-4">Alert Types</h4>
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Alert Types</h4>
       {isLoading ? (
         <div className="space-y-3">
           <Shimmer />
@@ -62,10 +62,10 @@ function TypeBreakdown({ byType, isLoading }) {
             return (
               <div key={type}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-slate-600">{config.label}</span>
-                  <span className="text-sm font-medium text-slate-900">{count}</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-300">{config.label}</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{count}</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
                   <div
                     className={`${config.color} h-2 rounded-full transition-all`}
                     style={{ width: `${percentage}%` }}
@@ -91,8 +91,8 @@ function RiskLevelBreakdown({ byRiskLevel, isLoading }) {
   const total = Object.values(byRiskLevel || {}).reduce((a, b) => a + b, 0) || 1;
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200">
-      <h4 className="text-sm font-semibold text-slate-700 mb-4">Risk Levels</h4>
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Risk Levels</h4>
       {isLoading ? (
         <div className="space-y-3">
           <Shimmer />
@@ -107,10 +107,10 @@ function RiskLevelBreakdown({ byRiskLevel, isLoading }) {
             return (
               <div key={level}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-slate-600">{config.label}</span>
-                  <span className="text-sm font-medium text-slate-900">{count}</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-300">{config.label}</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{count}</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
                   <div
                     className={`${config.color} h-2 rounded-full transition-all`}
                     style={{ width: `${percentage}%` }}
@@ -129,8 +129,8 @@ function DailyTrend({ byDay, isLoading }) {
   const maxCount = Math.max(...(byDay?.map((d) => d.count) || [1]));
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200">
-      <h4 className="text-sm font-semibold text-slate-700 mb-4">Daily Trend</h4>
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Daily Trend</h4>
       {isLoading ? (
         <div className="space-y-2">
           <Shimmer />
@@ -147,15 +147,15 @@ function DailyTrend({ byDay, isLoading }) {
             return (
               <div key={day._id}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-slate-600">{date}</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-300">{date}</span>
                   <div className="text-right">
-                    <span className="text-sm font-medium text-slate-900">{day.count}</span>
-                    <span className="text-xs text-slate-500 ml-2">
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{day.count}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">
                       (avg: {day.avgScore?.toFixed(1) || 0})
                     </span>
                   </div>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
                   <div
                     className="bg-amber-500 h-2 rounded-full transition-all"
                     style={{ width: `${percentage}%` }}
@@ -166,7 +166,7 @@ function DailyTrend({ byDay, isLoading }) {
           })}
         </div>
       ) : (
-        <p className="text-sm text-slate-500">No data available</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">No data available</p>
       )}
     </div>
   );
@@ -188,7 +188,7 @@ function FraudStatsCards() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <HiOutlineShieldExclamation className="text-red-500" size={24} />
-          <h3 className="text-lg font-semibold text-slate-800">Fraud Statistics</h3>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Fraud Statistics</h3>
         </div>
         <Dropdown
           menu={{
@@ -199,10 +199,10 @@ function FraudStatsCards() {
           }}
           trigger={["click"]}
         >
-          <Button className="h-9 px-3 rounded-lg border-slate-200">
+          <Button className="h-9 px-3 rounded-lg border-slate-200 dark:border-slate-700">
             <Space>
               Last {days} days
-              <DownOutlined className="text-slate-400" />
+              <DownOutlined className="text-slate-400 dark:text-slate-500" />
             </Space>
           </Button>
         </Dropdown>

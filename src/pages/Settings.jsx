@@ -232,7 +232,7 @@ const Settings = () => {
   return (
     <div className="lg:p-6 p-2 bg-gray-50 rounded-lg">
       <div className="flex flex-wrap gap-6 mt-8">
-        <div className="bg-white p-6 rounded-md shadow w-full">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow w-full">
           <h3 className="text-xl text-gray-600 font-semibold">
             Withdrawal Treasury
             <span className="text-gray-400 text-sm font-normal">
@@ -276,7 +276,7 @@ const Settings = () => {
       </div>
 
       {isSuperAdmin && (
-        <div className="bg-white p-6 rounded-md shadow w-full mt-6">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow w-full mt-6">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
             Create Admin
             <span className="text-gray-400 text-sm font-normal ml-2">
@@ -340,7 +340,7 @@ const Settings = () => {
       )}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-        <div className="bg-white p-6 rounded-md shadow">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
             Manual Wallet Credit
           </h3>
@@ -373,7 +373,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-md shadow">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
             Settle Event
           </h3>
@@ -408,7 +408,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-md shadow">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
             Cancel Event
           </h3>
@@ -434,7 +434,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-md shadow xl:col-span-2">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow xl:col-span-2">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
             Create Sports Event
           </h3>
@@ -526,7 +526,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-md shadow xl:col-span-2">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow xl:col-span-2">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
             Virtual Shortcode Session
           </h3>

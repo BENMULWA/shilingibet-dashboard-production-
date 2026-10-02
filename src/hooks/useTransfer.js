@@ -23,7 +23,7 @@ export function useTransferSecondaryWallet() {
   });
   return { transferSecondaryWalletFn, isLoading, error };
 }
-export function useGetSecondaryWallet(enabled = true) {
+export function useGetSecondaryWallet(enabled = true, { live = false } = {}) {
   const {
     data: secondaryWalletBalance,
     isPending: isLoading,
@@ -32,6 +32,8 @@ export function useGetSecondaryWallet(enabled = true) {
     queryFn: getSecondaryWallet,
     queryKey: ["secondaryWallet"],
     enabled,
+    refetchInterval: live ? 15000 : false,
+    refetchIntervalInBackground: false,
     onError: (error) => {
       toast.error(
         error?.message ??

@@ -355,7 +355,7 @@ function SuperAdminDashboard() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-8 flex items-center justify-center min-h-[400px]">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 flex items-center justify-center min-h-[400px]">
         <Spin size="large" tip="Loading dashboard..." />
       </div>
     );
@@ -363,7 +363,7 @@ function SuperAdminDashboard() {
 
   if (error && !isConnected) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-8">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">
         <Alert type="error" message="Connection Error" description={error} showIcon />
       </div>
     );
@@ -372,15 +372,15 @@ function SuperAdminDashboard() {
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#f9ce36]/20 flex items-center justify-center flex-shrink-0">
               <HiOutlineChatBubbleLeftRight className="text-amber-600" size={20} />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-slate-900">SuperAdmin Dashboard</h1>
-              <p className="text-xs md:text-sm text-slate-500 hidden sm:block">Monitor and manage all support chat operations</p>
+              <h1 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100">SuperAdmin Dashboard</h1>
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 hidden sm:block">Monitor and manage all support chat operations</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
@@ -402,26 +402,26 @@ function SuperAdminDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
-          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Support Staff</h3>
-          <p className="text-xl md:text-2xl font-bold text-slate-900">{stats.totalAgents}</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 md:p-5">
+          <h3 className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mb-1">Support Staff</h3>
+          <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100">{stats.totalAgents}</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
-          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Agents Online</h3>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 md:p-5">
+          <h3 className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mb-1">Agents Online</h3>
           <p className="text-xl md:text-2xl font-bold text-emerald-600">{stats.onlineAgents}</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
-          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Waiting Chats</h3>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 md:p-5">
+          <h3 className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mb-1">Waiting Chats</h3>
           <p className="text-xl md:text-2xl font-bold text-blue-600">{stats.waitingChats}</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-3 md:p-5">
-          <h3 className="text-xs md:text-sm text-slate-500 mb-1">Active Chats</h3>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-3 md:p-5">
+          <h3 className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mb-1">Active Chats</h3>
           <p className="text-xl md:text-2xl font-bold text-amber-600">{stats.activeChats}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <Tabs defaultActiveKey="agents" className="px-3 md:px-6 pt-4">
           <TabPane tab="Agents" key="agents">
             <div className="flex flex-wrap gap-2 md:gap-4 mb-4">
@@ -504,13 +504,13 @@ function SuperAdminDashboard() {
         ) : (
           <>
             {currentViewSession && (
-              <div className="bg-slate-50 rounded-lg p-3 md:p-4 mb-4">
+              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3 md:p-4 mb-4">
                 <p className="text-sm">
-                  <span className="text-slate-500">Customer:</span>{" "}
+                  <span className="text-slate-500 dark:text-slate-400">Customer:</span>{" "}
                   <span className="font-medium">{currentViewSession.customer?.name || "Guest"}</span>
                 </p>
                 <p className="text-sm">
-                  <span className="text-slate-500">Status:</span>{" "}
+                  <span className="text-slate-500 dark:text-slate-400">Status:</span>{" "}
                   <Tag
                     color={
                       currentViewSession.status === "active"
@@ -545,8 +545,8 @@ function SuperAdminDashboard() {
                     <div
                       className={`max-w-[85%] md:max-w-[80%] px-3 md:px-4 py-2 rounded-2xl ${
                         msg.senderType === "agent"
-                          ? "bg-[#f9ce36] text-slate-900 rounded-br-md"
-                          : "bg-slate-200 text-slate-800 rounded-bl-md"
+                          ? "bg-[#f9ce36] text-slate-900 dark:text-slate-100 rounded-br-md"
+                          : "bg-slate-200 text-slate-800 dark:text-slate-100 rounded-bl-md"
                       }`}
                     >
                       <p className="text-sm">{msg.content}</p>
@@ -558,7 +558,7 @@ function SuperAdminDashboard() {
                 </div>
               ))}
               {viewerMessages.length === 0 && (
-                <p className="text-center text-slate-500 py-8">No messages yet</p>
+                <p className="text-center text-slate-500 dark:text-slate-400 py-8">No messages yet</p>
               )}
             </div>
           </>
@@ -579,7 +579,7 @@ function SuperAdminDashboard() {
         okButtonProps={{ danger: true }}
       >
         <div className="py-4">
-          <label className="block text-sm font-medium text-slate-700 mb-2">Reason</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Reason</label>
           <TextArea
             placeholder="Enter reason for banning..."
             value={banReason}

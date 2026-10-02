@@ -90,7 +90,7 @@ function CashbacksTable() {
 
   if (isLoadingAll) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 flex justify-center items-center h-64">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 flex justify-center items-center h-64">
         <Spin size="large" />
       </div>
     );
@@ -98,7 +98,7 @@ function CashbacksTable() {
 
   if (errorAll) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
         <Alert
           message="Error loading cashbacks"
           description={errorAll?.message}
@@ -113,7 +113,7 @@ function CashbacksTable() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
       {/* Header */}
       <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h3 className="text-base sm:text-lg font-semibold text-gray-800">
