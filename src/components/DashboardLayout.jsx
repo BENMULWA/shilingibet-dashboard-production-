@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   FiActivity,
@@ -25,10 +25,11 @@ import { MdOutlineSms } from "react-icons/md";
 import { Modal } from "antd";
 
 import { useAuthState } from "../context/AuthContext";
-import { normalizeStaffRole } from "../utils/authSession";
+import { ROLE_ACCESS, normalizeStaffRole } from "../utils/authSession";
 import { useGetSecondaryWallet } from "../hooks/useTransfer";
 import ThemeToggle from "./ThemeToggle";
 import NotificationBell from "./NotificationBell";
+import Loader from "./Loader";
 
 const ROLE_LABELS = {
   super_admin: "Super Admin",
@@ -57,24 +58,24 @@ const NAV_SECTIONS = [
   {
     title: "Promotions",
     items: [
-      { text: "Cashbacks", to: "/cashback", icon: FiPercent, roles: ["admin", "super_admin"] },
-      { text: "Free Bets", to: "/free-bets", icon: FiGift, roles: ["super_admin"] },
-      { text: "Bulk SMS", to: "/sms", icon: MdOutlineSms, roles: ["admin", "super_admin"] },
+      { text: "Cashbacks", to: "/cashback", icon: FiPercent, roles: ROLE_ACCESS.admin },
+      { text: "Free Bets", to: "/free-bets", icon: FiGift, roles: ROLE_ACCESS.superAdmin },
+      { text: "Bulk SMS", to: "/sms", icon: MdOutlineSms, roles: ROLE_ACCESS.admin },
     ],
   },
   {
     title: "Risk & Compliance",
     items: [
-      { text: "Fraud Alerts", to: "/fraud-alerts", icon: FiShield, roles: ["admin", "super_admin"] },
-      { text: "Audit Logs", to: "/audit", icon: FiActivity, roles: ["admin", "super_admin"] },
+      { text: "Fraud Alerts", to: "/fraud-alerts", icon: FiShield, roles: ROLE_ACCESS.admin },
+      { text: "Audit Logs", to: "/audit", icon: FiActivity, roles: ROLE_ACCESS.admin },
     ],
   },
   {
     title: "Administration",
     items: [
-      { text: "Staff", to: "/staff", icon: FiUserCheck, roles: ["super_admin"] },
-      { text: "Support Admin", to: "/support-admin", icon: HiOutlineChatBubbleLeftRight, roles: ["super_admin"] },
-      { text: "Settings", to: "/settings", icon: HiOutlineCog6Tooth, roles: ["admin", "super_admin"] },
+      { text: "Staff", to: "/staff", icon: FiUserCheck, roles: ROLE_ACCESS.superAdmin },
+      { text: "Support Admin", to: "/support-admin", icon: HiOutlineChatBubbleLeftRight, roles: ROLE_ACCESS.superAdmin },
+      { text: "Settings", to: "/settings", icon: HiOutlineCog6Tooth, roles: ROLE_ACCESS.admin },
     ],
   },
 ];
@@ -138,7 +139,7 @@ function DashboardLayout() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { logout, user } = useAuthState();
   const role = normalizeStaffRole(user);
-  const canManageOperations = ["admin", "super_admin"].includes(role);
+  const canManageOperations = ROLE_ACCESS.admin.includes(role);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -245,7 +246,7 @@ function DashboardLayout() {
       </aside>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden" onClick={closeMobileMenu} />
+        <div aria-hidden="true" className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden" onClick={closeMobileMenu} />
       )}
 
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -307,7 +308,9 @@ function DashboardLayout() {
 
         <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
           <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
-            <Outlet />
+            <Suspense fallback={<div className="py-20"><Loader /></div>}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
 

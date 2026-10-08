@@ -39,6 +39,8 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
 
+  const sessionExpired =
+    new URLSearchParams(window.location.search).get("reason") === "expired";
   const isCodeStep = Boolean(challenge?.verificationRequired);
   const isBusy = isLoading || isVerifying;
   const canSubmit = isCodeStep
@@ -117,6 +119,12 @@ function Login() {
                   : "Use the phone number and password on your staff account."}
               </p>
             </div>
+
+            {sessionExpired && !isCodeStep && (
+              <p role="status" className="mb-5 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm text-brand">
+                Your session ended for security. Please sign in again.
+              </p>
+            )}
 
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
               {isCodeStep ? (

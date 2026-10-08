@@ -1,33 +1,47 @@
-import { useMemo } from "react";
-import { BrowserRouter as Router, Navigate, Routes, Route } from "react-router-dom";
-import DashboardLayout from "./components/DashboardLayout";
-import DashboardHome from "./pages/DashboardHome";
-import Users from "./pages/Users";
-import Transactions from "./pages/Transactions";
-import Settings from "./pages/Settings";
-import Login from "./pages/auth/Login";
+import { Suspense, lazy, useMemo } from "react";
+import { BrowserRouter as Router, Link, Navigate, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { ConfigProvider, theme as antdTheme } from "antd";
 import { Toaster } from "react-hot-toast";
 
+import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { ROLE_ACCESS } from "./utils/authSession";
 import AppLayout from "./pages/AppLayout";
 import AgentAppLayout from "./pages/AgentAppLayout";
-import Bets from "./pages/Bets";
-import { ConfigProvider, theme as antdTheme } from "antd";
-import SuperAdminDashboard from "./pages/SuperAdminDashboard";
+import DashboardLayout from "./components/DashboardLayout";
 import AgentLayout from "./components/AgentLayout";
-import SupportSms from "./pages/SupportSms";
-import SupportChat from "./pages/SupportChat";
-import ResetPassword from "./pages/auth/resetPassword";
-import StaffManagement from "./pages/StaffManagement";
-import FreeBets from "./pages/FreeBets";
-import SuperAdminRoute from "./components/SuperAdminRoute";
-import AdminRoute from "./components/AdminRoute";
-import StaffReadRoute from "./components/StaffReadRoute";
-import FraudAlerts from "./pages/FraudAlerts";
-import Cashbacks from "./pages/Cashbacks";
-import Audit from "./pages/Audit";
+import RoleRoute from "./components/RoleRoute";
+import Loader from "./components/Loader";
+import Login from "./pages/auth/Login";
+
+// Pages load on demand so staff only download the screens their role can open.
+const DashboardHome = lazy(() => import("./pages/DashboardHome"));
+const Users = lazy(() => import("./pages/Users"));
+const Bets = lazy(() => import("./pages/Bets"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Settings = lazy(() => import("./pages/Settings"));
+const SupportSms = lazy(() => import("./pages/SupportSms"));
+const SupportChat = lazy(() => import("./pages/SupportChat"));
+const SuperAdminDashboard = lazy(() => import("./pages/SuperAdminDashboard"));
+const StaffManagement = lazy(() => import("./pages/StaffManagement"));
+const FreeBets = lazy(() => import("./pages/FreeBets"));
+const FraudAlerts = lazy(() => import("./pages/FraudAlerts"));
+const Cashbacks = lazy(() => import("./pages/Cashbacks"));
+const Audit = lazy(() => import("./pages/Audit"));
+const ResetPassword = lazy(() => import("./pages/auth/resetPassword"));
+
+function NotFound() {
+  return (
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-slate-50 p-6 text-center dark:bg-slate-900">
+      <p className="text-5xl font-black text-brand">404</p>
+      <p className="text-slate-600 dark:text-slate-300">This page doesn&apos;t exist.</p>
+      <Link to="/" className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-black">
+        Back to the dashboard
+      </Link>
+    </div>
+  );
+}
 
 function AppRoutes() {
   const { isDark } = useTheme();
@@ -115,28 +129,29 @@ function AppRoutes() {
       >
         <AuthProvider>
           <Router>
+            <Suspense fallback={<Loader />}>
             <Routes>
               <Route path="login" element={<Login />} />
               <Route path="reset" element={<ResetPassword />} />
 
-              {/* Admin Routes */}
+              {/* Admin and super admin back office */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={<DashboardLayout />}>
                   <Route index element={<DashboardHome />} />
                   <Route path="dashboard" element={<DashboardHome />} />
-                  <Route element={<StaffReadRoute />}>
+                  <Route element={<RoleRoute allow={ROLE_ACCESS.staff} />}>
                     <Route path="users" element={<Users />} />
                     <Route path="bets" element={<Bets />} />
                     <Route path="transactions" element={<Transactions />} />
                   </Route>
-                  <Route element={<AdminRoute />}>
+                  <Route element={<RoleRoute allow={ROLE_ACCESS.admin} />}>
                     <Route path="sms" element={<SupportSms />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="fraud-alerts" element={<FraudAlerts />} />
                     <Route path="cashback" element={<Cashbacks />} />
                     <Route path="audit" element={<Audit />} />
                   </Route>
-                  <Route element={<SuperAdminRoute />}>
+                  <Route element={<RoleRoute allow={ROLE_ACCESS.superAdmin} />}>
                     <Route path="free-bets" element={<FreeBets />} />
                     <Route path="support-admin" element={<SuperAdminDashboard />} />
                     <Route path="staff" element={<StaffManagement />} />
@@ -144,9 +159,10 @@ function AppRoutes() {
                 </Route>
               </Route>
 
-              {/* Support agent routes */}
+              {/* Support agent console */}
               <Route element={<AgentAppLayout />}>
                 <Route path="/agent" element={<AgentLayout />}>
+                  <Route index element={<Navigate to="/agent/support" replace />} />
                   <Route path="support" element={<SupportChat />} />
                   <Route path="sms" element={<Navigate to="/agent/support" replace />} />
                   <Route path="users" element={<Users />} />
@@ -154,7 +170,10 @@ function AppRoutes() {
                   <Route path="transactions" element={<Transactions />} />
                 </Route>
               </Route>
+
+              <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </Router>
         </AuthProvider>
       </ConfigProvider>

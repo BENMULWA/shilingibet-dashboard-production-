@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { handleAction } from "../services/resuableFn";
-import { getUserByPhone } from "../services/userServices";
 
 export function useActions() {
   const {

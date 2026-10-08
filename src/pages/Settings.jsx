@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Modal, Select, message } from "antd";
 import {
   useTransferSecondaryWallet,
@@ -11,7 +12,7 @@ import {
   useCreditUserWallet,
   useSettleEvent,
 } from "../hooks/useAdminTools";
-import { useCreateAdmin } from "../hooks/useCreateAdmin";
+import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
 
 const DEFAULT_SELECTIONS = JSON.stringify(
   [
@@ -52,13 +53,9 @@ const inputClassName =
   "p-2 w-full text-gray-700 border border-gray-400 rounded";
 
 const Settings = () => {
-  const currentUser = JSON.parse(sessionStorage.getItem("user"));
-  const isSuperAdmin = currentUser?.loginRole === "super_admin";
+  const isSuperAdmin = normalizeStaffRole(readStoredUser()) === "super_admin";
 
   const [secondaryWalletAmount, setSecondaryWalletAmount] = useState("");
-  const [adminPhone, setAdminPhone] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [adminRole, setAdminRole] = useState("admin");
   const [creditUserId, setCreditUserId] = useState("");
   const [creditAmount, setCreditAmount] = useState("");
   const [settleEventId, setSettleEventId] = useState("");
@@ -81,7 +78,6 @@ const Settings = () => {
     isLoading: transferSecondaryWalletLoading,
   } = useTransferSecondaryWallet();
   const { secondaryWalletBalance } = useGetSecondaryWallet();
-  const { createAdminFn, isLoading: isCreatingAdmin } = useCreateAdmin();
   const { creditUserWalletFn, isLoading: isCreditingWallet } =
     useCreditUserWallet();
   const { createEventFn, isLoading: isCreatingEvent } = useCreateEvent();
@@ -92,45 +88,51 @@ const Settings = () => {
     isLoading: isCreatingVirtualShortcode,
   } = useCreateVirtualShortcode();
 
-  function handleCreateAdmin() {
-    if (!adminPhone || adminPassword.length < 8) {
-      message.error("Phone and a password of at least 8 characters are required");
+  function handleTransferSecondaryWallet() {
+    const amount = Number(secondaryWalletAmount);
+    if (!(amount > 0)) {
+      message.error("Enter an amount greater than zero");
       return;
     }
-    createAdminFn(
-      { phone: adminPhone, password: adminPassword, role: adminRole },
-      {
-        onSuccess: () => {
-          setAdminPhone("");
-          setAdminPassword("");
-          setAdminRole("admin");
-        },
-      }
-    );
-  }
-
-  function handleTransferSecondaryWallet() {
-    if (!secondaryWalletAmount) return;
-    transferSecondaryWalletFn(
-      { amount: secondaryWalletAmount },
-      {
-        onSuccess: () => setSecondaryWalletAmount(""),
-        onError: () => setSecondaryWalletAmount(""),
-      }
-    );
+    Modal.confirm({
+      title: "Fund the withdrawal treasury?",
+      content: `KES ${amount.toLocaleString()} will be moved into the payout float.`,
+      okText: "Fund treasury",
+      cancelText: "Go back",
+      onOk: () =>
+        transferSecondaryWalletFn(
+          { amount: secondaryWalletAmount },
+          {
+            onSuccess: () => setSecondaryWalletAmount(""),
+            onError: () => setSecondaryWalletAmount(""),
+          }
+        ),
+    });
   }
 
   function handleCreditWallet() {
-    if (!creditUserId || !creditAmount) return;
-    creditUserWalletFn(
-      { userId: creditUserId, amount: creditAmount },
-      {
-        onSuccess: () => {
-          setCreditUserId("");
-          setCreditAmount("");
-        },
-      }
-    );
+    const amount = Number(creditAmount);
+    if (!creditUserId.trim() || !(amount > 0)) {
+      message.error("Enter a player ID and an amount greater than zero");
+      return;
+    }
+    Modal.confirm({
+      title: "Credit this player's wallet?",
+      content: `KES ${amount.toLocaleString()} will be added to player ${creditUserId.trim()}. This is recorded in the audit log.`,
+      okText: "Credit wallet",
+      okType: "danger",
+      cancelText: "Go back",
+      onOk: () =>
+        creditUserWalletFn(
+          { userId: creditUserId.trim(), amount: creditAmount },
+          {
+            onSuccess: () => {
+              setCreditUserId("");
+              setCreditAmount("");
+            },
+          }
+        ),
+    });
   }
 
   function handleCreateEvent() {
@@ -161,16 +163,25 @@ const Settings = () => {
   }
 
   function handleSettleEvent() {
-    if (!settleEventId || !settleResult) return;
-    settleEventFn(
-      { eventId: settleEventId, result: settleResult },
-      {
-        onSuccess: () => {
-          setSettleEventId("");
-          setSettleResult("home");
-        },
-      }
-    );
+    const eventId = settleEventId.trim();
+    if (!eventId || !settleResult) return;
+    Modal.confirm({
+      title: "Settle this event?",
+      content: `Event ${eventId} will be settled as "${settleResult}" and winning bets paid out. This cannot be undone.`,
+      okText: "Settle and pay out",
+      okType: "danger",
+      cancelText: "Go back",
+      onOk: () =>
+        settleEventFn(
+          { eventId, result: settleResult },
+          {
+            onSuccess: () => {
+              setSettleEventId("");
+              setSettleResult("home");
+            },
+          }
+        ),
+    });
   }
 
   function handleCancelEvent() {
@@ -277,65 +288,14 @@ const Settings = () => {
 
       {isSuperAdmin && (
         <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow w-full mt-6">
-          <h3 className="text-xl text-gray-600 font-semibold mb-1">
-            Create Admin
-            <span className="text-gray-400 text-sm font-normal ml-2">
-              (Superadmin only)
-            </span>
-          </h3>
-          <p className="text-sm text-gray-400 mb-4">
-            Create a new admin, superadmin, or support agent account.
+          <h3 className="text-xl text-gray-600 font-semibold mb-1">Staff accounts</h3>
+          <p className="text-sm text-gray-400">
+            Add admins and support agents, change roles and reset passwords on the{" "}
+            <Link to="/staff" className="font-medium text-amber-600 hover:underline">
+              Staff page
+            </Link>
+            .
           </p>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
-              <label className="text-sm text-gray-500 font-medium">Phone</label>
-              <input
-                type="text"
-                value={adminPhone}
-                onChange={(e) => setAdminPhone(e.target.value)}
-                className={inputClassName}
-                placeholder="Phone number"
-              />
-            </div>
-            <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
-              <label className="text-sm text-gray-500 font-medium">
-                Password
-              </label>
-              <input
-                type="password"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                minLength={8}
-                className={inputClassName}
-                placeholder="At least 8 characters"
-              />
-            </div>
-            <div className="flex flex-col gap-1 min-w-[160px]">
-              <label className="text-sm text-gray-500 font-medium">Role</label>
-              <Select
-                value={adminRole}
-                onChange={(value) => setAdminRole(value)}
-                options={[
-                  { label: "Admin", value: "admin" },
-                  { label: "Super Admin", value: "super_admin" },
-                  { label: "Support Agent", value: "support" },
-                ]}
-                className="h-[38px]"
-              />
-            </div>
-            <div className="flex flex-col justify-end min-w-[120px]">
-              <button
-                onClick={handleCreateAdmin}
-                disabled={
-                  isCreatingAdmin || !adminPhone || adminPassword.length < 8
-                }
-                type="button"
-                className="p-2 text-black rounded !bg-[#f9ce36] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isCreatingAdmin ? "Creating..." : "Create"}
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
@@ -345,7 +305,7 @@ const Settings = () => {
             Manual Wallet Credit
           </h3>
           <p className="text-sm text-gray-400 mb-4">
-            Runs the admin API wallet credit route from `ADMIN.md`.
+            Add funds to a single player's wallet. Every credit is recorded in the audit log.
           </p>
           <div className="flex flex-col gap-4">
             <input
@@ -439,7 +399,7 @@ const Settings = () => {
             Create Sports Event
           </h3>
           <p className="text-sm text-gray-400 mb-4">
-            Create an event using the admin API contract from `ADMIN.md`.
+            Add a sportsbook event with its betting selections and odds.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input

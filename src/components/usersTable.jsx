@@ -4,7 +4,6 @@ import { FiDownload, FiSearch, FiFilter, FiUsers, FiRefreshCw, FiCopy, FiCheck }
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import DeletionModal from "./DeletionModal";
 import { useGetUsers } from "../hooks/useGetUsers";
-import ModalView from "./ModalView";
 import MyDrawer from "./Drawer";
 import { useGetUserByPhone } from "../hooks/useGetUserByPhone";
 import UsersExportModal from "./Modals/user/UsersExportModal";
@@ -18,7 +17,6 @@ function UsersTable() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete] = useState(null);
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
-  const [currentAction, setCurrentAction] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -484,15 +482,6 @@ function UsersTable() {
         />
       )}
 
-      <Modal
-        title={currentAction?.label}
-        open={currentAction !== null}
-        onOk={() => setCurrentAction(null)}
-        onCancel={() => setCurrentAction(null)}
-        footer={null}
-      >
-        <ModalView actionKey={currentAction?.key} />
-      </Modal>
     </div>
   );
 }

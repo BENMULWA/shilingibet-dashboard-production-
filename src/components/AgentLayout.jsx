@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FiLogOut, FiMenu } from "react-icons/fi";
 import {
@@ -15,6 +15,15 @@ import {
   setAgentStatus,
   subscribeAgentStatus,
 } from "../services/socketService";
+import ThemeToggle from "./ThemeToggle";
+import Loader from "./Loader";
+
+const AGENT_NAV = [
+  { to: "/agent/support", text: "Support Chat", title: "Support Chat", icon: HiOutlineChatBubbleLeftRight },
+  { to: "/agent/users", text: "Players", title: "Players (read only)", icon: HiOutlineUsers },
+  { to: "/agent/bets", text: "Bets", title: "Bets (read only)", icon: HiOutlineCube },
+  { to: "/agent/transactions", text: "Transactions", title: "Transactions (read only)", icon: HiOutlineBanknotes },
+];
 
 function AgentLayout() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -22,13 +31,12 @@ function AgentLayout() {
   const [isConnected, setIsConnected] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
   const onlineRef = useRef(false);
-  const { logout } = useAuthState();
+  const { logout, user } = useAuthState();
   const navigate = useNavigate();
   const location = useLocation();
-  const user = JSON.parse(sessionStorage.getItem("user"));
   const pageTitles = {
     "/agent/support": "Support Chat",
-    "/agent/users": "Users",
+    "/agent/users": "Players",
     "/agent/bets": "Bets",
     "/agent/transactions": "Transactions",
   };
@@ -88,76 +96,39 @@ function AgentLayout() {
       >
         {/* Logo Section */}
         <div className="flex items-center gap-3 px-4 h-14 md:h-16 border-b border-slate-100 dark:border-slate-700">
-          <div className="w-9 h-9 rounded-lg bg-[#f9ce36] flex items-center justify-center">
-            <span className="text-slate-900 dark:text-slate-100 font-bold text-sm">N</span>
-          </div>
-          <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">Support</span>
+          <img src="/shilingibet.png" className="h-7 w-auto" alt="ShilingiBet" />
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Support</span>
         </div>
 
         {/* Agent tools */}
-        <nav className="flex-1 py-4 px-3 flex flex-col gap-2">
-          <NavLink
-            to="/agent/support"
-            title="Support Chat"
-            onClick={() => setMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
-              }`
-            }
-          >
-            <HiOutlineChatBubbleLeftRight size={20} />
-            <span className="text-sm font-medium">Support Chat</span>
-          </NavLink>
-          <NavLink
-            to="/agent/users"
-            title="Users (read only)"
-            onClick={() => setMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
-              }`
-            }
-          >
-            <HiOutlineUsers size={20} />
-            <span className="text-sm font-medium">Users</span>
-          </NavLink>
-          <NavLink
-            to="/agent/bets"
-            title="Bets (read only)"
-            onClick={() => setMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
-              }`
-            }
-          >
-            <HiOutlineCube size={20} />
-            <span className="text-sm font-medium">Bets</span>
-          </NavLink>
-          <NavLink
-            to="/agent/transactions"
-            title="Transactions (read only)"
-            onClick={() => setMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
-              }`
-            }
-          >
-            <HiOutlineBanknotes size={20} />
-            <span className="text-sm font-medium">Transactions</span>
-          </NavLink>
+        <nav aria-label="Support navigation" className="flex-1 py-4 px-3 flex flex-col gap-2">
+          {AGENT_NAV.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              title={item.title}
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
+                  isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+                }`
+              }
+            >
+              <item.icon size={20} />
+              <span className="text-sm font-medium">{item.text}</span>
+            </NavLink>
+          ))}
         </nav>
 
         {/* Sidebar Footer */}
         <div className="p-3 border-t border-slate-100 dark:border-slate-700">
           <button
+            type="button"
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 transition-colors"
           >
             <FiLogOut size={20} />
-            <span className="text-sm font-medium">Logout</span>
+            <span className="text-sm font-medium">Log out</span>
           </button>
         </div>
       </aside>
@@ -166,6 +137,7 @@ function AgentLayout() {
       {mobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/20 z-20 md:hidden"
+          aria-hidden="true"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -178,6 +150,8 @@ function AgentLayout() {
             <div className="flex items-center space-x-3 md:space-x-4">
               {/* Mobile menu button */}
               <button
+                type="button"
+                aria-label="Open menu"
                 className="md:hidden p-2 -ml-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
               >
@@ -206,8 +180,11 @@ function AgentLayout() {
                   {isOnline ? "Online" : "Offline"}
                 </span>
               </div>
+              <ThemeToggle />
               {/* Mobile logout button */}
               <button
+                type="button"
+                aria-label="Log out"
                 onClick={handleLogout}
                 className="md:hidden p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 transition-colors"
               >
@@ -237,7 +214,9 @@ function AgentLayout() {
         {/* Page Content */}
         <main className="flex-1 overflow-hidden bg-slate-50 dark:bg-slate-900">
           <div className="p-2 md:p-4 lg:p-6 h-full">
-            <Outlet />
+            <Suspense fallback={<div className="py-20"><Loader /></div>}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
 
@@ -245,25 +224,25 @@ function AgentLayout() {
         <footer className="hidden sm:block bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-2 md:py-3 px-4 md:px-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span>{`© ${new Date().getFullYear()} ShilingiBet. All rights reserved.`}</span>
-            <span>Powered by ShilingiBet</span>
+            <span>Support agent · all actions are audited</span>
           </div>
         </footer>
       </div>
 
       {/* Logout Confirmation Modal */}
       <Modal
-        title="Confirm Logout"
+        title="Log out?"
         open={isModalVisible}
         onOk={confirmLogout}
         onCancel={() => setIsModalVisible(false)}
-        okText="Yes, Logout"
-        cancelText="Cancel"
+        okText="Log out"
+        cancelText="Stay signed in"
         okButtonProps={{ danger: true }}
         centered
         width="90%"
         style={{ maxWidth: 400 }}
       >
-        <p className="text-slate-600 dark:text-slate-300">Are you sure you want to logout?</p>
+        <p className="text-slate-600 dark:text-slate-300">You'll need your password and an SMS code to sign back in.</p>
       </Modal>
     </div>
   );
