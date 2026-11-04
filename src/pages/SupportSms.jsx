@@ -97,7 +97,7 @@ function SupportSms() {
       const result = response.results;
       toast.success(
         response.queued
-          ? `Queued ${result.total} messages via ${provider === "semasms" ? "SemaSMS" : "Zea World"}`
+          ? `Queued ${result.total} messages via ${PROVIDER_NAMES[provider] || provider}`
           : `Sent ${result.sent} of ${result.total} messages`
       );
       setRecipientsText("");
@@ -143,7 +143,7 @@ function SupportSms() {
     {
       title: "Provider",
       dataIndex: "provider",
-      render: (value) => value === "semasms" ? "SemaSMS" : value === "zeaworld" ? "Zea World" : value,
+      render: (value) => PROVIDER_NAMES[value] || value,
     },
     { title: "Sender", dataIndex: "sender_id" },
     { title: "Recipients", dataIndex: "total_recipients" },
@@ -274,5 +274,7 @@ function SupportSms() {
     </div>
   );
 }
+
+const PROVIDER_NAMES = { zeaworld: "Zea World", semasms: "SemaSMS", celcom: "Celcom" };
 
 export default SupportSms;

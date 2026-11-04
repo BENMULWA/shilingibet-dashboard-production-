@@ -108,18 +108,13 @@ function Login() {
 
           <div className="rounded-2xl border border-white/10 bg-[#101c17]/90 p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-8">
             <div className="mb-7">
-              <div className="flex justify-center">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-pitch/30 bg-pitch/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-pitch">
-                  <FiLock size={11} aria-hidden="true" /> Staff only
-                </span>
-              </div>
-              <h2 className="mt-4 text-2xl font-bold text-white">
-                {isCodeStep ? "Check your phone" : "Sign in"}
+              <h2 className="text-2xl font-bold text-white">
+                {isCodeStep ? "Check your phone" : "Staff sign in"}
               </h2>
               <p className="mt-1.5 text-sm text-white/60">
                 {isCodeStep
                   ? `We sent a 6-digit code to ${challenge.maskedPhone}.`
-                  : "Use the phone number and password on your staff account."}
+                  : "Back office access for authorised Bingwake staff. Use your staff phone number and password."}
               </p>
             </div>
 
