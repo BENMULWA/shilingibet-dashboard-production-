@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { userServices } from "../services/userServices";
 import toast from "react-hot-toast";
@@ -12,10 +13,12 @@ export function useGetUsers(page = 1, limit = 10) {
   } = useQuery({
     queryFn: () => userServices(page, limit),
     queryKey: ["users", page, limit],
-    onError: (err) => {
-      toast.error(err?.message ?? "Something went wrong fetching your history");
-    },
   });
+
+  // useQuery no longer accepts onError in React Query v5, so surface errors here.
+  useEffect(() => {
+    if (error) toast.error(error.message ?? "Something went wrong fetching players", { id: "users-error" });
+  }, [error]);
 
   return {
     users: apiResponse?.users || [],

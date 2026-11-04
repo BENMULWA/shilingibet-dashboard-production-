@@ -62,7 +62,7 @@ function NotificationBell() {
           <button
             type="button"
             onClick={() => markAllRead()}
-            className="text-xs font-medium text-[#e6bd2e] hover:text-[#d4ad26]"
+            className="text-xs font-medium text-[#f0b400] hover:text-[#d9a000]"
           >
             Mark all read
           </button>

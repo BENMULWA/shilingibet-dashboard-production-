@@ -23,7 +23,7 @@ export default function AccountOverview() {
               <h3 className="text-md font-semibold text-gray-700">
                 Withdrawal Treasury
               </h3>
-              <span className="text-xs bg-[#f9ce36]/20 text-amber-700 px-2 py-1 rounded-full">
+              <span className="text-xs bg-[#ffc107]/20 text-amber-700 px-2 py-1 rounded-full">
                 {secondaryWalletBalance?.currency || "KES"}
               </span>
             </div>

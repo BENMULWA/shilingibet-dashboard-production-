@@ -17,6 +17,7 @@ import {
 } from "../services/socketService";
 import ThemeToggle from "./ThemeToggle";
 import Loader from "./Loader";
+import Wordmark from "./Wordmark";
 
 const AGENT_NAV = [
   { to: "/agent/support", text: "Support Chat", title: "Support Chat", icon: HiOutlineChatBubbleLeftRight },
@@ -96,7 +97,7 @@ function AgentLayout() {
       >
         {/* Logo Section */}
         <div className="flex items-center gap-3 px-4 h-14 md:h-16 border-b border-slate-100 dark:border-slate-700">
-          <img src="/shilingibet.png" className="h-7 w-auto" alt="ShilingiBet" />
+          <Wordmark tone="dark" className="text-[18px]" />
           <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Support</span>
         </div>
 
@@ -110,7 +111,7 @@ function AgentLayout() {
               onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                  isActive ? "bg-[#f9ce36] text-black" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  isActive ? "bg-[#ffc107] text-black" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
                 }`
               }
             >
@@ -193,7 +194,7 @@ function AgentLayout() {
               {/* User Avatar */}
               <div className="flex items-center space-x-2 md:space-x-3 pl-2 md:pl-3 border-l border-slate-200 dark:border-slate-700">
                 <div className="relative">
-                  <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#f9ce36] flex items-center justify-center">
+                  <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#ffc107] flex items-center justify-center">
                     <span className="text-slate-900 dark:text-slate-100 font-medium text-xs md:text-sm">
                       {user?.phone?.slice(-2) || "AG"}
                     </span>
@@ -223,7 +224,7 @@ function AgentLayout() {
         {/* Footer - Hidden on mobile */}
         <footer className="hidden sm:block bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-2 md:py-3 px-4 md:px-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <span>{`© ${new Date().getFullYear()} ShilingiBet. All rights reserved.`}</span>
+            <span>{`© ${new Date().getFullYear()} Bingwake. All rights reserved.`}</span>
             <span>Support agent · all actions are audited</span>
           </div>
         </footer>

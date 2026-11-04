@@ -38,6 +38,9 @@ export function useLogin() {
 
   const loginMutation = useMutation({
     mutationFn: ({ phone, password }) => login({ phone, password }),
+    onSuccess: (data) => {
+      if (!data?.verificationRequired) completeLogin(data);
+    },
     onError: (error) => {
       toast.error(error?.message);
     },

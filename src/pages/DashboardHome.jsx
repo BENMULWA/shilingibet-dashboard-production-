@@ -199,7 +199,7 @@ export default function DashboardHome() {
 
   const { analytics: current, isLoading, isFetching, refetch, dataUpdatedAt } = useGetAnalytics(startDate, endDate, { live: isLive });
   const { analytics: previous } = useGetAnalytics(period.previous[0], period.previous[1]);
-  const { secondaryWalletBalance, isLoading: treasuryLoading } = useGetSecondaryWallet(canManageOperations, { live: isLive });
+  const { secondaryWalletBalance, isLoading: treasuryLoading, error: treasuryError } = useGetSecondaryWallet(canManageOperations);
 
   const a = current?.analytics || {};
   const p = previous?.analytics;
@@ -207,10 +207,15 @@ export default function DashboardHome() {
   const change = (key) => (p ? percentChange(a[key], p[key]) : undefined);
 
   const treasuryBalance = Number(secondaryWalletBalance?.balance || 0);
-  const treasuryTone =
-    treasuryBalance <= TREASURY_LOW_THRESHOLD ? "red" : treasuryBalance <= TREASURY_LOW_THRESHOLD * 2 ? "amber" : "ok";
+  const treasuryReserved = Number(secondaryWalletBalance?.reserved || 0);
+  // A failed load is not "KES 0": say so instead of raising a false low-float alarm.
+  const treasuryUnavailable = Boolean(treasuryError) && !secondaryWalletBalance;
+  const treasuryTone = treasuryUnavailable
+    ? "amber"
+    : treasuryBalance <= TREASURY_LOW_THRESHOLD ? "red" : treasuryBalance <= TREASURY_LOW_THRESHOLD * 2 ? "amber" : "ok";
   const ggrMargin = a.betAmount ? (a.totalRevenue / a.betAmount) * 100 : 0;
   const floatCoverage = a.playerWithdrawableBalance ? (treasuryBalance / a.playerWithdrawableBalance) * 100 : 100;
+  const reservedNote = treasuryReserved ? ` · ${kes(treasuryReserved)} held for payouts in progress` : "";
   const avgStake = a.betCount ? a.betAmount / a.betCount : 0;
   const netCash = a.totalDeposit - a.totalWithdrawal;
 
@@ -225,7 +230,7 @@ export default function DashboardHome() {
 
   const exportToExcel = () => {
     const rows = [
-      ["ShilingiBet performance report"],
+      ["Bingwake performance report"],
       ["Period", `${format(startDate, "d MMM yyyy HH:mm")} – ${format(endDate, "d MMM yyyy HH:mm")}`],
       ["Generated", format(new Date(), "d MMM yyyy HH:mm")],
       [],
@@ -253,7 +258,8 @@ export default function DashboardHome() {
       ["Player balances (total)", a.playerBalance],
       ["Withdrawable by players", a.playerWithdrawableBalance],
       ["Locked bonus funds", a.playerBonusBalance],
-      ["Payout float", treasuryBalance],
+      ["Payout float", treasuryUnavailable ? "unavailable" : treasuryBalance],
+      ["Held for payouts in progress", treasuryReserved],
       ["Withdrawals waiting", attention.pendingWithdrawals],
       ["Withdrawals waiting (KES)", attention.pendingWithdrawalAmount],
     ];
@@ -261,7 +267,7 @@ export default function DashboardHome() {
     sheet["!cols"] = [{ wch: 30 }, { wch: 22 }, { wch: 18 }];
     const book = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book, sheet, "Report");
-    XLSX.writeFile(book, `ShilingiBet_${format(startDate, "yyyy-MM-dd")}_to_${format(endDate, "yyyy-MM-dd")}.xlsx`);
+    XLSX.writeFile(book, `Bingwake_${format(startDate, "yyyy-MM-dd")}_to_${format(endDate, "yyyy-MM-dd")}.xlsx`);
   };
 
   const greeting = (() => {
@@ -365,8 +371,12 @@ export default function DashboardHome() {
               to="/settings"
               icon={HiOutlineBanknotes}
               label="Payout float"
-              value={treasuryLoading ? "…" : kes(treasuryBalance)}
-              detail={treasuryTone === "red" ? "Too low: withdrawals will fail" : treasuryTone === "amber" ? "Running low" : "Healthy"}
+              value={treasuryLoading ? "…" : treasuryUnavailable ? "Unavailable" : kes(treasuryBalance)}
+              detail={
+                treasuryUnavailable
+                  ? "Could not load the float. Retrying every 15 seconds."
+                  : `${treasuryTone === "red" ? "Too low: withdrawals will fail" : treasuryTone === "amber" ? "Running low" : "Healthy"}${reservedNote}`
+              }
               tone={treasuryTone}
             />
             <AttentionItem
@@ -505,7 +515,7 @@ export default function DashboardHome() {
           <StatTile title="Player balances (total)" hint="Every player's wallet, cash plus bonus. Our liability to players right now." value={kes(a.playerBalance)} loading={isLoading} />
           <StatTile title="Withdrawable cash" hint="The part of balances players can withdraw today." value={kes(a.playerWithdrawableBalance)} loading={isLoading} />
           <StatTile title="Locked bonus funds" hint="Bonus money usable for betting but not yet withdrawable." value={kes(a.playerBonusBalance)} loading={isLoading} />
-          <StatTile title="Payout float covers" hint="How much of the withdrawable cash the payout float could pay out right now. Under 100% means some withdrawals would fail." value={canManageOperations ? pct(Math.min(floatCoverage, 999)) : "—"} loading={isLoading || treasuryLoading} />
+          <StatTile title="Payout float covers" hint="How much of the withdrawable cash the payout float could pay out right now. Under 100% means some withdrawals would fail." value={canManageOperations && !treasuryUnavailable ? pct(Math.min(floatCoverage, 999)) : "—"} loading={isLoading || treasuryLoading} />
         </div>
       </section>
 

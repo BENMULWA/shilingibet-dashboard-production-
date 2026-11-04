@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const ThemeContext = createContext(null);
-const STORAGE_KEY = "shilingibet-dashboard-theme";
+const STORAGE_KEY = "bingwake-dashboard-theme";
 
 const getSystemPrefersDark = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches;

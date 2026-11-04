@@ -94,6 +94,10 @@ const Settings = () => {
       message.error("Enter an amount greater than zero");
       return;
     }
+    if (transferSecondaryWalletLoading) return;
+    // One key per confirmation: if the request is retried after a dropped
+    // response, the server sees the same key and funds the float only once.
+    const idempotencyKey = crypto.randomUUID();
     Modal.confirm({
       title: "Fund the withdrawal treasury?",
       content: `KES ${amount.toLocaleString()} will be moved into the payout float.`,
@@ -101,10 +105,9 @@ const Settings = () => {
       cancelText: "Go back",
       onOk: () =>
         transferSecondaryWalletFn(
-          { amount: secondaryWalletAmount },
+          { amount: secondaryWalletAmount, idempotencyKey },
           {
             onSuccess: () => setSecondaryWalletAmount(""),
-            onError: () => setSecondaryWalletAmount(""),
           }
         ),
     });
@@ -254,6 +257,12 @@ const Settings = () => {
             Available: {secondaryWalletBalance?.currency || "KES"}{" "}
             {Number(secondaryWalletBalance?.balance || 0).toLocaleString()}
           </p>
+          <p className="text-xs text-gray-400 mt-1">
+            Held for payouts in progress:{" "}
+            {Number(secondaryWalletBalance?.reserved || 0).toLocaleString()} · Funded to date:{" "}
+            {Number(secondaryWalletBalance?.totalAllocated || 0).toLocaleString()}. When a player
+            withdraws, the amount leaves the float straight away and returns only if the payout fails.
+          </p>
           <div className="grid grid-cols-1 gap-4 mt-4">
             <div>
               <label className="block text-sm text-gray-500 font-medium mb-1">
@@ -271,7 +280,7 @@ const Settings = () => {
                 <button
                   onClick={handleTransferSecondaryWallet}
                   type="button"
-                  className="p-2 text-black rounded !bg-[#f9ce36]"
+                  className="p-2 text-black rounded !bg-[#ffc107]"
                   disabled={!isSuperAdmin || transferSecondaryWalletLoading}
                 >
                   {!isSuperAdmin
@@ -326,7 +335,7 @@ const Settings = () => {
               onClick={handleCreditWallet}
               disabled={isCreditingWallet || !creditUserId || !creditAmount}
               type="button"
-              className="p-2 text-black rounded !bg-[#f9ce36] disabled:opacity-50"
+              className="p-2 text-black rounded !bg-[#ffc107] disabled:opacity-50"
             >
               {isCreditingWallet ? "Crediting..." : "Credit wallet"}
             </button>
@@ -361,7 +370,7 @@ const Settings = () => {
               onClick={handleSettleEvent}
               disabled={isSettlingEvent || !settleEventId}
               type="button"
-              className="p-2 text-black rounded !bg-[#f9ce36] disabled:opacity-50"
+              className="p-2 text-black rounded !bg-[#ffc107] disabled:opacity-50"
             >
               {isSettlingEvent ? "Settling..." : "Settle event"}
             </button>
@@ -479,7 +488,7 @@ const Settings = () => {
                 !eventForm.startTime
               }
               type="button"
-              className="p-2 text-black rounded !bg-[#f9ce36] disabled:opacity-50 md:col-span-2"
+              className="p-2 text-black rounded !bg-[#ffc107] disabled:opacity-50 md:col-span-2"
             >
               {isCreatingEvent ? "Creating..." : "Create event"}
             </button>
@@ -565,7 +574,7 @@ const Settings = () => {
                 !shortcodeAdapterPayload
               }
               type="button"
-              className="p-2 text-black rounded !bg-[#f9ce36] disabled:opacity-50 md:col-span-2"
+              className="p-2 text-black rounded !bg-[#ffc107] disabled:opacity-50 md:col-span-2"
             >
               {isCreatingVirtualShortcode ? "Sending..." : "Create shortcode"}
             </button>

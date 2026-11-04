@@ -69,9 +69,20 @@ function AuthProvider({ children }) {
     };
 
     const expiresAt = tokenExpiresAt(user.token);
-    const expiryTimer = expiresAt
-      ? setTimeout(endSession, Math.max(expiresAt - Date.now(), 0))
-      : null;
+    let expiryTimer;
+    const scheduleExpiry = () => {
+      const remaining = expiresAt - Date.now();
+      if (remaining <= 0) {
+        endSession();
+        return;
+      }
+
+      expiryTimer = setTimeout(
+        scheduleExpiry,
+        Math.min(remaining, 2_147_483_647)
+      );
+    };
+    if (expiresAt) scheduleExpiry();
 
     let idleTimer = setTimeout(endSession, IDLE_TIMEOUT_MS);
     const resetIdle = () => {

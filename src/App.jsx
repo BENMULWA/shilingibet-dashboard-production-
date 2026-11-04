@@ -63,7 +63,7 @@ function AppRoutes() {
         theme={{
           algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
           token: {
-            colorPrimary: "#f9ce36",
+            colorPrimary: "#ffc107",
             colorSuccess: "#10b981",
             colorWarning: "#f59e0b",
             colorError: "#ef4444",
@@ -73,10 +73,10 @@ function AppRoutes() {
             borderRadius: 10,
             ...(isDark
               ? {
-                  colorBgContainer: "#121d18",
-                  colorBgElevated: "#16231d",
-                  colorBgLayout: "#0a120e",
-                  colorBorder: "#24352c",
+                  colorBgContainer: "#14221d",
+                  colorBgElevated: "#1a2b24",
+                  colorBgLayout: "#0d1714",
+                  colorBorder: "#243a31",
                   colorBorderSecondary: "#1b2a22",
                   colorText: "#e2e8f0",
                   colorTextSecondary: "#94a3b8",
@@ -91,9 +91,9 @@ function AppRoutes() {
           },
           components: {
             Button: {
-              colorPrimary: "#f9ce36",
-              colorPrimaryHover: "#e6bd2e",
-              colorPrimaryActive: "#d4ad26",
+              colorPrimary: "#ffc107",
+              colorPrimaryHover: "#f0b400",
+              colorPrimaryActive: "#d9a000",
               borderRadius: 10,
               controlHeight: 40,
             },
@@ -107,7 +107,7 @@ function AppRoutes() {
             },
             Table: {
               borderRadius: 12,
-              headerBg: isDark ? "#0a120e" : "#f8fafc",
+              headerBg: isDark ? "#0d1714" : "#f8fafc",
               headerColor: isDark ? "#94a3b8" : "#64748b",
             },
             Modal: {

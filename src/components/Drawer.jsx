@@ -244,7 +244,7 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#f9ce36]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-[#ffc107]/20 flex items-center justify-center">
               <FiUser className="text-amber-600" size={20} />
             </div>
             <div>
@@ -270,7 +270,7 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
           <div className="p-6">
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-xl bg-[#f9ce36] flex items-center justify-center shadow-sm">
+                <div className="w-14 h-14 rounded-xl bg-[#ffc107] flex items-center justify-center shadow-sm">
                   <span className="text-slate-900 dark:text-slate-100 font-bold text-lg">
                     {user?.phone?.slice(-2) || "??"}
                   </span>
@@ -509,7 +509,7 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
         <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
           <button
             onClick={onClose}
-            className="w-full py-3 px-4 bg-[#f9ce36] text-slate-900 dark:text-slate-100 font-medium rounded-lg hover:bg-[#e6bd2e] transition-colors"
+            className="w-full py-3 px-4 bg-[#ffc107] text-slate-900 dark:text-slate-100 font-medium rounded-lg hover:bg-[#f0b400] transition-colors"
           >
             Done
           </button>

@@ -2,26 +2,28 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Brand palette shared with shilingibet.com. The dark slate steps are
+/* Brand palette shared with bingwake.com. The dark slate steps are
    re-tinted green-black so every existing page picks up the gaming theme. */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Montserrat", "Inter", sans-serif;
+  --font-display: "Poppins", "Inter", sans-serif;
 
-  --color-brand: #f9ce36;
-  --color-brand-hover: #e6bd2e;
-  --color-pitch: #00c853;
+  --color-brand: #ffc107;
+  --color-brand-hover: #f0b400;
+  --color-pitch: #3ddc97;
+  --color-bw-green: #0a6e45;
+  --color-bw-green-dark: #075a39;
 
-  --color-slate-700: #24352c;
-  --color-slate-800: #121d18;
-  --color-slate-900: #0a120e;
-  --color-slate-950: #050a07;
+  --color-slate-700: #243a31;
+  --color-slate-800: #14221d;
+  --color-slate-900: #0d1714;
+  --color-slate-950: #08110e;
 }
 
 :root {
-  --color-primary: #f9ce36;
-  --color-primary-hover: #e6bd2e;
-  --color-primary-active: #d4ad26;
+  --color-primary: #ffc107;
+  --color-primary-hover: #f0b400;
+  --color-primary-active: #d9a000;
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
   font-feature-settings: "cv11", "ss01";
@@ -57,11 +59,11 @@ body {
 .dark {
   color-scheme: dark;
   color: #e2e8f0;
-  background-color: #0a120e;
+  background-color: #0d1714;
 }
 
 .dark body {
-  background-color: #0a120e;
+  background-color: #0d1714;
 }
 
 /* Money and counts line up in columns and don't jiggle while live-updating. */
@@ -72,7 +74,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid #f9ce36;
+  outline: 2px solid #ffc107;
   outline-offset: 2px;
 }
 
@@ -140,7 +142,7 @@ button {
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #0a120e;
+  background: #0d1714;
 }
 
 .dark ::-webkit-scrollbar-thumb {
@@ -182,7 +184,7 @@ button {
 
 .dark .ant-modal-content,
 .dark .ant-modal-header {
-  background: #121d18 !important;
+  background: #14221d !important;
 }
 
 .dark .ant-modal-title,
@@ -192,7 +194,7 @@ button {
 
 .dark .ant-modal-header,
 .dark .ant-modal-footer {
-  border-color: #24352c !important;
+  border-color: #243a31 !important;
 }
 
 /* Ant Design Table Styling */
@@ -222,19 +224,19 @@ button {
 .dark .ant-table,
 .dark .ant-table-container,
 .dark .ant-table-content {
-  background: #121d18 !important;
+  background: #14221d !important;
 }
 
 .dark .ant-table-thead > tr > th {
-  background: #0a120e !important;
+  background: #0d1714 !important;
   color: #94a3b8 !important;
-  border-bottom: 1px solid #24352c !important;
+  border-bottom: 1px solid #243a31 !important;
 }
 
 .dark .ant-table-tbody > tr > td {
-  background: #121d18 !important;
+  background: #14221d !important;
   color: #e2e8f0 !important;
-  border-bottom: 1px solid #24352c !important;
+  border-bottom: 1px solid #243a31 !important;
 }
 
 .dark .ant-table-tbody > tr:hover > td {
@@ -248,15 +250,15 @@ button {
 }
 
 .ant-btn-primary {
-  background-color: #f9ce36 !important;
-  border-color: #f9ce36 !important;
-  color: #121d18 !important;
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+  color: #14221d !important;
 }
 
 .ant-btn-primary:hover {
-  background-color: #e6bd2e !important;
-  border-color: #e6bd2e !important;
-  color: #121d18 !important;
+  background-color: #f0b400 !important;
+  border-color: #f0b400 !important;
+  color: #14221d !important;
 }
 
 /* Ant Design Dropdown Styling */
@@ -272,7 +274,7 @@ button {
 }
 
 .dark .ant-dropdown-menu {
-  background: #121d18 !important;
+  background: #14221d !important;
 }
 
 .dark .ant-dropdown-menu-item {
@@ -280,7 +282,7 @@ button {
 }
 
 .dark .ant-dropdown-menu-item:hover {
-  background: #24352c !important;
+  background: #243a31 !important;
 }
 
 /* Date Picker Styling */
@@ -299,8 +301,8 @@ button {
 
 .react-datepicker__day--selected,
 .react-datepicker__day--in-range {
-  background: #f9ce36 !important;
-  color: #121d18 !important;
+  background: #ffc107 !important;
+  color: #14221d !important;
 }
 
 .react-datepicker__day:hover {
@@ -308,13 +310,13 @@ button {
 }
 
 .dark .react-datepicker {
-  background: #121d18 !important;
-  border-color: #24352c !important;
+  background: #14221d !important;
+  border-color: #243a31 !important;
 }
 
 .dark .react-datepicker__header {
-  background: #0a120e !important;
-  border-color: #24352c !important;
+  background: #0d1714 !important;
+  border-color: #243a31 !important;
 }
 
 .dark .react-datepicker__current-month,
@@ -324,7 +326,7 @@ button {
 }
 
 .dark .react-datepicker__day:hover {
-  background: #24352c !important;
+  background: #243a31 !important;
 }
 
 /* Ant Design Input Styling */
@@ -343,8 +345,8 @@ button {
 
 .dark .ant-input,
 .dark .ant-input-affix-wrapper {
-  background: #0a120e !important;
-  border-color: #24352c !important;
+  background: #0d1714 !important;
+  border-color: #243a31 !important;
   color: #e2e8f0 !important;
 }
 

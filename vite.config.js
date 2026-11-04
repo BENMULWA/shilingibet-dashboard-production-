@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
 
   server: {
-    allowedHosts: ["dashboard.shilingibet.com"],
+    allowedHosts: ["dashboard.bingwake.com"],
   },
 
   build: {

@@ -318,7 +318,7 @@ function UsersTable() {
               <Button
                 type="primary"
                 onClick={() => window.location.reload()}
-                className="bg-[#f9ce36] text-black border-[#f9ce36] hover:bg-[#e6bd2e]"
+                className="bg-[#ffc107] text-black border-[#ffc107] hover:bg-[#f0b400]"
               >
                 Try Again
               </Button>
@@ -344,7 +344,7 @@ function UsersTable() {
       <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#f9ce36]/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-[#ffc107]/20 flex items-center justify-center">
               <FiUsers className="text-amber-600" size={20} />
             </div>
             <div>
@@ -391,7 +391,7 @@ function UsersTable() {
                 onClick={() => setIsFilterModalVisible(true)}
                 className={
                   hasActiveFilters
-                    ? "bg-[#f9ce36] text-black border-[#f9ce36]"
+                    ? "bg-[#ffc107] text-black border-[#ffc107]"
                     : "border-slate-200 dark:border-slate-700"
                 }
               >

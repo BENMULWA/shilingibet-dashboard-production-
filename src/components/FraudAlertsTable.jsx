@@ -370,7 +370,7 @@ function FraudAlertsTable() {
               <Button
                 type="primary"
                 onClick={() => refetch()}
-                className="bg-[#f9ce36] text-black border-[#f9ce36] hover:bg-[#e6bd2e]"
+                className="bg-[#ffc107] text-black border-[#ffc107] hover:bg-[#f0b400]"
               >
                 Try Again
               </Button>

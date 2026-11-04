@@ -27,7 +27,7 @@ export default function CustomerActivityChart({ deposits = 0, withdrawals = 0 })
   const withdrawalPercent = total > 0 ? ((withdrawals / total) * 100).toFixed(0) : 0;
 
   const data = [
-    { name: "Deposits", value: deposits, color: "#f9ce36" },
+    { name: "Deposits", value: deposits, color: "#ffc107" },
     { name: "Withdrawals", value: withdrawals, color: "#EF4444" },
   ];
 
@@ -58,9 +58,9 @@ export default function CustomerActivityChart({ deposits = 0, withdrawals = 0 })
 
       {/* Stats */}
       <div className="flex flex-col gap-3 flex-1 min-w-0">
-        <div className="bg-[#f9ce36]/10 rounded-lg p-3">
+        <div className="bg-[#ffc107]/10 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 bg-[#f9ce36]/30 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-6 h-6 bg-[#ffc107]/30 rounded-full flex items-center justify-center flex-shrink-0">
               <TbArrowUp className="text-amber-600" size={14} />
             </div>
             <span className="text-xs text-slate-500 dark:text-slate-400">Deposits</span>

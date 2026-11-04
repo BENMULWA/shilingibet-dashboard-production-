@@ -230,7 +230,7 @@ function SupportChat() {
         <div className="px-3 md:px-4 py-3 md:py-4 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#f9ce36]/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#ffc107]/20 flex items-center justify-center flex-shrink-0">
                 <HiOutlineChatBubbleLeftRight className="text-amber-600" size={18} />
               </div>
               <div>
@@ -338,7 +338,7 @@ function SupportChat() {
                 }
                 className={`px-4 py-3 cursor-pointer border-b border-slate-50 transition-colors ${
                   currentSession?.sessionId === session.sessionId
-                    ? "bg-[#f9ce36]/10 border-l-2 border-l-[#f9ce36]"
+                    ? "bg-[#ffc107]/10 border-l-2 border-l-[#ffc107]"
                     : "hover:bg-slate-50 dark:hover:bg-slate-800"
                 }`}
               >
@@ -418,7 +418,7 @@ function SupportChat() {
                 >
                   <FiArrowRight className="text-slate-600 dark:text-slate-300 rotate-180" size={18} />
                 </button>
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#f9ce36] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#ffc107] flex items-center justify-center flex-shrink-0">
                   <span className="text-slate-900 dark:text-slate-100 font-semibold text-xs md:text-sm">
                     {(currentSession.customer?.name || "G").charAt(0).toUpperCase()}
                   </span>
@@ -514,7 +514,7 @@ function SupportChat() {
                     <div
                       className={`max-w-[85%] md:max-w-[70%] ${
                         msg.senderType === "agent"
-                          ? "bg-[#f9ce36] text-slate-900 dark:text-slate-100 rounded-2xl rounded-br-md"
+                          ? "bg-[#ffc107] text-slate-900 dark:text-slate-100 rounded-2xl rounded-br-md"
                           : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl rounded-bl-md border border-slate-200 dark:border-slate-700"
                       } px-3 md:px-4 py-2 md:py-2.5 shadow-sm`}
                     >
@@ -626,7 +626,7 @@ function SupportChat() {
           /* Empty State */
           <div className="flex-1 hidden md:flex items-center justify-center bg-slate-50 dark:bg-slate-900/50">
             <div className="text-center px-4">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#f9ce36]/20 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#ffc107]/20 flex items-center justify-center mx-auto mb-4">
                 <HiOutlineChatBubbleLeftRight className="text-amber-600" size={28} />
               </div>
               <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">

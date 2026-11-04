@@ -89,14 +89,14 @@ export default function RevenueChart() {
             <span className="text-xs text-slate-600 dark:text-slate-300">Bet Amount</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#f9ce36]" />
+            <span className="w-3 h-3 rounded-full bg-[#ffc107]" />
             <span className="text-xs text-slate-600 dark:text-slate-300">Win Amount</span>
           </div>
         </div>
         <div
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
             isPositive
-              ? "bg-[#f9ce36]/20 text-amber-700"
+              ? "bg-[#ffc107]/20 text-amber-700"
               : "bg-red-50 text-red-700"
           }`}
         >
@@ -120,8 +120,8 @@ export default function RevenueChart() {
                 <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorWin" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f9ce36" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#f9ce36" stopOpacity={0} />
+                <stop offset="5%" stopColor="#ffc107" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#ffc107" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
@@ -158,7 +158,7 @@ export default function RevenueChart() {
             <Area
               type="monotone"
               dataKey="winAmount"
-              stroke="#f9ce36"
+              stroke="#ffc107"
               strokeWidth={2}
               fill="url(#colorWin)"
               name="Win Amount"

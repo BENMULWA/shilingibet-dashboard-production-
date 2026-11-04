@@ -191,7 +191,7 @@ function JackpotPage() {
                     type="button"
                     onClick={handleSubmit}
                     disabled={!canSubmit || isPlacingBet}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#f9ce36] px-5 py-3 text-sm font-semibold text-slate-900 transition-colors hover:bg-[#e6bd2e] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#ffc107] px-5 py-3 text-sm font-semibold text-slate-900 transition-colors hover:bg-[#f0b400] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isPlacingBet ? <Loader /> : <HiOutlineLockClosed size={16} />}
                     {isPlacingBet ? "Placing bet..." : "Place Bet"}

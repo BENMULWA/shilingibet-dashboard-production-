@@ -375,7 +375,7 @@ function SuperAdminDashboard() {
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#f9ce36]/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#ffc107]/20 flex items-center justify-center flex-shrink-0">
               <HiOutlineChatBubbleLeftRight className="text-amber-600" size={20} />
             </div>
             <div>
@@ -545,7 +545,7 @@ function SuperAdminDashboard() {
                     <div
                       className={`max-w-[85%] md:max-w-[80%] px-3 md:px-4 py-2 rounded-2xl ${
                         msg.senderType === "agent"
-                          ? "bg-[#f9ce36] text-slate-900 dark:text-slate-100 rounded-br-md"
+                          ? "bg-[#ffc107] text-slate-900 dark:text-slate-100 rounded-br-md"
                           : "bg-slate-200 text-slate-800 dark:text-slate-100 rounded-bl-md"
                       }`}
                     >

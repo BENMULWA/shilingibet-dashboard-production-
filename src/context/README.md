@@ -1,6 +1,6 @@
-# ShilingiBet Dashboard
+# Bingwake Dashboard
 
-Admin dashboard for managing the ShilingiBet platform. This project is a Vite + React application used for operations such as user management, bets, transactions, fraud monitoring, jackpot views, and support tooling.
+Admin dashboard for managing the Bingwake platform. This project is a Vite + React application used for operations such as user management, bets, transactions, fraud monitoring, jackpot views, and support tooling.
 
 ## Stack
 
@@ -28,7 +28,7 @@ src/
   utils/                    API config and request helpers
 public/
   bg.png                    Login background
-  shilingibet.png           Brand asset
+  favicons.svg              Brand icon
 ```
 
 ## Features

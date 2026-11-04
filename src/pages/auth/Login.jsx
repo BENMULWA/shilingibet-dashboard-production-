@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 
 import { useLogin } from "../../hooks/useLogin";
+import Wordmark from "../../components/Wordmark";
 
 const HIGHLIGHTS = [
   { icon: FiActivity, label: "Live deposits, bets and payouts" },
@@ -65,7 +66,7 @@ function Login() {
   }
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-[#050a07] font-sans text-white">
+    <div className="relative min-h-dvh overflow-hidden bg-[#08110e] font-sans text-white">
       {/* Stadium backdrop: the brand artwork, darkened so the form stays readable */}
       <div
         aria-hidden="true"
@@ -74,13 +75,13 @@ function Login() {
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,200,83,0.22),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(249,206,54,0.16),transparent_50%),linear-gradient(180deg,rgba(5,10,7,0.55),rgba(5,10,7,0.92))]"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(10,110,69,0.22),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(255,193,7,0.16),transparent_50%),linear-gradient(180deg,rgba(8,17,14,0.55),rgba(8,17,14,0.92))]"
       />
 
       <div className="relative mx-auto grid min-h-dvh w-full max-w-6xl items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
         {/* Brand panel */}
         <section className="hidden lg:block">
-          <img src="/shilingibet.png" alt="ShilingiBet" className="h-14 w-auto" />
+          <Wordmark className="text-[40px]" />
           <h1 className="mt-8 font-display text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
             Back Office
             <span className="block text-brand">Control Room</span>
@@ -103,13 +104,15 @@ function Login() {
 
         {/* Form card */}
         <section className="mx-auto w-full max-w-md">
-          <img src="/shilingibet.png" alt="ShilingiBet" className="mx-auto mb-8 h-11 w-auto lg:hidden" />
+          <Wordmark className="mx-auto mb-8 flex justify-center text-[32px] lg:hidden" />
 
-          <div className="rounded-2xl border border-white/10 bg-[#0d1712]/90 p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-8">
+          <div className="rounded-2xl border border-white/10 bg-[#101c17]/90 p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-8">
             <div className="mb-7">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-pitch/30 bg-pitch/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-pitch">
-                <FiLock size={11} aria-hidden="true" /> Staff only
-              </span>
+              <div className="flex justify-center">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-pitch/30 bg-pitch/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-pitch">
+                  <FiLock size={11} aria-hidden="true" /> Staff only
+                </span>
+              </div>
               <h2 className="mt-4 text-2xl font-bold text-white">
                 {isCodeStep ? "Check your phone" : "Sign in"}
               </h2>
@@ -206,7 +209,7 @@ function Login() {
               <button
                 type="submit"
                 disabled={!canSubmit || isBusy}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3.5 text-[15px] font-bold text-black shadow-[0_10px_30px_-8px_rgba(249,206,54,0.6)] transition hover:bg-brand-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3.5 text-[15px] font-bold text-black shadow-[0_10px_30px_-8px_rgba(255,193,7,0.6)] transition hover:bg-brand-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
               >
                 {isBusy ? <LoaderIcon /> : isCodeStep ? "Verify and sign in" : "Continue"}
               </button>
@@ -234,7 +237,7 @@ function Login() {
           </div>
 
           <p className="mt-6 text-center text-[11px] text-white/35">
-            Authorised ShilingiBet staff only. Sign-ins and actions are recorded.
+            Authorised Bingwake staff only. Sign-ins and actions are recorded.
           </p>
         </section>
       </div>

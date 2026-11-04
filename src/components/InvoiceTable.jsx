@@ -5,12 +5,21 @@ import autoTable from "jspdf-autotable";
 import moment from "moment";
 import { useTransactions } from "../hooks/useTransactions";
 
-const formatCurrency = (amount, currency = "KES") =>
-  new Intl.NumberFormat("en-KE", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(Number(amount || 0));
+const formatCurrency = (amount, currency = "KES") => {
+  const value = Number(amount || 0);
+  try {
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(value);
+  } catch {
+    return `${currency} ${value.toLocaleString("en-KE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }
+};
 
 const InvoiceTable = () => {
   const { transactions, isLoading } = useTransactions(1, 5);

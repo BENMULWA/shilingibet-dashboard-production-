@@ -16,7 +16,7 @@ export async function getSecondaryWallet() {
   }
 }
 
-export async function transferSecondaryWallet({ amount }) {
+export async function transferSecondaryWallet({ amount, idempotencyKey }) {
   const user = JSON.parse(sessionStorage.getItem("user"));
   const token = user?.token;
   try {
@@ -25,7 +25,7 @@ export async function transferSecondaryWallet({ amount }) {
       "POST",
       {
         amount: +amount,
-        idempotencyKey: crypto.randomUUID(),
+        idempotencyKey: idempotencyKey || crypto.randomUUID(),
         note: "Dashboard treasury allocation",
       },
       token

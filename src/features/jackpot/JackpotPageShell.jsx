@@ -11,7 +11,7 @@ function JackpotPageShell({ title, subtitle, children, action }) {
   return (
     <div className="space-y-5">
       <div className="rounded-2xl bg-slate-900 text-white p-5 lg:p-6 shadow-sm overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(249,206,54,0.18),_transparent_32%),radial-gradient(circle_at_bottom_left,_rgba(56,189,248,0.14),_transparent_30%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,193,7,0.18),_transparent_32%),radial-gradient(circle_at_bottom_left,_rgba(56,189,248,0.14),_transparent_30%)]" />
         <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-amber-200">
@@ -42,7 +42,7 @@ function JackpotPageShell({ title, subtitle, children, action }) {
               className={({ isActive }) =>
                 `inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition-colors ${
                   isActive
-                    ? "border-[#f9ce36] bg-[#f9ce36] text-slate-900"
+                    ? "border-[#ffc107] bg-[#ffc107] text-slate-900"
                     : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
                 }`
               }

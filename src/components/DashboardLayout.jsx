@@ -30,6 +30,7 @@ import { useGetSecondaryWallet } from "../hooks/useTransfer";
 import ThemeToggle from "./ThemeToggle";
 import NotificationBell from "./NotificationBell";
 import Loader from "./Loader";
+import Wordmark from "./Wordmark";
 
 const ROLE_LABELS = {
   super_admin: "Super Admin",
@@ -144,8 +145,14 @@ function DashboardLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { secondaryWalletBalance, isLoading: treasuryLoading } =
-    useGetSecondaryWallet(canManageOperations);
+  const {
+    secondaryWalletBalance,
+    isLoading: treasuryLoading,
+    error: treasuryError,
+  } = useGetSecondaryWallet(canManageOperations);
+  const treasuryUnavailable = Boolean(treasuryError) && !secondaryWalletBalance;
+  const treasuryReserved = Number(secondaryWalletBalance?.reserved || 0);
+  const localApi = /localhost|127\.0\.0\.1/.test(import.meta.env.VITE_API_URL || "");
 
   const treasuryBalance = new Intl.NumberFormat("en-KE", {
     maximumFractionDigits: 0,
@@ -180,13 +187,13 @@ function DashboardLayout() {
           ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0`}
       >
-        <div className="flex h-16 items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700 px-4">
+        <div className="flex h-16 items-center justify-between gap-2 border-b border-bw-green-dark bg-bw-green px-4">
           <Link to="/" className="flex min-w-0 items-center gap-2">
             {expanded ? (
-              <img src="/shilingibet.png" className="h-8 w-auto" alt="ShilingiBet" />
+              <Wordmark className="text-[22px]" />
             ) : (
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand font-display text-sm font-black text-black">
-                SB
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand font-display text-sm font-black text-[#0e1a15]">
+                BW
               </span>
             )}
           </Link>
@@ -194,7 +201,7 @@ function DashboardLayout() {
             type="button"
             onClick={() => (mobileMenuOpen ? closeMobileMenu() : setSidebarOpen((open) => !open))}
             aria-label={mobileMenuOpen ? "Close menu" : sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+            className="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
           >
             {mobileMenuOpen ? <FiX size={18} /> : sidebarOpen ? <FiChevronLeft size={18} /> : <FiChevronRight size={18} />}
           </button>
@@ -271,7 +278,13 @@ function DashboardLayout() {
               {canManageOperations && (
                 <div
                   className="hidden items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 dark:border-emerald-900 dark:bg-emerald-950/40 sm:flex"
-                  title="Money available to pay player withdrawals"
+                  title={
+                    treasuryUnavailable
+                      ? `Could not load the payout float: ${treasuryError.message}`
+                      : `Money available to pay player withdrawals. Updates every 15 seconds.${
+                          treasuryReserved ? ` KES ${treasuryReserved.toLocaleString("en-KE")} is held for payouts in progress.` : ""
+                        }`
+                  }
                 >
                   <HiOutlineBanknotes className="shrink-0 text-emerald-600 dark:text-emerald-400" size={18} />
                   <div className="leading-tight">
@@ -279,12 +292,24 @@ function DashboardLayout() {
                       Payout float
                     </p>
                     <p className="tabular whitespace-nowrap text-xs font-semibold text-emerald-800 dark:text-emerald-300 sm:text-sm">
-                      {treasuryLoading ? "Loading…" : `${secondaryWalletBalance?.currency || "KES"} ${treasuryBalance}`}
+                      {treasuryLoading
+                        ? "Loading…"
+                        : treasuryUnavailable
+                          ? "Unavailable"
+                          : `${secondaryWalletBalance?.currency || "KES"} ${treasuryBalance}`}
                     </p>
                   </div>
                 </div>
               )}
 
+              {localApi && (
+                <span
+                  className="hidden rounded-md bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800 dark:bg-amber-500/15 dark:text-amber-300 sm:inline"
+                  title={`This dashboard is talking to ${import.meta.env.VITE_API_URL}, not the live server, so balances and withdrawals will not match production.`}
+                >
+                  Local API
+                </span>
+              )}
               <ThemeToggle />
               <NotificationBell />
 
@@ -316,7 +341,7 @@ function DashboardLayout() {
 
         <footer className="border-t border-slate-200 bg-white px-6 py-3 dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col items-center justify-between gap-1 text-xs text-slate-500 dark:text-slate-400 sm:flex-row">
-            <span>© {new Date().getFullYear()} ShilingiBet Back Office</span>
+            <span>© {new Date().getFullYear()} Bingwake Back Office</span>
             <span>Signed in as {ROLE_LABELS[role] || "Staff"} · all actions are audited</span>
           </div>
         </footer>

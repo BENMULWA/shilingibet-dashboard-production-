@@ -3,7 +3,7 @@
 # Run on the server from the repo folder:  ./deploy/deploy.sh
 set -euo pipefail
 
-WEB_ROOT="${WEB_ROOT:-/var/www/shilingibet-dashboard}"
+WEB_ROOT="${WEB_ROOT:-/var/www/bingwake-dashboard}"
 cd "$(dirname "$0")/.."
 
 if [ ! -f .env ]; then
