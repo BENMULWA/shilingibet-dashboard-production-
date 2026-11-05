@@ -28,6 +28,7 @@ const StaffManagement = lazy(() => import("./pages/StaffManagement"));
 const FreeBets = lazy(() => import("./pages/FreeBets"));
 const FraudAlerts = lazy(() => import("./pages/FraudAlerts"));
 const Cashbacks = lazy(() => import("./pages/Cashbacks"));
+const Announcements = lazy(() => import("./pages/Announcements"));
 const Audit = lazy(() => import("./pages/Audit"));
 const ResetPassword = lazy(() => import("./pages/auth/resetPassword"));
 
@@ -149,6 +150,7 @@ function AppRoutes() {
                     <Route path="settings" element={<Settings />} />
                     <Route path="fraud-alerts" element={<FraudAlerts />} />
                     <Route path="cashback" element={<Cashbacks />} />
+                    <Route path="announcements" element={<Announcements />} />
                     <Route path="audit" element={<Audit />} />
                   </Route>
                   <Route element={<RoleRoute allow={ROLE_ACCESS.superAdmin} />}>

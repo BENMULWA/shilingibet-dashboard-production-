@@ -63,6 +63,7 @@ const NAV_SECTIONS = [
       { text: "Cashbacks", to: "/cashback", icon: FiPercent, roles: ROLE_ACCESS.admin },
       { text: "Free Bets", to: "/free-bets", icon: FiGift, roles: ROLE_ACCESS.superAdmin },
       { text: "Bulk SMS", to: "/sms", icon: MdOutlineSms, roles: ROLE_ACCESS.admin },
+      { text: "Announcements", to: "/announcements", icon: FiBell, roles: ROLE_ACCESS.admin },
     ],
   },
   {
@@ -88,6 +89,7 @@ const PAGE_TITLES = [
   ["/bets", "Bets"],
   ["/transactions", "Transactions"],
   ["/sms", "Bulk SMS"],
+  ["/announcements", "Announcements"],
   ["/cashback", "Cashbacks"],
   ["/audit", "Audit Logs"],
   ["/settings", "Settings"],
