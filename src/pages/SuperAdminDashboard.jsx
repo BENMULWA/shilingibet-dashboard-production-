@@ -19,6 +19,8 @@ function SuperAdminDashboard() {
   // Filters
   const [agentStatusFilter, setAgentStatusFilter] = useState("");
   const [chatStatusFilter, setChatStatusFilter] = useState("");
+  // Part of a player's phone number, to find all of their chats (including old closed ones).
+  const [chatPhoneSearch, setChatPhoneSearch] = useState("");
 
   // Chat Viewer
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -117,8 +119,11 @@ function SuperAdminDashboard() {
 
   const loadSessions = async () => {
     try {
-      let url = `${API_URL}/support-chat/superadmin/sessions?limit=50&`;
-      if (chatStatusFilter) url += `status=${chatStatusFilter}`;
+      const params = new URLSearchParams({ limit: "50" });
+      if (chatStatusFilter) params.set("status", chatStatusFilter);
+      const digits = chatPhoneSearch.replace(/\D/g, "");
+      if (digits.length >= 3) params.set("phone", digits);
+      const url = `${API_URL}/support-chat/superadmin/sessions?${params.toString()}`;
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -223,8 +228,10 @@ function SuperAdminDashboard() {
   }, [agentStatusFilter]);
 
   useEffect(() => {
-    loadSessions();
-  }, [chatStatusFilter]);
+    // Wait a moment while the admin is still typing a phone number.
+    const timer = setTimeout(loadSessions, 300);
+    return () => clearTimeout(timer);
+  }, [chatStatusFilter, chatPhoneSearch]);
 
   // Table Columns
   const agentColumns = [
@@ -466,6 +473,14 @@ function SuperAdminDashboard() {
                   { label: "Active", value: "active" },
                   { label: "Closed", value: "closed" },
                 ]}
+              />
+              <Input
+                allowClear
+                className="w-full sm:w-64"
+                placeholder="Search by phone number"
+                value={chatPhoneSearch}
+                onChange={(event) => setChatPhoneSearch(event.target.value)}
+                aria-label="Search chats by phone number"
               />
             </div>
             <div className="overflow-x-auto -mx-3 md:-mx-6">
