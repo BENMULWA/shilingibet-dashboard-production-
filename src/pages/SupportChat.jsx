@@ -17,6 +17,17 @@ import {
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 import useSupportChat from "../hooks/useSupportChat";
 
+// "just now", "12 min", "3 h", "5 d": how long a customer has been waiting.
+function formatWaiting(ms) {
+  const minutes = Math.max(0, Math.floor(ms / 60000));
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 48) return `${hours} h`;
+  return `${Math.floor(hours / 24)} d`;
+}
+
+
 function SupportChat() {
   const {
     queue,
@@ -179,10 +190,15 @@ function SupportChat() {
     }
   };
 
-  const filteredQueue = queue.filter((session) =>
-    session.customer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    session.customer?.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Newest first, so a customer who just wrote is never buried under old, abandoned chats.
+  const waitingSince = (session) =>
+    new Date(session.waitingStartedAt || session.createdAt || 0).getTime();
+  const filteredQueue = queue
+    .filter((session) =>
+      session.customer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      session.customer?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => waitingSince(b) - waitingSince(a));
 
   const filteredActiveChats = activeChats.filter((session) =>
     session.customer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -369,9 +385,15 @@ function SupportChat() {
                     <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
                       {session.customer?.email || "No email"}
                     </p>
-                    {viewMode === "queue" && session.queuePosition && (
-                      <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">
-                        Queue #{session.queuePosition}
+                    {viewMode === "queue" && (
+                      <span
+                        className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${
+                          Date.now() - waitingSince(session) > 24 * 3600 * 1000
+                            ? "bg-red-100 text-red-700"
+                            : "bg-amber-100 text-amber-700"
+                        }`}
+                      >
+                        Waiting {formatWaiting(Date.now() - waitingSince(session))}
                       </span>
                     )}
                   </div>
