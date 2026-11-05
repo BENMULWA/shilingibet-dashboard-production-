@@ -73,10 +73,10 @@ function AppRoutes() {
             borderRadius: 10,
             ...(isDark
               ? {
-                  colorBgContainer: "#14221d",
-                  colorBgElevated: "#1a2b24",
-                  colorBgLayout: "#0d1714",
-                  colorBorder: "#243a31",
+                  colorBgContainer: "#25372f",
+                  colorBgElevated: "#2d433a",
+                  colorBgLayout: "#1c2b25",
+                  colorBorder: "#3b554a",
                   colorBorderSecondary: "#1b2a22",
                   colorText: "#e2e8f0",
                   colorTextSecondary: "#94a3b8",
@@ -107,7 +107,7 @@ function AppRoutes() {
             },
             Table: {
               borderRadius: 12,
-              headerBg: isDark ? "#0d1714" : "#f8fafc",
+              headerBg: isDark ? "#1c2b25" : "#f8fafc",
               headerColor: isDark ? "#94a3b8" : "#64748b",
             },
             Modal: {

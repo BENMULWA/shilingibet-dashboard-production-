@@ -202,6 +202,11 @@ export const useSupportChat = () => {
     // Customer message received
     socket.on("agent:customer_message", (data) => {
       playNotificationSound();
+      // The agent has this chat open on screen, so this message counts as seen (gives the
+      // customer their two blue ticks).
+      if (currentSessionRef.current?.sessionId === data.sessionId && !document.hidden) {
+        socket.emit("agent:mark_read", { sessionId: data.sessionId });
+      }
       setMessages((prev) => {
         // Check if we're in this chat
         if (currentSessionRef.current?.sessionId === data.sessionId) {

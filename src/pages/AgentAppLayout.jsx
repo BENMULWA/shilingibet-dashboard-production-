@@ -1,11 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
+import { STAFF_ROLES, normalizeStaffRole, readStoredUser } from "../utils/authSession";
 
 function AgentAppLayout() {
   const user = readStoredUser();
   if (!user) return <Navigate to="/login" replace />;
-  if (normalizeStaffRole(user) !== "support") {
-    return <Navigate to="/dashboard" replace />;
+  // Support agents, admins and super admins can all answer customers here.
+  if (!STAFF_ROLES.includes(normalizeStaffRole(user))) {
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

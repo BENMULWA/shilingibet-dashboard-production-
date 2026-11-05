@@ -5,9 +5,11 @@ import {
   HiOutlineBanknotes,
   HiOutlineChatBubbleLeftRight,
   HiOutlineCube,
+  HiOutlineHome,
   HiOutlineUsers,
 } from "react-icons/hi2";
 import { useAuthState } from "../context/AuthContext";
+import { normalizeStaffRole } from "../utils/authSession";
 import { Modal, Switch } from "antd";
 import {
   disconnectSocket,
@@ -103,7 +105,10 @@ function AgentLayout() {
 
         {/* Agent tools */}
         <nav aria-label="Support navigation" className="flex-1 py-4 px-3 flex flex-col gap-2">
-          {AGENT_NAV.map((item) => (
+          {(normalizeStaffRole(user) === "support"
+            ? AGENT_NAV
+            : [{ to: "/dashboard", text: "Back office", title: "Back to the back office", icon: HiOutlineHome }, ...AGENT_NAV]
+          ).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

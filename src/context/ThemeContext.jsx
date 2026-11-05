@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const ThemeContext = createContext(null);
-const STORAGE_KEY = "bingwake-dashboard-theme";
+// Bumped to v2 so browsers that had dark saved start on light.
+const STORAGE_KEY = "bingwake-dashboard-theme-v2";
 
 const getSystemPrefersDark = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -12,9 +13,9 @@ const resolveIsDark = (mode) =>
 export function ThemeProvider({ children }) {
   const [mode, setMode] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || "dark";
+      return localStorage.getItem(STORAGE_KEY) || "light";
     } catch {
-      return "dark";
+      return "light";
     }
   });
   const [isDark, setIsDark] = useState(() => resolveIsDark(mode));

@@ -14,10 +14,10 @@
   --color-bw-green: #0a6e45;
   --color-bw-green-dark: #075a39;
 
-  --color-slate-700: #243a31;
-  --color-slate-800: #14221d;
-  --color-slate-900: #0d1714;
-  --color-slate-950: #08110e;
+  --color-slate-700: #3b554a;
+  --color-slate-800: #25372f;
+  --color-slate-900: #1c2b25;
+  --color-slate-950: #17231e;
 }
 
 :root {
@@ -59,11 +59,11 @@ body {
 .dark {
   color-scheme: dark;
   color: #e2e8f0;
-  background-color: #0d1714;
+  background-color: #1c2b25;
 }
 
 .dark body {
-  background-color: #0d1714;
+  background-color: #1c2b25;
 }
 
 /* Money and counts line up in columns and don't jiggle while live-updating. */
@@ -142,11 +142,11 @@ button {
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #0d1714;
+  background: #1c2b25;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #2d4237;
+  background: #44604f;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
@@ -184,7 +184,7 @@ button {
 
 .dark .ant-modal-content,
 .dark .ant-modal-header {
-  background: #14221d !important;
+  background: #25372f !important;
 }
 
 .dark .ant-modal-title,
@@ -194,7 +194,7 @@ button {
 
 .dark .ant-modal-header,
 .dark .ant-modal-footer {
-  border-color: #243a31 !important;
+  border-color: #3b554a !important;
 }
 
 /* Ant Design Table Styling */
@@ -224,19 +224,19 @@ button {
 .dark .ant-table,
 .dark .ant-table-container,
 .dark .ant-table-content {
-  background: #14221d !important;
+  background: #25372f !important;
 }
 
 .dark .ant-table-thead > tr > th {
-  background: #0d1714 !important;
+  background: #1c2b25 !important;
   color: #94a3b8 !important;
-  border-bottom: 1px solid #243a31 !important;
+  border-bottom: 1px solid #3b554a !important;
 }
 
 .dark .ant-table-tbody > tr > td {
-  background: #14221d !important;
+  background: #25372f !important;
   color: #e2e8f0 !important;
-  border-bottom: 1px solid #243a31 !important;
+  border-bottom: 1px solid #3b554a !important;
 }
 
 .dark .ant-table-tbody > tr:hover > td {
@@ -274,7 +274,7 @@ button {
 }
 
 .dark .ant-dropdown-menu {
-  background: #14221d !important;
+  background: #25372f !important;
 }
 
 .dark .ant-dropdown-menu-item {
@@ -282,7 +282,7 @@ button {
 }
 
 .dark .ant-dropdown-menu-item:hover {
-  background: #243a31 !important;
+  background: #3b554a !important;
 }
 
 /* Date Picker Styling */
@@ -310,13 +310,13 @@ button {
 }
 
 .dark .react-datepicker {
-  background: #14221d !important;
-  border-color: #243a31 !important;
+  background: #25372f !important;
+  border-color: #3b554a !important;
 }
 
 .dark .react-datepicker__header {
-  background: #0d1714 !important;
-  border-color: #243a31 !important;
+  background: #1c2b25 !important;
+  border-color: #3b554a !important;
 }
 
 .dark .react-datepicker__current-month,
@@ -326,7 +326,7 @@ button {
 }
 
 .dark .react-datepicker__day:hover {
-  background: #243a31 !important;
+  background: #3b554a !important;
 }
 
 /* Ant Design Input Styling */
@@ -345,8 +345,8 @@ button {
 
 .dark .ant-input,
 .dark .ant-input-affix-wrapper {
-  background: #0d1714 !important;
-  border-color: #243a31 !important;
+  background: #1c2b25 !important;
+  border-color: #3b554a !important;
   color: #e2e8f0 !important;
 }
 

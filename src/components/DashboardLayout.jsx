@@ -46,6 +46,7 @@ const NAV_SECTIONS = [
     items: [
       { text: "Dashboard", to: "/dashboard", icon: HiOutlineHome, hideFor: ["support"] },
       { text: "Support Console", to: "/agent/support", icon: FiBell, onlyFor: ["support"] },
+      { text: "Live Chat", to: "/agent/support", icon: HiOutlineChatBubbleLeftRight, roles: ROLE_ACCESS.admin },
     ],
   },
   {
