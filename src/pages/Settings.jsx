@@ -13,6 +13,7 @@ import {
   useSettleEvent,
 } from "../hooks/useAdminTools";
 import { can, isSuperAdmin as isSuperAdminUser } from "../utils/authSession";
+import TreasuryHistory from "../components/TreasuryHistory";
 
 const DEFAULT_SELECTIONS = JSON.stringify(
   [
@@ -297,6 +298,7 @@ const Settings = () => {
               </div>
             </div>
           </div>
+          <TreasuryHistory float={secondaryWalletBalance?.balance} />
         </div>
       </div>
       )}

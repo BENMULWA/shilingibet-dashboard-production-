@@ -22,6 +22,7 @@ export function useTransferSecondaryWallet() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["secondaryWallet"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["treasury-movements"] });
       toast.success("Withdrawal treasury funded");
     },
     onError: (err) => {
