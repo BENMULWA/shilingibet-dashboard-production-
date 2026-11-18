@@ -98,14 +98,15 @@ export async function activateDeposit(id) {
   }
 }
 
-export async function zeroBalance(userID) {
+// The API requires a reason (min 5 characters); it is stored with the balance adjustment.
+export async function zeroBalance({ userId, reason }) {
   const user = JSON.parse(sessionStorage.getItem("user"));
   const token = user?.token;
   try {
     const response = await fetchAPI(
-      `admin/users/${userID}/zero-balance`,
+      `admin/users/${userId}/zero-balance`,
       "POST",
-      null,
+      { reason },
       token,
     );
     return response;

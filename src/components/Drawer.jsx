@@ -22,8 +22,9 @@ import useAccountActions from "../hooks/useAccountActions";
 import DeleteModal from "./DeleteAccountModal";
 import { useFormatCurrency } from "../hooks/useFormatCurrency";
 import toast from "react-hot-toast";
-import { Modal } from "antd";
+import { Input, Modal } from "antd";
 import { can } from "../utils/authSession";
+import BalanceCheck from "./BalanceCheck";
 
 // Custom Toggle Switch Component
 function Toggle({ checked, onChange, loading, disabled }) {
@@ -62,13 +63,31 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
 
   const confirmZeroBalance = () => {
     if (!user?._id) return;
+    let reason = "";
     Modal.confirm({
       title: "Clear all wallet funds?",
-      content: "This sets both the user's total balance and restricted bonus balance to zero.",
+      content: (
+        <div className="space-y-2">
+          <p>This sets both the user's total balance and restricted bonus balance to zero. It is recorded with your reason.</p>
+          <Input.TextArea
+            rows={2}
+            maxLength={500}
+            placeholder="Reason, e.g. Unexplained test balance"
+            onChange={(e) => { reason = e.target.value; }}
+          />
+        </div>
+      ),
       okText: "Clear balances",
       okType: "danger",
       cancelText: "Cancel",
-      onOk: () => zeroBalanceFn(user._id),
+      onOk: () => {
+        if (reason.trim().length < 5) {
+          toast.error("Enter a reason of at least 5 characters");
+          return Promise.reject(new Error("reason required"));
+        }
+        zeroBalanceFn({ userId: user._id, reason: reason.trim() });
+        return undefined;
+      },
     });
   };
 
@@ -377,6 +396,10 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
           <div className="h-px bg-slate-200 mx-6" />
 
           {/* Account Controls Section */}
+          <BalanceCheck userId={user?._id} onApproved={() => setWithdrawalPaused(false)} />
+
+          <div className="h-px bg-slate-200 mx-6" />
+
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <HiOutlineShieldCheck className="text-slate-600 dark:text-slate-300" size={18} />

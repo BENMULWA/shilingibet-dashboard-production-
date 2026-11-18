@@ -132,7 +132,7 @@ const useAccountActions = () => {
 
   const { mutate: zeroBalanceFn, isPending: isZeroingBalance } = useMutation({
     mutationFn: zeroBalance,
-    onMutate: async (userId) => {
+    onMutate: async ({ userId }) => {
       await queryClient.cancelQueries({ queryKey: ["users"] });
       updateUserInCache(userId, {
         balance: 0,
