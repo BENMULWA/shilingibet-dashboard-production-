@@ -43,7 +43,7 @@ import { TbReceiptTax } from "react-icons/tb";
 import { useGetAnalytics } from "../hooks/useGetAnalytics";
 import { useGetSecondaryWallet } from "../hooks/useTransfer";
 import { useAuthState } from "../context/AuthContext";
-import { normalizeStaffRole } from "../utils/authSession";
+import { canUser } from "../utils/authSession";
 import KpiCard, { StatTile } from "../components/dashboard/KpiCard";
 import { percentChange } from "../utils/metrics";
 import ActivityFeed from "../components/dashboard/ActivityFeed";
@@ -173,7 +173,9 @@ const DETAIL_TABS = [
 
 export default function DashboardHome() {
   const { user } = useAuthState();
-  const canManageOperations = ["admin", "super_admin"].includes(normalizeStaffRole(user));
+  // The payout float and staff activity feed are only shown to roles that hold those permissions.
+  const canSeeTreasury = canUser(user, "treasury.view");
+  const canSeeActivity = canUser(user, "audit.view");
 
   const periods = useMemo(() => buildPeriods(new Date()), []);
   const [periodId, setPeriodId] = useState("today");
@@ -199,7 +201,7 @@ export default function DashboardHome() {
 
   const { analytics: current, isLoading, isFetching, refetch, dataUpdatedAt } = useGetAnalytics(startDate, endDate, { live: isLive });
   const { analytics: previous } = useGetAnalytics(period.previous[0], period.previous[1]);
-  const { secondaryWalletBalance, isLoading: treasuryLoading, error: treasuryError } = useGetSecondaryWallet(canManageOperations);
+  const { secondaryWalletBalance, isLoading: treasuryLoading, error: treasuryError } = useGetSecondaryWallet(canSeeTreasury);
 
   const a = current?.analytics || {};
   const p = previous?.analytics;
@@ -364,7 +366,7 @@ export default function DashboardHome() {
       </section>
 
       {/* Needs attention: one calm panel, colour only where a person must act */}
-      {canManageOperations && (
+      {canSeeTreasury && (
         <section aria-label="Needs attention" className="rounded-2xl border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-800">
           <div className="grid grid-cols-1 divide-y divide-slate-100 dark:divide-slate-700/60 sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4 xl:divide-x">
             <AttentionItem
@@ -515,7 +517,7 @@ export default function DashboardHome() {
           <StatTile title="Player balances (total)" hint="Every player's wallet, cash plus bonus. Our liability to players right now." value={kes(a.playerBalance)} loading={isLoading} />
           <StatTile title="Withdrawable cash" hint="The part of balances players can withdraw today." value={kes(a.playerWithdrawableBalance)} loading={isLoading} />
           <StatTile title="Locked bonus funds" hint="Bonus money usable for betting but not yet withdrawable." value={kes(a.playerBonusBalance)} loading={isLoading} />
-          <StatTile title="Payout float covers" hint="How much of the withdrawable cash the payout float could pay out right now. Under 100% means some withdrawals would fail." value={canManageOperations && !treasuryUnavailable ? pct(Math.min(floatCoverage, 999)) : "—"} loading={isLoading || treasuryLoading} />
+          <StatTile title="Payout float covers" hint="How much of the withdrawable cash the payout float could pay out right now. Under 100% means some withdrawals would fail." value={canSeeTreasury && !treasuryUnavailable ? pct(Math.min(floatCoverage, 999)) : "—"} loading={isLoading || treasuryLoading} />
         </div>
       </section>
 
@@ -525,7 +527,7 @@ export default function DashboardHome() {
           <SectionTitle title="Revenue trend" description="GGR, stakes and winnings, last 12 months" />
           <RevenueChart />
         </section>
-        <div className="min-w-0 xl:col-span-2">{canManageOperations && <ActivityFeed maxHeight={330} />}</div>
+        <div className="min-w-0 xl:col-span-2">{canSeeActivity && <ActivityFeed maxHeight={330} />}</div>
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">

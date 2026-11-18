@@ -11,6 +11,7 @@ import {
   FiPercent,
   FiShield,
   FiUserCheck,
+  FiKey,
   FiX,
 } from "react-icons/fi";
 import {
@@ -25,18 +26,12 @@ import { MdOutlineSms } from "react-icons/md";
 import { Modal } from "antd";
 
 import { useAuthState } from "../context/AuthContext";
-import { ROLE_ACCESS, normalizeStaffRole } from "../utils/authSession";
+import { canUser, isSuperAdmin, roleLabel, usesAgentConsole } from "../utils/authSession";
 import { useGetSecondaryWallet } from "../hooks/useTransfer";
 import ThemeToggle from "./ThemeToggle";
 import NotificationBell from "./NotificationBell";
 import Loader from "./Loader";
 import Wordmark from "./Wordmark";
-
-const ROLE_LABELS = {
-  super_admin: "Super Admin",
-  admin: "Admin",
-  support: "Support",
-};
 
 // Sidebar grouped the way operators think about the business:
 // what's happening, who's playing, where the money is, what's risky.
@@ -44,41 +39,43 @@ const NAV_SECTIONS = [
   {
     title: "Overview",
     items: [
-      { text: "Dashboard", to: "/dashboard", icon: HiOutlineHome, hideFor: ["support"] },
-      { text: "Support Console", to: "/agent/support", icon: FiBell, onlyFor: ["support"] },
-      { text: "Live Chat", to: "/agent/support", icon: HiOutlineChatBubbleLeftRight, roles: ROLE_ACCESS.admin },
+      { text: "Dashboard", to: "/dashboard", icon: HiOutlineHome, need: ["dashboard.view"] },
+      { text: "Finance", to: "/finance", icon: HiOutlineBanknotes, need: ["finance.view", "treasury.view"] },
+      { text: "Support Console", to: "/agent/support", icon: FiBell, show: usesAgentConsole },
+      { text: "Live Chat", to: "/agent/support", icon: HiOutlineChatBubbleLeftRight, show: (user) => !usesAgentConsole(user) && canUser(user, "chat.agent") },
     ],
   },
   {
     title: "Players & Betting",
     items: [
-      { text: "Players", to: "/users", icon: HiOutlineUsers },
-      { text: "Bets", to: "/bets", icon: HiOutlineCube },
-      { text: "Transactions", to: "/transactions", icon: HiOutlineBanknotes },
+      { text: "Players", to: "/users", icon: HiOutlineUsers, need: ["players.view"] },
+      { text: "Bets", to: "/bets", icon: HiOutlineCube, need: ["bets.view"] },
+      { text: "Transactions", to: "/transactions", icon: HiOutlineBanknotes, need: ["transactions.view"] },
     ],
   },
   {
     title: "Promotions",
     items: [
-      { text: "Cashbacks", to: "/cashback", icon: FiPercent, roles: ROLE_ACCESS.admin },
-      { text: "Free Bets", to: "/free-bets", icon: FiGift, roles: ROLE_ACCESS.superAdmin },
-      { text: "Bulk SMS", to: "/sms", icon: MdOutlineSms, roles: ROLE_ACCESS.admin },
-      { text: "Announcements", to: "/announcements", icon: FiBell, roles: ROLE_ACCESS.admin },
+      { text: "Cashbacks", to: "/cashback", icon: FiPercent, need: ["cashback.view"] },
+      { text: "Free Bets", to: "/free-bets", icon: FiGift, need: ["freebets.view"] },
+      { text: "Bulk SMS", to: "/sms", icon: MdOutlineSms, need: ["sms.send"] },
+      { text: "Announcements", to: "/announcements", icon: FiBell, need: ["announcements.manage"] },
     ],
   },
   {
     title: "Risk & Compliance",
     items: [
-      { text: "Fraud Alerts", to: "/fraud-alerts", icon: FiShield, roles: ROLE_ACCESS.admin },
-      { text: "Audit Logs", to: "/audit", icon: FiActivity, roles: ROLE_ACCESS.admin },
+      { text: "Fraud Alerts", to: "/fraud-alerts", icon: FiShield, need: ["fraud.view"] },
+      { text: "Audit Logs", to: "/audit", icon: FiActivity, need: ["audit.view"] },
     ],
   },
   {
     title: "Administration",
     items: [
-      { text: "Staff", to: "/staff", icon: FiUserCheck, roles: ROLE_ACCESS.superAdmin },
-      { text: "Support Admin", to: "/support-admin", icon: HiOutlineChatBubbleLeftRight, roles: ROLE_ACCESS.superAdmin },
-      { text: "Settings", to: "/settings", icon: HiOutlineCog6Tooth, roles: ROLE_ACCESS.admin },
+      { text: "Staff", to: "/staff", icon: FiUserCheck, show: isSuperAdmin },
+      { text: "Roles & Permissions", to: "/roles", icon: FiKey, show: isSuperAdmin },
+      { text: "Support Admin", to: "/support-admin", icon: HiOutlineChatBubbleLeftRight, need: ["chat.supervise"] },
+      { text: "Settings", to: "/settings", icon: HiOutlineCog6Tooth, need: ["treasury.view", "players.credit", "events.manage"] },
     ],
   },
 ];
@@ -88,6 +85,7 @@ const PAGE_TITLES = [
   ["/users", "Players"],
   ["/bets", "Bets"],
   ["/transactions", "Transactions"],
+  ["/finance", "Finance"],
   ["/sms", "Bulk SMS"],
   ["/announcements", "Announcements"],
   ["/cashback", "Cashbacks"],
@@ -95,14 +93,14 @@ const PAGE_TITLES = [
   ["/settings", "Settings"],
   ["/support-admin", "Support Admin"],
   ["/staff", "Staff Management"],
+  ["/roles", "Roles & Permissions"],
   ["/free-bets", "Free Bets"],
   ["/fraud-alerts", "Fraud Alerts"],
 ];
 
-const canSee = (item, role) => {
-  if (item.onlyFor) return item.onlyFor.includes(role);
-  if (item.hideFor?.includes(role)) return false;
-  return !item.roles || item.roles.includes(role);
+const canSee = (item, user) => {
+  if (item.show) return item.show(user);
+  return !item.need || canUser(user, ...item.need);
 };
 
 const initialsOf = (user) => {
@@ -115,7 +113,7 @@ const initialsOf = (user) => {
       .join("")
       .toUpperCase();
   }
-  return (ROLE_LABELS[normalizeStaffRole(user)] || "ST").slice(0, 2).toUpperCase();
+  return (roleLabel(user) || "ST").slice(0, 2).toUpperCase();
 };
 
 function NairobiClock() {
@@ -142,8 +140,7 @@ function NairobiClock() {
 function DashboardLayout() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { logout, user } = useAuthState();
-  const role = normalizeStaffRole(user);
-  const canManageOperations = ROLE_ACCESS.admin.includes(role);
+  const canSeeTreasury = canUser(user, "treasury.view");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -152,7 +149,7 @@ function DashboardLayout() {
     secondaryWalletBalance,
     isLoading: treasuryLoading,
     error: treasuryError,
-  } = useGetSecondaryWallet(canManageOperations);
+  } = useGetSecondaryWallet(canSeeTreasury);
   const treasuryUnavailable = Boolean(treasuryError) && !secondaryWalletBalance;
   const treasuryReserved = Number(secondaryWalletBalance?.reserved || 0);
   const localApi = /localhost|127\.0\.0\.1/.test(import.meta.env.VITE_API_URL || "");
@@ -212,7 +209,7 @@ function DashboardLayout() {
 
         <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
           {NAV_SECTIONS.map((section) => {
-            const items = section.items.filter((item) => canSee(item, role));
+            const items = section.items.filter((item) => canSee(item, user));
             if (!items.length) return null;
             return (
               <div key={section.title}>
@@ -278,7 +275,7 @@ function DashboardLayout() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              {canManageOperations && (
+              {canSeeTreasury && (
                 <div
                   className="hidden items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 dark:border-emerald-900 dark:bg-emerald-950/40 sm:flex"
                   title={
@@ -327,7 +324,7 @@ function DashboardLayout() {
                   <p className="max-w-[160px] truncate text-sm font-medium text-slate-700 dark:text-slate-200">
                     {user?.name || user?.phone || "Staff"}
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{ROLE_LABELS[role] || "Staff"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{roleLabel(user)}</p>
                 </div>
               </div>
             </div>
@@ -345,7 +342,7 @@ function DashboardLayout() {
         <footer className="border-t border-slate-200 bg-white px-6 py-3 dark:border-slate-700 dark:bg-slate-800">
           <div className="flex flex-col items-center justify-between gap-1 text-xs text-slate-500 dark:text-slate-400 sm:flex-row">
             <span>© {new Date().getFullYear()} Bingwake Back Office</span>
-            <span>Signed in as {ROLE_LABELS[role] || "Staff"} · all actions are audited</span>
+            <span>Signed in as {roleLabel(user)} · all actions are audited</span>
           </div>
         </footer>
       </div>

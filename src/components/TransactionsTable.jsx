@@ -22,16 +22,16 @@ import {
 } from "../hooks/useTransactions";
 import { debounce } from "lodash";
 import TransactionsExportModal from "./Modals/transactions/TransactionsExportModal";
-import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
+import { can } from "../utils/authSession";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Text } = Typography;
 
 function TransactionsTable() {
-  const staffRole = normalizeStaffRole(readStoredUser());
-  const readOnly = staffRole === "support";
-  const isSuperAdmin = staffRole === "super_admin";
+  const canExport = can("transactions.export");
+  const canReconcile = can("transactions.reconcile");
+  const canResolve = can("transactions.resolve");
   const [exportVisible, setExportVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -399,7 +399,7 @@ function TransactionsTable() {
           >
             Filter
           </Button>
-          {!readOnly && <>
+          {canExport && <>
             <Button icon={<FiDownload />} onClick={() => setExportVisible(true)}>
               Export
             </Button>
@@ -492,7 +492,7 @@ function TransactionsTable() {
               <h4 className="font-medium text-gray-500">Status</h4>
               <p>{getStatusBadge(selectedTransaction.status)}</p>
             </div>
-            {!readOnly && isOpenWithdrawal && (
+            {(canReconcile || canResolve) && isOpenWithdrawal && (
               <div className="border-t pt-4 space-y-3">
                 <Alert
                   type="warning"
@@ -500,14 +500,16 @@ function TransactionsTable() {
                   message="Funds remain reserved while the payout is unresolved"
                   description="Recheck Mamlaka first. Never refund based only on elapsed time."
                 />
-                <Button
-                  block
-                  loading={providerCheck.isPending}
-                  onClick={checkProvider}
-                >
-                  Recheck Mamlaka Status
-                </Button>
-                {isSuperAdmin && (
+                {canReconcile && (
+                  <Button
+                    block
+                    loading={providerCheck.isPending}
+                    onClick={checkProvider}
+                  >
+                    Recheck Mamlaka Status
+                  </Button>
+                )}
+                {canResolve && (
                   <div className="space-y-3 border-t pt-3">
                     <Text strong>Emergency manual override</Text>
                     <Input

@@ -2,16 +2,11 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, Form, Input, Modal, Select, Table, Tag, message } from "antd";
 import { FiKey, FiPlus, FiRefreshCw } from "react-icons/fi";
-import { createStaff, listStaff, sendStaffPasswordReset, updateStaff } from "../services/staffService";
-import { readStoredUser } from "../utils/authSession";
+import { createStaff, listRoles, listStaff, sendStaffPasswordReset, updateStaff } from "../services/staffService";
+import { Link } from "react-router-dom";
+import { ROLE_LABELS, readStoredUser } from "../utils/authSession";
 
 const KENYAN_PHONE_PATTERN = /^(?:\+?254|0)?[71]\d{8}$/;
-
-const roleLabels = {
-  support: "Support",
-  admin: "Admin",
-  super_admin: "Super Admin",
-};
 
 function StaffManagement() {
   const currentUser = readStoredUser();
@@ -22,6 +17,11 @@ function StaffManagement() {
     queryKey: ["staff", page, pageSize],
     queryFn: () => listStaff(page, pageSize),
   });
+  const rolesQuery = useQuery({ queryKey: ["staff-roles"], queryFn: listRoles });
+  // Roles come from the API so custom roles appear here as soon as they are created.
+  const roleOptions = (rolesQuery.data?.roles || []).map((role) => ({ value: role.key, label: role.name }));
+  const roleName = (key) =>
+    rolesQuery.data?.roles?.find((role) => role.key === key)?.name || ROLE_LABELS[key] || key;
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["staff"] });
   const updateMutation = useMutation({ mutationFn: ({ id, changes }) => updateStaff(id, changes) });
   const resetMutation = useMutation({ mutationFn: sendStaffPasswordReset });
@@ -95,8 +95,9 @@ function StaffManagement() {
           value={role}
           className="min-w-36"
           disabled={staff._id === currentUser?._id}
-          options={Object.entries(roleLabels).map(([value, label]) => ({ value, label }))}
-          onChange={(adminLevel) => confirmUpdate(staff, { adminLevel }, `Change role to ${roleLabels[adminLevel]}?`)}
+          loading={rolesQuery.isLoading}
+          options={roleOptions.length ? roleOptions : [{ value: role, label: roleName(role) }]}
+          onChange={(adminLevel) => confirmUpdate(staff, { adminLevel }, `Change role to ${roleName(adminLevel)}?`)}
         />
       ),
     },
@@ -151,7 +152,10 @@ function StaffManagement() {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Staff Management</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Manage access, roles, and password recovery.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Manage access, roles, and password recovery. Set what each role can do on the{" "}
+              <Link to="/roles" className="font-medium text-amber-600 hover:underline">Roles page</Link>.
+            </p>
           </div>
           <div className="flex gap-2">
             <Button type="primary" icon={<FiPlus />} onClick={openAddModal}>Add Staff</Button>
@@ -228,7 +232,8 @@ function StaffManagement() {
             rules={[{ required: true, message: "Select a role" }]}
           >
             <Select
-              options={Object.entries(roleLabels).map(([value, label]) => ({ value, label }))}
+              loading={rolesQuery.isLoading}
+              options={roleOptions}
             />
           </Form.Item>
         </Form>

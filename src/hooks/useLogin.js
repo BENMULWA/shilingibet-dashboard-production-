@@ -3,6 +3,7 @@ import { login, resendStaffLoginCode, verifyStaffLogin } from "../services/AuthS
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import {
+  homePathFor,
   isValidStaffSession,
   normalizeStaffRole,
 } from "../utils/authSession";
@@ -33,7 +34,7 @@ export function useLogin() {
     dispatch({ type: "createAccount", payload: userWithRole });
     queryClient.setQueryData(["user"], userWithRole);
     toast.success("Login successful");
-    navigate(userRole === "support" ? "/agent/support" : "/dashboard");
+    navigate(homePathFor(userWithRole));
   };
 
   const loginMutation = useMutation({

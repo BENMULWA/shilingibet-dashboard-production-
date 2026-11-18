@@ -23,6 +23,7 @@ import {
 } from "../hooks/useFreeBets";
 import FreeBetAwardPlayers from "../components/FreeBetAwardPlayers";
 import FreeBetAwardHistory from "../components/FreeBetAwardHistory";
+import { can } from "../utils/authSession";
 
 const formatDate = (value) => value
   ? new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value))
@@ -137,6 +138,7 @@ function CampaignForm({ open, onClose }) {
 }
 
 export default function FreeBets() {
+  const canManage = can("freebets.manage");
   const [createOpen, setCreateOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("campaigns");
   const [filters, setFilters] = useState({ page: 1, perPage: 20, status: "", gameUuid: "" });
@@ -171,7 +173,7 @@ export default function FreeBets() {
     { title: "Status", dataIndex: "status", key: "status", render: (status) => (
       <Tag color={Number(status) === 1 ? "green" : "default"}>{Number(status) === 1 ? "Active" : "Inactive"}</Tag>
     ) },
-    { title: "Action", key: "action", render: (_, row) => (
+    canManage && { title: "Action", key: "action", render: (_, row) => (
       <Button
         size="small"
         danger={Number(row.status) === 1}
@@ -181,7 +183,7 @@ export default function FreeBets() {
         {Number(row.status) === 1 ? "Deactivate" : "Activate"}
       </Button>
     ) },
-  ];
+  ].filter(Boolean);
 
   return (
     <div className="space-y-4">
@@ -194,9 +196,11 @@ export default function FreeBets() {
           <Button icon={<FiRefreshCw />} onClick={() => campaignsQuery.refetch()} loading={campaignsQuery.isFetching}>
             Refresh
           </Button>
-          <Button type="primary" icon={<FiPlus />} onClick={() => setCreateOpen(true)}>
-            Create campaign
-          </Button>
+          {canManage && (
+            <Button type="primary" icon={<FiPlus />} onClick={() => setCreateOpen(true)}>
+              Create campaign
+            </Button>
+          )}
         </Space>
       </div>
 
@@ -247,8 +251,8 @@ export default function FreeBets() {
                 />
               </>
             ) },
-            { key: "players", label: "Award Players", children: <FreeBetAwardPlayers /> },
-            { key: "history", label: "Award History", children: <FreeBetAwardHistory /> },
+            ...(canManage ? [{ key: "players", label: "Award Players", children: <FreeBetAwardPlayers /> }] : []),
+            { key: "history", label: "Award History", children: <FreeBetAwardHistory canManage={canManage} /> },
           ]}
         />
       </Card>

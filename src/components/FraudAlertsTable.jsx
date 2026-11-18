@@ -19,6 +19,7 @@ import {
 import { useFormatCurrency } from "../hooks/useFormatCurrency";
 import UserRiskProfileModal from "./UserRiskProfileModal";
 import toast from "react-hot-toast";
+import { can } from "../utils/authSession";
 
 function FraudAlertsTable() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,6 +28,7 @@ function FraudAlertsTable() {
   const [copiedText, setCopiedText] = useState(null);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const canResolve = can("fraud.resolve");
   const [resolveModalOpen, setResolveModalOpen] = useState(false);
   const [resolutionStatus, setResolutionStatus] = useState("resolved_legitimate");
   const [userProfileModalOpen, setUserProfileModalOpen] = useState(false);
@@ -342,7 +344,7 @@ function FraudAlertsTable() {
                 <FiEye size={16} />
               </button>
             </Tooltip>
-            {record.status === "open" && (
+            {record.status === "open" && canResolve && (
               <button
                 onClick={() => handleResolve(record)}
                 className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm hover:shadow"
@@ -355,7 +357,7 @@ function FraudAlertsTable() {
         ),
       },
     ],
-    [formatCurrency, formatShortDate, getTypeBadge, getRiskLevelBadge, getStatusBadge, handleCopy, copiedText, showDetails, handleResolve, handleViewUserProfile]
+    [formatCurrency, formatShortDate, getTypeBadge, getRiskLevelBadge, getStatusBadge, handleCopy, copiedText, showDetails, handleResolve, handleViewUserProfile, canResolve]
   );
 
   if (error) {
@@ -543,7 +545,7 @@ function FraudAlertsTable() {
                     <FiEye size={14} />
                     Details
                   </button>
-                  {alert.status === "open" && (
+                  {alert.status === "open" && canResolve && (
                     <button
                       onClick={() => handleResolve(alert)}
                       className="flex-1 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow"
@@ -643,7 +645,7 @@ function FraudAlertsTable() {
           <Button key="close" onClick={() => setDetailsModalOpen(false)} size="middle" className="sm:!h-10">
             Close
           </Button>,
-          selectedAlert?.status === "open" && (
+          selectedAlert?.status === "open" && canResolve && (
             <Button
               key="resolve"
               type="primary"

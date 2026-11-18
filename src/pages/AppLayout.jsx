@@ -1,18 +1,19 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
+import { readStoredUser, usesAgentConsole } from "../utils/authSession";
 
 function AppLayout() {
   const user = readStoredUser();
   const location = useLocation();
   if (!user) return <Navigate to="/login" replace />;
-  const supportReadPaths = ["/users", "/bets", "/transactions"];
-  const supportReadPath = supportReadPaths.find(
-    (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
-  );
-  if (normalizeStaffRole(user) === "support") {
+  // Chat-only roles (like Support) work from the agent console.
+  if (usesAgentConsole(user)) {
+    const agentPaths = ["/users", "/bets", "/transactions"];
+    const agentPath = agentPaths.find(
+      (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
+    );
     return (
       <Navigate
-        to={supportReadPath ? `/agent${location.pathname}` : "/agent/support"}
+        to={agentPath ? `/agent${location.pathname}` : "/agent/support"}
         replace
       />
     );

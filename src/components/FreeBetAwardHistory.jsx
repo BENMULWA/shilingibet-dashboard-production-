@@ -22,7 +22,7 @@ const formatDate = (value) => value
   ? new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value))
   : "—";
 
-export default function FreeBetAwardHistory() {
+export default function FreeBetAwardHistory({ canManage = false }) {
   const [filters, setFilters] = useState({ page: 1, perPage: 20, campaignId: "", playerId: "", status: "" });
   const [playerSearch, setPlayerSearch] = useState("");
   const [revokeTarget, setRevokeTarget] = useState(null);
@@ -74,7 +74,7 @@ export default function FreeBetAwardHistory() {
       title: "Action",
       key: "action",
       fixed: "right",
-      render: (_, award) => Number(award.status) === 1 ? (
+      render: (_, award) => canManage && Number(award.status) === 1 ? (
         <Button danger size="small" onClick={() => setRevokeTarget(award)}>Revoke</Button>
       ) : "—",
     },

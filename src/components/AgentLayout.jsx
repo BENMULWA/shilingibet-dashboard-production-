@@ -9,7 +9,7 @@ import {
   HiOutlineUsers,
 } from "react-icons/hi2";
 import { useAuthState } from "../context/AuthContext";
-import { normalizeStaffRole } from "../utils/authSession";
+import { canUser, homePathFor, usesAgentConsole } from "../utils/authSession";
 import { Modal, Switch } from "antd";
 import {
   disconnectSocket,
@@ -23,9 +23,9 @@ import Wordmark from "./Wordmark";
 
 const AGENT_NAV = [
   { to: "/agent/support", text: "Support Chat", title: "Support Chat", icon: HiOutlineChatBubbleLeftRight },
-  { to: "/agent/users", text: "Players", title: "Players (read only)", icon: HiOutlineUsers },
-  { to: "/agent/bets", text: "Bets", title: "Bets (read only)", icon: HiOutlineCube },
-  { to: "/agent/transactions", text: "Transactions", title: "Transactions (read only)", icon: HiOutlineBanknotes },
+  { to: "/agent/users", text: "Players", title: "Players", icon: HiOutlineUsers, need: "players.view" },
+  { to: "/agent/bets", text: "Bets", title: "Bets", icon: HiOutlineCube, need: "bets.view" },
+  { to: "/agent/transactions", text: "Transactions", title: "Transactions", icon: HiOutlineBanknotes, need: "transactions.view" },
 ];
 
 function AgentLayout() {
@@ -105,10 +105,10 @@ function AgentLayout() {
 
         {/* Agent tools */}
         <nav aria-label="Support navigation" className="flex-1 py-4 px-3 flex flex-col gap-2">
-          {(normalizeStaffRole(user) === "support"
+          {(usesAgentConsole(user)
             ? AGENT_NAV
-            : [{ to: "/dashboard", text: "Back office", title: "Back to the back office", icon: HiOutlineHome }, ...AGENT_NAV]
-          ).map((item) => (
+            : [{ to: homePathFor(user), text: "Back office", title: "Back to the back office", icon: HiOutlineHome }, ...AGENT_NAV]
+          ).filter((item) => !item.need || canUser(user, item.need)).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

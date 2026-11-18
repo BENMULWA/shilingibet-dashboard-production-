@@ -12,7 +12,7 @@ import {
   useCreditUserWallet,
   useSettleEvent,
 } from "../hooks/useAdminTools";
-import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
+import { can, isSuperAdmin as isSuperAdminUser } from "../utils/authSession";
 
 const DEFAULT_SELECTIONS = JSON.stringify(
   [
@@ -53,7 +53,11 @@ const inputClassName =
   "p-2 w-full text-gray-700 border border-gray-400 rounded";
 
 const Settings = () => {
-  const isSuperAdmin = normalizeStaffRole(readStoredUser()) === "super_admin";
+  const isSuperAdmin = isSuperAdminUser();
+  const canSeeTreasury = can("treasury.view");
+  const canAllocate = can("treasury.allocate");
+  const canCredit = can("players.credit");
+  const canManageEvents = can("events.manage");
 
   const [secondaryWalletAmount, setSecondaryWalletAmount] = useState("");
   const [creditUserId, setCreditUserId] = useState("");
@@ -77,7 +81,7 @@ const Settings = () => {
     transferSecondaryWalletFn,
     isLoading: transferSecondaryWalletLoading,
   } = useTransferSecondaryWallet();
-  const { secondaryWalletBalance } = useGetSecondaryWallet();
+  const { secondaryWalletBalance } = useGetSecondaryWallet(canSeeTreasury);
   const { creditUserWalletFn, isLoading: isCreditingWallet } =
     useCreditUserWallet();
   const { createEventFn, isLoading: isCreatingEvent } = useCreateEvent();
@@ -245,6 +249,7 @@ const Settings = () => {
 
   return (
     <div className="lg:p-6 p-2 bg-gray-50 rounded-lg">
+      {canSeeTreasury && (
       <div className="flex flex-wrap gap-6 mt-8">
         <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow w-full">
           <h3 className="text-xl text-gray-600 font-semibold">
@@ -275,16 +280,16 @@ const Settings = () => {
                   onChange={(e) => setSecondaryWalletAmount(e.target.value)}
                   className={`${inputClassName} max-w-full md:max-w-[30rem]`}
                   placeholder="Amount to allocate"
-                  disabled={!isSuperAdmin}
+                  disabled={!canAllocate}
                 />
                 <button
                   onClick={handleTransferSecondaryWallet}
                   type="button"
                   className="p-2 text-black rounded !bg-[#ffc107]"
-                  disabled={!isSuperAdmin || transferSecondaryWalletLoading}
+                  disabled={!canAllocate || transferSecondaryWalletLoading}
                 >
-                  {!isSuperAdmin
-                    ? "Superadmin required"
+                  {!canAllocate
+                    ? "Your role cannot fund the treasury"
                     : transferSecondaryWalletLoading
                       ? "Funding..."
                       : "Fund treasury"}
@@ -294,14 +299,19 @@ const Settings = () => {
           </div>
         </div>
       </div>
+      )}
 
       {isSuperAdmin && (
         <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow w-full mt-6">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">Staff accounts</h3>
           <p className="text-sm text-gray-400">
-            Add admins and support agents, change roles and reset passwords on the{" "}
+            Add staff, change their roles and reset passwords on the{" "}
             <Link to="/staff" className="font-medium text-amber-600 hover:underline">
               Staff page
+            </Link>
+            . Choose what each role can do on the{" "}
+            <Link to="/roles" className="font-medium text-amber-600 hover:underline">
+              Roles page
             </Link>
             .
           </p>
@@ -309,6 +319,7 @@ const Settings = () => {
       )}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+        {canCredit && (
         <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
             Manual Wallet Credit
@@ -341,6 +352,9 @@ const Settings = () => {
             </button>
           </div>
         </div>
+        )}
+
+        {canManageEvents && <>
 
         <div className="bg-white dark:bg-slate-800 p-6 rounded-md shadow">
           <h3 className="text-xl text-gray-600 font-semibold mb-1">
@@ -580,6 +594,7 @@ const Settings = () => {
             </button>
           </div>
         </div>
+        </>}
       </div>
     </div>
   );

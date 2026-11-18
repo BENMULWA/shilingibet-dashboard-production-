@@ -9,10 +9,11 @@ import { useGetUserByPhone } from "../hooks/useGetUserByPhone";
 import UsersExportModal from "./Modals/user/UsersExportModal";
 import UsersFilterModal from "./Modals/user/UsersFilterModal";
 import { useFormatCurrency } from "../hooks/useFormatCurrency";
-import { normalizeStaffRole, readStoredUser } from "../utils/authSession";
+import { can } from "../utils/authSession";
 
 function UsersTable() {
-  const readOnly = normalizeStaffRole(readStoredUser()) === "support";
+  const readOnly = !can("players.edit");
+  const canExport = can("players.export");
   const [exportVisible, setExportVisible] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete] = useState(null);
@@ -401,7 +402,7 @@ function UsersTable() {
                 )}
               </Button>
 
-              {!readOnly && (
+              {canExport && (
                 <Button
                   type="primary"
                   icon={<FiDownload size={14} />}
@@ -474,7 +475,7 @@ function UsersTable() {
         }
       />
 
-      {!readOnly && (
+      {canExport && (
         <UsersExportModal
           open={exportVisible}
           onCancel={() => setExportVisible(false)}

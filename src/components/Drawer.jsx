@@ -23,6 +23,7 @@ import DeleteModal from "./DeleteAccountModal";
 import { useFormatCurrency } from "../hooks/useFormatCurrency";
 import toast from "react-hot-toast";
 import { Modal } from "antd";
+import { can } from "../utils/authSession";
 
 // Custom Toggle Switch Component
 function Toggle({ checked, onChange, loading, disabled }) {
@@ -54,6 +55,7 @@ function Toggle({ checked, onChange, loading, disabled }) {
 }
 
 function MyDrawer({ open, onClose, user, readOnly = false }) {
+  const canDelete = can("players.delete");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const { formatCurrency } = useFormatCurrency();
@@ -480,6 +482,7 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
                 </button>
               </div>
 
+              {canDelete && <>
               <div className="h-px bg-red-100" />
 
               {/* Delete Account */}
@@ -500,6 +503,7 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
                   Delete
                 </button>
               </div>
+              </>}
             </div>
           </div>
           </>}
@@ -515,7 +519,7 @@ function MyDrawer({ open, onClose, user, readOnly = false }) {
           </button>
         </div>
 
-        {!readOnly && (
+        {!readOnly && canDelete && (
           <DeleteModal
             open={isModalOpen}
             onCancel={handleCancel}

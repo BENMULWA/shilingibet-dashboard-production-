@@ -6,6 +6,7 @@ import {
   tokenExpiresAt,
 } from "../utils/authSession";
 import { disconnectSocket } from "../services/socketService";
+import { fetchAPI } from "../utils/fetchRequest";
 
 const ACTIVITY_EVENTS = ["mousedown", "keydown", "touchstart", "scroll"];
 
@@ -97,6 +98,49 @@ function AuthProvider({ children }) {
       clearTimeout(expiryTimer);
       clearTimeout(idleTimer);
       ACTIVITY_EVENTS.forEach((event) => window.removeEventListener(event, resetIdle));
+    };
+  }, [user?.token, logout]);
+
+  // Pick up role changes made by a super admin since this session started,
+  // so staff don't have to sign out and back in to see them.
+  useEffect(() => {
+    if (!user?.token) return undefined;
+    let cancelled = false;
+
+    fetchAPI("users/me", "GET", null, user.token)
+      .then((response) => {
+        const fresh = response?.data;
+        if (cancelled || !fresh) return;
+        const stored = readStoredUser();
+        if (!stored) return;
+
+        if (!fresh.isStaff || !fresh.adminLevel || fresh.status === "suspended") {
+          logout();
+          window.location.assign("/login");
+          return;
+        }
+
+        const changed =
+          fresh.adminLevel !== stored.adminLevel ||
+          JSON.stringify(fresh.permissions || []) !== JSON.stringify(stored.permissions || []);
+        if (!changed) return;
+
+        const updated = {
+          ...stored,
+          adminLevel: fresh.adminLevel,
+          loginRole: fresh.adminLevel,
+          permissions: fresh.permissions || [],
+        };
+        sessionStorage.setItem("user", JSON.stringify(updated));
+        dispatch({ type: "currUser", payload: updated });
+      })
+      .catch(() => {
+        // Network trouble: keep the permissions from sign-in. The API still
+        // enforces the current ones on every request.
+      });
+
+    return () => {
+      cancelled = true;
     };
   }, [user?.token, logout]);
 
