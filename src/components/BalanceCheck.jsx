@@ -88,20 +88,35 @@ export default function BalanceCheck({ userId, onApproved }) {
               Review & approve balance
             </button>
           )}
+          {/* Balance is explained (e.g. after an approval) but the check paused withdrawals earlier.
+              Uses the same audited, SMS-notified review action, which also works on your own account. */}
+          {!data.anomalous && data.withdrawalPaused && superAdmin && (
+            <>
+              <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">Withdrawals are still paused on this account.</p>
+              <button type="button" onClick={() => setOpen(true)}
+                className="mt-2 w-full rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+                Re-enable withdrawals
+              </button>
+            </>
+          )}
         </div>
       )}
 
       <Modal
-        title="Approve this balance?"
+        title={data?.anomalous ? "Approve this balance?" : "Re-enable withdrawals?"}
         open={open}
         onCancel={() => setOpen(false)}
         onOk={approve}
-        okText={`Approve ${data ? kes(data.excess) : ""}`}
+        okText={data?.anomalous ? `Approve ${kes(data.excess)}` : "Re-enable withdrawals"}
         okButtonProps={{ danger: true, disabled: reason.trim().length < 10, loading: saving }}
       >
         <p className="mb-2 text-sm">
-          You are confirming that <b>{data && kes(data.excess)}</b> on this account is legitimate even though no deposit, win or recorded credit explains it.
-          Withdrawals will be re-enabled. This is permanent, recorded in the audit log and sent by SMS to the alert numbers.
+          {data?.anomalous ? (
+            <>You are confirming that <b>{kes(data.excess)}</b> on this account is legitimate even though no deposit, win or recorded credit explains it. Withdrawals will be re-enabled.</>
+          ) : (
+            <>This account's balance is explained by its history. Withdrawals will be re-enabled.</>
+          )}{" "}
+          This is recorded in the audit log and sent by SMS to the alert numbers.
         </p>
         <Input.TextArea rows={3} maxLength={500} placeholder="Why is this money legitimate? e.g. old staff test credits from before credits were recorded"
           value={reason} onChange={(e) => setReason(e.target.value)} />
