@@ -43,7 +43,11 @@ export default function SmsBatchDetails({ batchId, open, onClose, onChanged }) {
     setRefreshing(true);
     try {
       const result = await refreshBatchDelivery(batchId);
-      toast.success(`Checked ${result.data.checked} message(s) with the network`);
+      toast.success(
+        result.data.checked
+          ? `Checked ${result.data.checked} message(s) with the network`
+          : "Nothing waiting: every message already has a final delivery status"
+      );
       await load();
       onChanged?.();
     } catch (error) {

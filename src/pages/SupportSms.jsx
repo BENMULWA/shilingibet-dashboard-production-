@@ -3,6 +3,7 @@ import { Alert, Button, Card, Input, Select, Space, Statistic, Table, Tag } from
 import { ReloadOutlined, SendOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import SmsBatchDetails from "../components/SmsBatchDetails";
+import { fetchAPI } from "../utils/fetchRequest";
 import {
   getSmsBatches,
   getSmsContacts,
@@ -34,6 +35,27 @@ function SupportSms() {
   const [stats, setStats] = useState({});
   const [error, setError] = useState("");
   const [openBatchId, setOpenBatchId] = useState(null);
+  const [loadingPlayers, setLoadingPlayers] = useState(false);
+
+  // Fills Recipients with every player who can receive SMS (active, phone verified, not staff),
+  // straight from the main API. Merges with any numbers already in the box.
+  const loadAllPlayers = async (includeUnverified = false) => {
+    setLoadingPlayers(true);
+    try {
+      const token = JSON.parse(sessionStorage.getItem("user") || "null")?.token;
+      const res = await fetchAPI(`admin/exports/sms-recipients?includeUnverified=${includeUnverified}`, "GET", null, token);
+      const phones = res?.data?.phones || [];
+      setRecipientsText((current) => {
+        const existing = current.split(/[\s,;]+/).filter(Boolean);
+        return [...new Set([...existing, ...phones])].join("\n");
+      });
+      toast.success(`Added ${phones.length} player numbers${includeUnverified ? " (including unverified)" : ""}`);
+    } catch (e) {
+      toast.error(e.message || "Could not load player numbers");
+    } finally {
+      setLoadingPlayers(false);
+    }
+  };
 
   const recipients = useMemo(() => {
     const normalized = recipientsText
@@ -211,7 +233,18 @@ function SupportSms() {
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Recipients</label>
+              <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Recipients</label>
+                <Space wrap>
+                  <Button size="small" type="primary" loading={loadingPlayers} onClick={() => loadAllPlayers(false)}>
+                    Load all players
+                  </Button>
+                  <Button size="small" loading={loadingPlayers} onClick={() => loadAllPlayers(true)}>
+                    + unverified numbers
+                  </Button>
+                  {recipientsText && <Button size="small" onClick={() => setRecipientsText("")}>Clear</Button>}
+                </Space>
+              </div>
               <TextArea
                 rows={5}
                 value={recipientsText}
