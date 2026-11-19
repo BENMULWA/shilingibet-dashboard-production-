@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, Button, Card, Input, Select, Space, Statistic, Table, Tag } from "antd";
 import { ReloadOutlined, SendOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
+import SmsBatchDetails from "../components/SmsBatchDetails";
 import {
   getSmsBatches,
   getSmsContacts,
@@ -32,6 +33,7 @@ function SupportSms() {
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [stats, setStats] = useState({});
   const [error, setError] = useState("");
+  const [openBatchId, setOpenBatchId] = useState(null);
 
   const recipients = useMemo(() => {
     const normalized = recipientsText
@@ -147,8 +149,23 @@ function SupportSms() {
     },
     { title: "Sender", dataIndex: "sender_id" },
     { title: "Recipients", dataIndex: "total_recipients" },
-    { title: "Sent", dataIndex: "sent_count" },
+    { title: "Accepted", dataIndex: "sent_count" },
     { title: "Failed", dataIndex: "failed_count" },
+    {
+      title: "Delivered",
+      render: (_, batch) => {
+        const d = batch.delivery || {};
+        const tracked = (d.delivered || 0) + (d.waiting || 0) + (d.undelivered || 0);
+        if (!tracked) return <span className="text-slate-400">Not tracked</span>;
+        return (
+          <span className="whitespace-nowrap">
+            <b className="text-emerald-700">{d.delivered || 0}</b>
+            {d.waiting ? <span className="text-amber-600"> · {d.waiting} waiting</span> : null}
+            {d.undelivered ? <span className="text-red-600"> · {d.undelivered} not delivered</span> : null}
+          </span>
+        );
+      },
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -157,6 +174,10 @@ function SupportSms() {
           {value}
         </Tag>
       ),
+    },
+    {
+      title: "",
+      render: (_, batch) => <Button size="small" onClick={() => setOpenBatchId(batch.id)}>View</Button>,
     },
   ];
 
@@ -267,9 +288,15 @@ function SupportSms() {
             dataSource={batches}
             loading={loadingHistory}
             pagination={false}
-            scroll={{ x: 720 }}
+            scroll={{ x: 900 }}
           />
         </Card>
+        <SmsBatchDetails
+          batchId={openBatchId}
+          open={Boolean(openBatchId)}
+          onClose={() => setOpenBatchId(null)}
+          onChanged={loadHistory}
+        />
       </div>
     </div>
   );

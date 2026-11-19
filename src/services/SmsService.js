@@ -40,3 +40,7 @@ export const getSmsStats = () => smsRequest("/api/sms/stats");
 export const getSmsProviders = () => smsRequest("/api/sms/providers");
 export const getSmsBatches = () => smsRequest("/api/sms/batches?limit=20");
 export const getSmsContacts = () => smsRequest("/api/sms/contacts?limit=500");
+
+export const getSmsBatchDetails = (id) => smsRequest(`/api/sms/batches/${id}`);
+export const refreshBatchDelivery = (id) =>
+  smsRequest(`/api/sms/batches/${id}/refresh-delivery`, { method: "POST" });
