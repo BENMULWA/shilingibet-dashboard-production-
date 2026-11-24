@@ -16,6 +16,7 @@ import {
 } from "react-icons/fi";
 import {
   HiOutlineBanknotes,
+  HiOutlineShieldCheck,
   HiOutlineChatBubbleLeftRight,
   HiOutlineCog6Tooth,
   HiOutlineCube,
@@ -41,6 +42,7 @@ const NAV_SECTIONS = [
     items: [
       { text: "Dashboard", to: "/dashboard", icon: HiOutlineHome, need: ["dashboard.view"] },
       { text: "Finance", to: "/finance", icon: HiOutlineBanknotes, need: ["finance.view", "treasury.view"] },
+      { text: "Gateway Monitor", to: "/gateway-monitor", icon: HiOutlineShieldCheck, need: ["treasury.view"] },
       { text: "Support Console", to: "/agent/support", icon: FiBell, show: usesAgentConsole },
       { text: "Live Chat", to: "/agent/support", icon: HiOutlineChatBubbleLeftRight, show: (user) => !usesAgentConsole(user) && canUser(user, "chat.agent") },
     ],
@@ -86,6 +88,7 @@ const PAGE_TITLES = [
   ["/bets", "Bets"],
   ["/transactions", "Transactions"],
   ["/finance", "Finance"],
+  ["/gateway-monitor", "Gateway Monitor"],
   ["/sms", "Bulk SMS"],
   ["/announcements", "Announcements"],
   ["/cashback", "Cashbacks"],

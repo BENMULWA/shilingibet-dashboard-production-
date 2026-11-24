@@ -21,6 +21,7 @@ const Users = lazy(() => import("./pages/Users"));
 const Bets = lazy(() => import("./pages/Bets"));
 const Transactions = lazy(() => import("./pages/Transactions"));
 const Finance = lazy(() => import("./pages/Finance"));
+const GatewayMonitor = lazy(() => import("./pages/GatewayMonitor"));
 const Settings = lazy(() => import("./pages/Settings"));
 const SupportSms = lazy(() => import("./pages/SupportSms"));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
@@ -173,6 +174,9 @@ function AppRoutes() {
                   </Route>
                   <Route element={<RoleRoute need={["finance.view", "treasury.view"]} />}>
                     <Route path="finance" element={<Finance />} />
+                  </Route>
+                  <Route element={<RoleRoute need={["treasury.view"]} />}>
+                    <Route path="gateway-monitor" element={<GatewayMonitor />} />
                   </Route>
                   <Route element={<RoleRoute need={["sms.send"]} />}>
                     <Route path="sms" element={<SupportSms />} />
